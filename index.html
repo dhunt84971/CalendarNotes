@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>Calendar Notes</title>
+	<link rel="stylesheet" href="calendar.css" />
+</head>
+<body>
+
+	<!-- #region CALENDAR -->
+	<div id="cal">
+		<div class="header">
+			<span class="left button" id="prev"> &lang; </span>
+			<!--<span class="left hook"></span> -->
+			<span class="month-year" id="label"> June 2010 </span>
+			<!--<span class="right hook" id=""></span> -->
+			<span class="right now" id="next"> &rang; </span>
+			<span class="right button" id="btnNow"> &rang; &rang; </span>
+		</div>
+		<table id="days">
+			<tr>
+				<td>sun</td>
+				<td>mon</td>
+				<td>tue</td>
+				<td>wed</td>
+				<td>thu</td>
+				<td>fri</td>
+				<td>sat</td>
+			</tr>
+		</table>
+		<div id="cal-frame">
+			<table class="curr">
+				<tr><td class="nil"></td><td class="nil"></td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td></tr>
+				<tr><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><td class="today">11</td><td>12</td></tr>
+				<tr><td>13</td><td>14</td><td>15</td><td>16</td><td>17</td><td>18</td><td>19</td></tr>
+				<tr><td>20</td><td>21</td><td>22</td><td>23</td><td>24</td><td>25</td><td>26</td></tr>
+				<tr><td>27</td><td>28</td><td>29</td><td>30</td><td class="nil"></td><td class="nil"></td><td class="nil"></td></tr>
+			</table>
+		</div>
+	</div>
+	<!-- #endregion CALENDAR -->
+
+	<!-- #region NOTES AND TASKS BOXES -->
+    <div class="notes">
+		<div class="notesHeader">NOTES</div>
+		<div class="settingsIcon"><img id="btnSettings" src="settingsIconWht.png" width="23px" height="auto"></div>
+        <div class="txtNotesArea"><textarea id="txtNotes"></textarea></div>
+        <div class="saveButton btn" id="btnSave"> SAVE </div>
+        <div class="revertButton btn" id="btnRevert">REVERT</div>
+    </div>
+    <div class="taskSearch">
+        <div class="tasksButton btn" id="btnTasks">TASKS</div>
+        <div class="searchButton btn" id="btnSearch">SEARCH</div>
+    </div>
+    <div class="tasks">
+        <div class="tasksHeader">TASKS</div>
+        <div class="txtTasksArea"><textarea id="txtTasks"></textarea></div>div>
+	</div>
+	<div class="search">
+        <div class="searchHeader">SEARCH</div>
+		<span class="txtSearchArea"><input id="txtSearch"></span>
+		<span class="btn" id="btnGo">GO</span>
+		<div class="searchList" id="lstSearch"></div>
+    </div>
+	<!-- #endregion NOTES AND TASKS BOXES -->
+	
+	<!-- #region SETTINGS BOX -->
+    <div class="settingsBox">
+		<div class="header">DATABASE SETTINGS</div>
+		<div class="dbSettingsBox">
+			<table>
+				<tr><td class="entryLabel">HOST</td>
+					<td><input class="entryField" id="txtHost"></td>
+				</tr>
+				<tr><td class="entryLabel">PORT</td>
+					<td><input class="entryField" id="txtPort"></td>
+				</tr>
+				<tr><td class="entryLabel">DATABASE</td>
+					<td><input class="entryField" id="txtDatabase"></td>
+				</tr>
+				<tr><td class="entryLabel">USERNAME</td>
+					<td><input class="entryField" id="txtUsername"></td>
+				</tr>
+				<tr><td class="entryLabel">PASSWORD</td>
+					<td><input class="entryField" id="txtPassword" type="password"></td>
+				</tr>
+				<tr height="10px"></tr>
+				<tr><td ><div class="btn" id="btnTestConnection">TEST CONNECTION</div></td>
+					<td><div class="btn" id="btnCreateTables">CREATE TABLES</div></td>
+				</tr>
+				
+			</table>
+
+		</div>
+		<div class="settingsClose btn" id="btnSettingsClose" title="Changes are saved on close.">CLOSE</div>
+	</div>
+	<!-- #endregion SETTINGS BOX -->
+	
+	<!-- #region SEARCH RESULT PREVIEW BOX-->
+    <div class="searchPreview" id="txtSearchPreview">
+
+	</div>
+    <!-- #endregion SEARCH RESULT PREVIEW BOX-->
+    
+</body>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+<script src="calendar.js"></script>
+<script>
+var cal = CALENDAR();
+
+cal.init();
+</script>
+</body>
+</html>

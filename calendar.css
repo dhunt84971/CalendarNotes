@@ -5,6 +5,7 @@ body {
 
 textarea {
     resize: none;
+    font: 13px/1.5 "Helvetica Neue", Helvetica, Arial, san-serif;
 }
 
 .btn {

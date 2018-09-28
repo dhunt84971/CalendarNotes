@@ -419,6 +419,7 @@ function getNow() {
 }
 
 function twoDigits(d) {
+    if(d.length>=2) return d;
     if(0 <= d && d < 10) return "0" + d.toString();
     if(-10 < d && d < 0) return "-0" + (-1*d).toString();
     return d.toString();
@@ -493,15 +494,15 @@ function searchNotes(srchText){
 function searchSelected() {
     document.querySelector(".search").style.display = "block";
     document.querySelector(".tasks").style.display = "none";
-    document.getElementById("btnTasks").style.backgroundColor = "#fff";
-    document.getElementById("btnSearch").style.backgroundColor = "yellow";
+    document.getElementById("btnTasks").classList.remove("btnSelected");
+    document.getElementById("btnSearch").classList.add("btnSelected");
 }
 
 function tasksSelected() {
     document.querySelector(".tasks").style.display = "block";
     document.querySelector(".search").style.display = "none";
-    document.getElementById("btnTasks").style.backgroundColor = "yellow";
-    document.getElementById("btnSearch").style.backgroundColor = "#fff";
+    document.getElementById("btnTasks").classList.add("btnSelected");
+    document.getElementById("btnSearch").classList.remove("btnSelected");
 }
 
 function addSearchResultItem(srchDate){
@@ -702,7 +703,7 @@ function dateSelected(dayNum){
         dayNum = twoDigits(selDate[2]);
     }
 
-    //dayNum = twoDigits(dayNum);
+    dayNum = twoDigits(dayNum);
     console.log('dateSelected called with day = ' + dayNum);
     var dayClicked = document.getElementById('day' + dayNum);
     dayClicked.style.background = '#cd310d';

@@ -448,7 +448,7 @@ function createSQLTable(dbConnection, query, callback){
 
 // #region SEARCH CODE
 
-function searchNotes(srchText){
+function searchNotes(srchText, callback){
     var sqlCommand, searchWords, word, where, first, noteDate;
     
     // Build the where clause from the individual search words.
@@ -489,6 +489,8 @@ function searchNotes(srchText){
     });
 
     connection.end();
+
+    if (callback) callback();
 }
 
 function searchSelected() {
@@ -503,6 +505,12 @@ function tasksSelected() {
     document.querySelector(".search").style.display = "none";
     document.getElementById("btnTasks").classList.add("btnSelected");
     document.getElementById("btnSearch").classList.remove("btnSelected");
+}
+
+function clearSearchResults(callback) {
+    var listResults = document.getElementById("lstSearch");
+    listResults.innerHTML = "";
+    if (callback) callbakc();
 }
 
 function addSearchResultItem(srchDate){
@@ -542,9 +550,17 @@ function getNotePreview(dateForDay, callback){
             console.log("getNotes rows returned = " + rows.length);
             var previewText = rows[0].NoteText;
             var searchText = document.getElementById("txtSearch").value;
-            previewText = previewText.replace(searchText, "<strong>" + searchText + "</strong>");
+            var searchWords = searchText.split(" ");
+            var previewTextMarked = previewText;
+            for (var i = 0;i<searchWords.length;i++){
+                var pattern = new RegExp(searchWords[i], 'gi');
+                previewTextMarked = previewTextMarked.replace(pattern, "<mark>" + searchWords[i].toUpperCase() + "</mark>");
+            }
+            previewTextMarked = previewTextMarked.replace(/(\r\n|\n|\r)/g,"<br />");
+
+            previewText = previewText.replace(searchText, "<mark>" + searchText + "</mark>");
             previewText = previewText.replace(/(\r\n|\n|\r)/g,"<br />");
-            txtSearchPreview.innerHTML = previewText;
+            txtSearchPreview.innerHTML = previewTextMarked;
           }
           else{
             txtSearchPreview.innerText = dateForDay;
@@ -689,7 +705,7 @@ document.getElementById("btnGo").addEventListener('click', function(){
     //addSearchResultItem("Test");
     var searchText = document.getElementById("txtSearch").value;
     console.log("Searching for " + searchText);
-    searchNotes(searchText);
+    clearSearchResults(searchNotes(searchText));
 });
 
 // Callback from each td representing each day in the calendar.

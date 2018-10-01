@@ -554,7 +554,7 @@ function getNotePreview(dateForDay, callback){
             var previewTextMarked = previewText;
             for (var i = 0;i<searchWords.length;i++){
                 var pattern = new RegExp(searchWords[i], 'gi');
-                previewTextMarked = previewTextMarked.replace(pattern, "<mark>" + searchWords[i].toUpperCase() + "</mark>");
+                previewTextMarked = previewTextMarked.replace(pattern, "<mark>$&</mark>");
             }
             previewTextMarked = previewTextMarked.replace(/(\r\n|\n|\r)/g,"<br />");
 

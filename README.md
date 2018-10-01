@@ -9,3 +9,7 @@ database and username and password is on the end user.  Keep in mind, the entere
 in order to use the create tables button.
 
 This is a work in progress and JavaScript is relatively new to me, so any suggestions or code improvements are welcome.
+
+Screenshot(s):
+
+[<img src="./screenshots/Screenshot_Settings.png">]

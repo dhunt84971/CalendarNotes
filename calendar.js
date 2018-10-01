@@ -1,5 +1,6 @@
 var mysql = require('mysql');
 var fs = require('fs');
+var initialLoad = true;
 
 const settingsFile = "./.settings";
 
@@ -724,7 +725,7 @@ function dateSelected(dayNum){
     var dayClicked = document.getElementById('day' + dayNum);
     dayClicked.style.background = '#cd310d';
     dayClicked.style.color = '#fff';
-    if (daySelected != dayNum){
+    if ((daySelected != dayNum) && (!initialLoad)){
         var lastDayClicked = document.getElementById('day' + daySelected);
         lastDayClicked.style.background = null;
         lastDayClicked.style.color = null;
@@ -740,6 +741,7 @@ function dateSelected(dayNum){
     getNotes(getSelectedDate());
     getTasks();
     lastDaySelected = getSelectedDate();
+    initialLoad = false;
 };
 
 document.getElementById("btnSettings").addEventListener("mouseenter", function(){

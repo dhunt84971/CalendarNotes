@@ -12,4 +12,11 @@ This is a work in progress and JavaScript is relatively new to me, so any sugges
 
 Screenshot(s):
 
-[<img src="./screenshots/Screenshot_Settings.png">]
+Application -
+<img src="./screenshots/Screenshot_Application.png">
+
+Search -
+<img src="./screenshots/Screenshot_Search.png">
+
+Settings -
+<img src="./screenshots/Screenshot_Settings.png">

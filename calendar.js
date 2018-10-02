@@ -1,6 +1,7 @@
 var mysql = require('mysql');
 var fs = require('fs');
 var initialLoad = true;
+var settingsShown = false;
 
 const settingsFile = "./.settings";
 
@@ -725,7 +726,7 @@ function dateSelected(dayNum){
     var dayClicked = document.getElementById('day' + dayNum);
     dayClicked.style.background = '#cd310d';
     dayClicked.style.color = '#fff';
-    if ((daySelected != dayNum) && (!initialLoad)){
+    if (daySelected != dayNum){
         var lastDayClicked = document.getElementById('day' + daySelected);
         lastDayClicked.style.background = null;
         lastDayClicked.style.color = null;
@@ -733,7 +734,7 @@ function dateSelected(dayNum){
     daySelected = dayNum;
     console.log(getSelectedDate());
     // Save the notes for the last selected date.
-    if (lastDaySelected != getSelectedDate()){
+    if ((lastDaySelected != getSelectedDate()) && (!initialLoad)){
         console.log("Saving notes - " + lastDaySelected);
         saveNotes(lastDaySelected, document.getElementById('txtNotes').value);
         saveTasks(document.getElementById('txtTasks').value);
@@ -753,7 +754,17 @@ document.getElementById("btnSettings").addEventListener("mouseleave", function()
 });
 
 document.getElementById("btnSettings").addEventListener("click", function(){
-    document.querySelector(".settingsBox").style.display="block";
+    //document.querySelector(".settingsBox").style.display="block";
+    if (!settingsShown) {
+        $("#settingsSlider").animate({right: "10px"});
+        settingsShown = true;
+    }
+    else{
+        $("#settingsSlider").animate({right: "-200px"});
+        settingsShown = false;
+    }
+
+    console.log("Animatation done.");
 });
 
 document.getElementById("btnSettingsClose").addEventListener("click", function(){
@@ -763,6 +774,8 @@ document.getElementById("btnSettingsClose").addEventListener("click", function()
         document.querySelector(".settingsBox").style.display="none";
         dateSelected(lastDaySelected);
     });
+    $("#settingsSlider").animate({right: "-200px"});
+    settingsShown = false;
 });
 
 document.getElementById("btnTestConnection").addEventListener("click", function(){

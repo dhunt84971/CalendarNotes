@@ -70,6 +70,7 @@
 	<!-- #endregion NOTES AND TASKS BOXES -->
 	
 	<!-- #region SETTINGS BOX -->
+	<!--
     <div class="settingsBox">
 		<div class="header">DATABASE SETTINGS</div>
 		<div class="dbSettingsBox">
@@ -98,6 +99,26 @@
 
 		</div>
 		<div class="settingsClose btn" id="btnSettingsClose" title="Changes are saved on close.">CLOSE</div>
+	</div>
+	-->
+
+	<div id="settingsSlider">
+		<table>
+			<tr><td class="entryLabel">HOST</td><tr>
+			<tr><td><input class="entryField" id="txtHost"></td></tr>
+			<tr><td class="entryLabel">PORT</td></tr>
+			<tr><td><input class="entryField" id="txtPort"></td></tr>
+			<tr><td class="entryLabel">DATABASE</td></tr>
+			<tr><td><input class="entryField" id="txtDatabase"></td></tr>
+			<tr><td class="entryLabel">USERNAME</td></tr>
+			<tr><td><input class="entryField" id="txtUsername"></td></tr>
+			<tr><td class="entryLabel">PASSWORD</td></tr>
+			<tr><td><input class="entryField" id="txtPassword" type="password"></td></tr>
+			<tr height="10px"></tr>
+			<tr><td><div class="btn" id="btnTestConnection">TEST CONNECTION</div></td></tr>
+			<tr><td><div class="btn" id="btnCreateTables">CREATE TABLES</div></td></tr>
+			<div class="settingsClose btn" id="btnSettingsClose" title="Changes are saved on close.">CLOSE</div>
+		</table>
 	</div>
 	<!-- #endregion SETTINGS BOX -->
     

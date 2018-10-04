@@ -93,6 +93,7 @@ var CALENDAR = function () {
             
             monthDisplayed = month + 1;
             yearDisplayed = year;
+            repositionTaskSearch();
 		}
     
         function changeDate(month, year, callback){
@@ -122,13 +123,16 @@ var CALENDAR = function () {
 				startDay = new Date(year, month, day).getDay(),
 				daysInMonth = [31, (((year%4===0)&&(year%100!==0))||(year%400===0)) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ],
 				calendar = [];
-		if (createCal.cache[year]) {
+		/* This code uses a cache to speed things up, but this bypasses the calRows counter.
+        if (createCal.cache[year]) {
 			if (createCal.cache[year][month]) {
-				return createCal.cache[year][month];
+        		return createCal.cache[year][month];
 			}
 		} else {
 			createCal.cache[year] = {};
 		}
+        */
+        createCal.cache[year] = {};
 		i = 0;
 		while(haveDays) {
 			calendar[i] = [];
@@ -162,6 +166,7 @@ var CALENDAR = function () {
 		*/
         
         var rowDays;
+        calRows = 0;
 		for (i = 0; i < calendar.length; i++) {
             rowDays = "<tr>";
             for (var j = 0; j < calendar[i].length; j++){
@@ -190,6 +195,8 @@ var CALENDAR = function () {
 		*/
         
 		createCal.cache[year][month] = { calendar : function () { return calendar.clone(); }, label : months[month] + " " + year };
+        
+        repositionTaskSearch();
 
 		return createCal.cache[year][month];
 	}
@@ -764,7 +771,6 @@ function dateSelected(dayNum){
     getTasks();
     lastDaySelected = getSelectedDate();
     initialLoad = false;
-    repositionTaskSearch();
 };
 
 document.getElementById("btnSettings").addEventListener("mouseenter", function(){

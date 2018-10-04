@@ -20,6 +20,18 @@
     --compColor1: #5A5494;
     --compColor2: #837EB1;
     */
+    /* Green Colors */
+    /*
+    --buttonface: #074600;
+    --buttontext: #fff;
+    --buttonhover: #1A6811;
+    --buttonhovertext: #fff;
+    --titlebar: #2B8D21;
+    --titletext: #fff;
+    --compColor1: #5FAE57;
+    --compColor2: #92D18B;
+    */
+    
     --buttonface: #074600;
     --buttontext: #fff;
     --buttonhover: #1A6811;
@@ -128,6 +140,7 @@ textarea {
 	background: -webkit-gradient(linear, left top, left bottom, from(#d94215), to(#bb330f));
     */
     background-color: var(--buttonhover);
+    cursor: pointer;
 }
 #cal .header .right.button {
 	right:0;
@@ -145,6 +158,7 @@ textarea {
 	background: -webkit-gradient(linear, left top, left bottom, from(#d94215), to(#bb330f));
     */
     background-color: var(--buttonhover);
+    cursor: pointer;
 }
 #cal .header .right.now {
     position: absolute;
@@ -219,6 +233,7 @@ textarea {
 	box-shadow:0px 0px 0px;
 	-moz-box-shadow:0px 0px 0px;
 	-webkit-box-shadow:0px 0px 0px;
+    cursor: pointer;
 }
 #cal #cal-frame td span {
 	font-size:80%;
@@ -441,7 +456,7 @@ textarea {
 }
 
 .srchResultItem {
-    background-color:#fff;
+    background-color:var(--compColor2);
     color:#000;
     padding: 5px;
     text-align: center;
@@ -460,6 +475,10 @@ textarea {
 /* #endregion SEARCHDIV STYLES */
 
 /* #region SETTINGS BOX */
+.settingsIcon:hover {
+    cursor: pointer;
+}
+
 .settingsBox {
     position: absolute;
     width:500px;

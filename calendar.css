@@ -1,4 +1,5 @@
 :root {
+    /* Warm Colors
     --buttonface: #2D262C;
     --buttontext: #fff;
     --buttonhover: #536471;
@@ -7,7 +8,26 @@
     --titletext: #fff;
     --compColor1: #DBA9A3;
     --compColor2: #B29294;
-    
+    */
+    /* Cool colors */
+    /*
+    --buttonface: #0D083B;
+    --buttontext: #fff;
+    --buttonhover: #5A5494;
+    --buttonhovertext: #fff;
+    --titlebar: #383276;
+    --titletext: #fff;
+    --compColor1: #5A5494;
+    --compColor2: #837EB1;
+    */
+    --buttonface: #074600;
+    --buttontext: #fff;
+    --buttonhover: #1A6811;
+    --buttonhovertext: #fff;
+    --titlebar: #2B8D21;
+    --titletext: #fff;
+    --compColor1: #5FAE57;
+    --compColor2: #92D18B;
 }
 body {
 	background: #e0e0e0;
@@ -52,6 +72,11 @@ textarea {
     color: var(--titletext);
     text-align:center;
     font-weight: bold;
+}
+
+.dateSelected {
+    background-color: var(--titlebar);
+    color: var(--titletext);
 }
 
 /* #region CAL DIV STYLES */
@@ -107,7 +132,7 @@ textarea {
 #cal .header .right.button {
 	right:0;
 	top:0; 
-	border-left:1px solid #ae2a0c;
+	border-left:1px solid var(--compColor1);
 	border-top-right-radius: 5px;
 	-moz-border-radius-topright:5px;
 	-webkit-border-top-right-radius: 5px;
@@ -126,7 +151,7 @@ textarea {
     width: 24px;
 	right:24px;
 	top:0; 
-	border-left:1px solid #ae2a0c;
+	border-left:1px solid var(--compColor1);
 	border-top-right-radius: 5px;
 	-moz-border-radius-topright:5px;
 	-webkit-border-top-right-radius: 5px;
@@ -134,7 +159,7 @@ textarea {
 
 #cal .header .left.button {
 	left:0;
-	border-right:1px solid #ae2a0c;
+	border-right:1px solid var(--compColor1);
 	border-top-left-radius: 5px;
 	-moz-border-radius-topleft:5px;
 	-webkit-border-top-left-radius: 5px;
@@ -152,7 +177,7 @@ textarea {
 	border-collapse: collapse;
 }
 #cal td {
-    color:#2d2d2d;
+    /*color:#2d2d2d;*/
 	width:30px;
 	height:30px;
 	line-height:30px;
@@ -264,14 +289,14 @@ textarea {
 
 .notes .revertButton {
     position: absolute;
-    bottom: -24px;
+    bottom: -25px;
     right: 0px;
     width:100px;
 }
 
 .notes .saveButton {
     position: absolute;
-    bottom: -24px;
+    bottom: -25px;
     left: 0px;
     width:100px;
 }
@@ -292,13 +317,19 @@ textarea {
     left:10px;
     width:230px;
     top:330px;
-    bottom:35px;
+    bottom:10px;
+}
+
+.tUp {
+    top:300px;
 }
 
 .tasks textarea {
     position:relative;
     width:100%;
     height:100%;
+    padding: 3px;
+    box-sizing: border-box;
 }
 
 .taskSearch {
@@ -307,6 +338,10 @@ textarea {
     width:230px;
     top:293px;
     height:30px;
+}
+
+.tsUp {
+    top:263px;
 }
 
 .btnSelected {
@@ -337,9 +372,9 @@ textarea {
 .tasks .txtTasksArea {
     position:absolute;
     left:0px;
-    right:6px;
+    right:0px;
     top:20px;
-    bottom:-18px;
+    bottom:0px;
 }
 
 #txtTasks {
@@ -363,6 +398,10 @@ textarea {
     top:330px;
     bottom:35px;
     margin-bottom: 26px;
+}
+
+.sUp {
+    top:300px;
 }
 
 .searchHeader {

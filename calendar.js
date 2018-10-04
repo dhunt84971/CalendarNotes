@@ -2,6 +2,7 @@ var mysql = require('mysql');
 var fs = require('fs');
 var initialLoad = true;
 var settingsShown = false;
+var calRows = 5;
 
 const settingsFile = "./.settings";
 
@@ -173,6 +174,7 @@ var CALENDAR = function () {
                 }
             }
             rowDays += "</tr>";
+            calRows += 1;
 			//calendar[i] = "<tr><td id='day" + i + "'>" + calendar[i].join("</td><td>") + "</td></tr>";
             calendar[i] = rowDays;
             console.log(calendar[i]);
@@ -222,8 +224,9 @@ function getNotes(dateForDay){
           }
       }
       else{
-        console.log('Error while performing Query, ' + sqlQuery);
-        console.log(dbConnection);
+          alert("Error querying database.  Check settings.");
+          console.log('Error while performing Query, ' + sqlQuery);
+          console.log(dbConnection);
       }
     });
 
@@ -484,15 +487,35 @@ function searchNotes(srchText, callback){
                 addSearchResultItem(rows[irec].srchDate);
             }
           }
+          else{
+              alert("Nothing found containing search items.");
+          }
       }
       else{
         console.log('Error while performing Query.');
+          alert("Error executing search query.");
       }
     });
 
     connection.end();
 
     if (callback) callback();
+}
+
+function repositionTaskSearch(){
+    var ts = document.querySelector(".taskSearch");
+    var s = document.querySelector(".search");
+    var t = document.querySelector(".tasks");
+    if (calRows == 5){
+        ts.classList.add("tsUp");
+        s.classList.add("sUp");
+        t.classList.add("tUp");
+    }
+    else{
+        ts.classList.remove("tsUp");
+        s.classList.remove("sUp");
+        t.classList.remove("tUp");
+    }
 }
 
 function searchSelected() {
@@ -724,12 +747,10 @@ function dateSelected(dayNum){
     dayNum = twoDigits(dayNum);
     console.log('dateSelected called with day = ' + dayNum);
     var dayClicked = document.getElementById('day' + dayNum);
-    dayClicked.style.background = '#cd310d';
-    dayClicked.style.color = '#fff';
-    if (daySelected != dayNum){
+    dayClicked.classList.add("dateSelected");
+    if (daySelected != dayNum){ //} && (!initialLoad)){
         var lastDayClicked = document.getElementById('day' + daySelected);
-        lastDayClicked.style.background = null;
-        lastDayClicked.style.color = null;
+        lastDayClicked.classList.remove("dateSelected");
     }
     daySelected = dayNum;
     console.log(getSelectedDate());
@@ -743,6 +764,7 @@ function dateSelected(dayNum){
     getTasks();
     lastDaySelected = getSelectedDate();
     initialLoad = false;
+    repositionTaskSearch();
 };
 
 document.getElementById("btnSettings").addEventListener("mouseenter", function(){

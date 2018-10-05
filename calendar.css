@@ -1,5 +1,6 @@
 :root {
-    /* Warm Colors
+    /* Warm Colors */
+    /*
     --buttonface: #2D262C;
     --buttontext: #fff;
     --buttonhover: #536471;
@@ -31,18 +32,31 @@
     --compColor1: #5FAE57;
     --compColor2: #92D18B;
     */
-    
-    --buttonface: #074600;
+    /* Pink Colors */
+    /*
+    --buttonface: #6B1F17;
     --buttontext: #fff;
-    --buttonhover: #1A6811;
+    --buttonhover: #9A392F;
     --buttonhovertext: #fff;
-    --titlebar: #2B8D21;
+    --titlebar: #BC2110;
     --titletext: #fff;
-    --compColor1: #5FAE57;
-    --compColor2: #92D18B;
+    --compColor1: #F26A5C;
+    --compColor2: #FF5E4D;
+    */
+    --buttonface: #a74c00;
+    --buttontext: #fff;
+    --buttonhover: #d96200;
+    --buttonhovertext: #fff;
+    --titlebar: #ff7400;
+    --titletext: #fff;
+    --compColor1: #ffb170;
+    --compColor2: #ffcda4;
+    --notesBGColor: #fff;
+    --notesTextColor: #000;
+    --bodyColor: #e0e0e0;
 }
 body {
-	background: #e0e0e0;
+	background: var(--bodyColor);
     font: 13px/1.5 "Helvetica Neue", Helvetica, Arial, san-serif;
     overflow: hidden;
 }
@@ -300,6 +314,8 @@ textarea {
     height:100%;
     padding: 10px;
     box-sizing: border-box;
+    background-color: var(--notesBGColor);
+    color: var(--notesTextColor);
 }
 
 .notes .revertButton {
@@ -345,6 +361,7 @@ textarea {
     height:100%;
     padding: 3px;
     box-sizing: border-box;
+    background-color: var(--compColor2);
 }
 
 .taskSearch {
@@ -393,7 +410,7 @@ textarea {
 }
 
 #txtTasks {
-    font: 11px/1.1 "Helvetica Neue", Helvetica, Arial, san-serif;
+    font: 13px/1.1 "Helvetica Neue", Helvetica, Arial, san-serif;
 }
 
 #tasksLabel {
@@ -487,7 +504,7 @@ textarea {
     left: 50%;
     margin-left: -250px;
     margin-top: -125px;
-    background-color: rgb(240, 240, 240);
+    background-color: var(--compColor2);
     display: none;
     padding: 1px;
     border: 1px;
@@ -531,7 +548,7 @@ textarea {
     width: 200px;
     overflow: auto;
     padding: 6px;
-    background-color: rgb(240, 240, 240);
+    background-color: var(--compColor2);
     box-shadow: 5px 10px;
     box-shadow:0px 10px 10px rgba(0, 0, 0, 0.25);
 	-moz-box-shadow:0px 10px 10px rgba(0, 0, 0, 0.25);

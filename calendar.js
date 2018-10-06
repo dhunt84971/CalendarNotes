@@ -21,6 +21,117 @@ var dbConnection = {
 
 var calChangeDate;
 
+// #region THEMES
+var themeWarm = {
+    name: "Warm",
+    buttonface: "#2D262C",
+    buttontext: "#fff",
+    buttonhover: "#536471",
+    buttonhovertext: "#fff",
+    titlebar: "#CF5429",
+    titletext: "#fff",
+    compColor1: "#DBA9A3",
+    compColor2: "#B29294",
+    notesBGColor: "#fff",
+    notesTextColor: "#000",
+    bodyColor: "#e0e0e0"
+}
+
+var themeCool = {
+    name: "Cool",
+    buttonface: "#0D083B",
+    buttontext: "#fff",
+    buttonhover: "#5A5494",
+    buttonhovertext: "#fff",
+    titlebar: "#383276",
+    titletext: "#fff",
+    compColor1: "#5A5494",
+    compColor2: "#837EB1",
+    notesBGColor: "#fff",
+    notesTextColor: "#000",
+    bodyColor: "#e0e0e0"
+}
+
+var themeGreen = {
+    name: "Green",
+    buttonface: "#074600",
+    buttontext: "#fff",
+    buttonhover: "#1A6811",
+    buttonhovertext: "#fff",
+    titlebar: "#2B8D21",
+    titletext: "#fff",
+    compColor1: "#5FAE57",
+    compColor2: "#92D18B",
+    notesBGColor: "#fff",
+    notesTextColor: "#000",
+    bodyColor: "#e0e0e0"
+}
+
+var themePink = {
+    name:"Pink",
+    buttonface: "#6B1F17",
+    buttontext: "#fff",
+    buttonhover: "#9A392F",
+    buttonhovertext: "#fff",
+    titlebar: "#BC2110",
+    titletext: "#fff",
+    compColor1: "#F26A5C",
+    compColor2: "#FF5E4D",
+    notesBGColor: "#fff",
+    notesTextColor: "#000",
+    bodyColor: "#e0e0e0"
+}
+
+var themeDefault = {
+    name: "Default",
+    buttonface: "#a74c00",
+    buttontext: "#fff",
+    buttonhover: "#d96200",
+    buttonhovertext: "#fff",
+    titlebar: "#ff7400",
+    titletext: "#fff",
+    compColor1: "#ffb170",
+    compColor2: "#ffcda4",
+    notesBGColor: "#fff",
+    notesTextColor: "#000",
+    bodyColor: "#e0e0e0"
+}
+
+var themes = [ themeDefault, themeWarm, themeCool, themeGreen, themePink ];
+
+var select = document.getElementById("selThemes");  
+
+for(var i=0; i<themes.length; i++) {
+    console.log("loop " + i);
+    var opt = themes[i].name;
+    var el = document.createElement("option");
+    el.textContent = opt;
+    el.value = i;
+    select.appendChild(el);
+}
+
+// This function changes the CSS variables based on the selected theme index.
+function changeTheme(themeIndex, callback){
+    console.log("changeTheme called, themeIndex = " + themeIndex);
+    var d = document.documentElement.style;
+    d.setProperty("--buttonface", themes[themeIndex].buttonface);
+    d.setProperty("--buttontext", themes[themeIndex].buttontext);
+    d.setProperty("--buttonhover", themes[themeIndex].buttonhover);
+    d.setProperty("--buttonhovertext", themes[themeIndex].buttonhovertext);
+    d.setProperty("--titlebar", themes[themeIndex].titlebar);
+    d.setProperty("--titletext", themes[themeIndex].titletext);
+    d.setProperty("--compColor1", themes[themeIndex].compColor1);
+    d.setProperty("--compColor2", themes[themeIndex].compColor2);
+    d.setProperty("--notesBGColor", themes[themeIndex].notesBGColor);
+    d.setProperty("--notesTextColor", themes[themeIndex].notesTextColor);
+    d.setProperty("--bodyColor", themes[themeIndex].bodyColor);
+
+    if (callback) callback();
+}
+
+// #endregion THEMES
+
+
 // #region INITIALIZATION CODE
 tasksSelected();
 
@@ -648,20 +759,23 @@ function loadSettingsfromFile(fName, callback){
         if (err){
             console.log(err);
         } else {
-            settings = JSON.parse(data); //now it an object
+            settings = JSON.parse(data); //parse into an object
         }
+        changeTheme(settings.themeIndex);
         if (callback) callback(err, settings);
         return settings;
     });
 }
 
 function getSettingsfromDialog(){
+    var el = document.getElementById("selThemes");
     var settings = { 
         host     : document.getElementById("txtHost").value,
         user     : document.getElementById("txtUsername").value,
         password : document.getElementById("txtPassword").value,
         database : document.getElementById("txtDatabase").value,
-        port     : document.getElementById("txtPort").value
+        port     : document.getElementById("txtPort").value,
+        themeIndex : el.options[el.selectedIndex].value
     }
     return settings;
 }
@@ -799,7 +913,7 @@ document.getElementById("btnSettingsClose").addEventListener("click", function()
     dbConnection = getSettingsfromDialog();
     
     saveSettingstoFile(dbConnection, function(){
-        document.querySelector(".settingsBox").style.display="none";
+        //document.querySelector(".settingsBox").style.display="none";
         dateSelected(lastDaySelected);
     });
     $("#settingsSlider").animate({right: "-200px"});
@@ -821,7 +935,11 @@ document.getElementById("btnCreateTables").addEventListener("click", function(){
     });
 });
 
-
+document.getElementById("selThemes").addEventListener("change", function(){
+    var el = document.getElementById("selThemes");
+    var themeIndex = el.options[el.selectedIndex].value;
+    changeTheme(themeIndex);
+});
 
 // #endregion DOCUMENT EVENT HANDLERS
 

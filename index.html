@@ -104,6 +104,7 @@
 
 	<div id="settingsSlider">
 		<table>
+			<tr><td class="entryLabelTitle">DATABASE -</td><tr>
 			<tr><td class="entryLabel">HOST</td><tr>
 			<tr><td><input class="entryField" id="txtHost"></td></tr>
 			<tr><td class="entryLabel">PORT</td></tr>
@@ -117,7 +118,11 @@
 			<tr height="10px"></tr>
 			<tr><td><div class="btn" id="btnTestConnection">TEST CONNECTION</div></td></tr>
 			<tr><td><div class="btn" id="btnCreateTables">CREATE TABLES</div></td></tr>
-			<div class="settingsClose btn" id="btnSettingsClose" title="Changes are saved on close.">CLOSE</div>
+			<tr><td ><hr/></td><tr>
+			<tr><td class="entryLabelTitle">THEMES -</td><tr>
+			<tr><td class="entryList"><select class="entryField" id="selThemes"></select></td></tr>
+			</tr>
+			<div class="settingsClose btn" id="btnSettingsClose" title="Changes are saved on close.">APPLY/CLOSE</div>
 		</table>
 	</div>
 	<!-- #endregion SETTINGS BOX -->

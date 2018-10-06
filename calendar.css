@@ -1,48 +1,6 @@
 :root {
-    /* Warm Colors */
+    /* Default theme */
     /*
-    --buttonface: #2D262C;
-    --buttontext: #fff;
-    --buttonhover: #536471;
-    --buttonhovertext: #fff;
-    --titlebar: #CF5429;
-    --titletext: #fff;
-    --compColor1: #DBA9A3;
-    --compColor2: #B29294;
-    */
-    /* Cool colors */
-    /*
-    --buttonface: #0D083B;
-    --buttontext: #fff;
-    --buttonhover: #5A5494;
-    --buttonhovertext: #fff;
-    --titlebar: #383276;
-    --titletext: #fff;
-    --compColor1: #5A5494;
-    --compColor2: #837EB1;
-    */
-    /* Green Colors */
-    /*
-    --buttonface: #074600;
-    --buttontext: #fff;
-    --buttonhover: #1A6811;
-    --buttonhovertext: #fff;
-    --titlebar: #2B8D21;
-    --titletext: #fff;
-    --compColor1: #5FAE57;
-    --compColor2: #92D18B;
-    */
-    /* Pink Colors */
-    /*
-    --buttonface: #6B1F17;
-    --buttontext: #fff;
-    --buttonhover: #9A392F;
-    --buttonhovertext: #fff;
-    --titlebar: #BC2110;
-    --titletext: #fff;
-    --compColor1: #F26A5C;
-    --compColor2: #FF5E4D;
-    */
     --buttonface: #a74c00;
     --buttontext: #fff;
     --buttonhover: #d96200;
@@ -54,6 +12,24 @@
     --notesBGColor: #fff;
     --notesTextColor: #000;
     --bodyColor: #e0e0e0;
+    */
+    /* TRON Theme */
+    
+    --buttonface: #272727;
+    --buttontext: rgb(0, 255, 234);
+    --buttonbordersize: 1px;
+    --buttonborder: solid;
+    --buttonbordercolor: rgb(0, 255, 234);
+    --buttonhover: rgb(0, 207, 190);
+    --buttonhovertext: #000;
+    --titlebar: #272727;
+    --titletext: rgb(0, 255, 234);
+    --compColor1: rgb(226, 255, 253);
+    --compColor2: rgb(173, 224, 220);
+    --notesBGColor: #272727;
+    --notesTextColor: #000;
+    --bodyColor: #272727;
+    
 }
 body {
 	background: var(--bodyColor);
@@ -62,6 +38,7 @@ body {
 }
 
 textarea {
+    outline: 0;
     resize: none;
     font: 13px/1.5 "Helvetica Neue", Helvetica, Arial, san-serif;
 }
@@ -70,10 +47,9 @@ textarea {
     background-color: var(--buttonface);
     color: var(--buttontext);
     padding: 5px;
-    /*
-    border-style: solid;
-    border-color: lightgray;
-    */
+    border: var(--buttonbordersize);
+    border-style: var(--buttonborder);
+    border-color: var(--buttonbordercolor);
     text-align:center;
     font-weight: bold;
     border-top-left-radius:5px;
@@ -100,7 +76,7 @@ textarea {
     font-weight: bold;
 }
 
-.dateSelected {
+#cal .dateSelected {
     background-color: var(--titlebar);
     color: var(--titletext);
 }
@@ -135,7 +111,7 @@ textarea {
 	border-top-left-radius:5px;
 	border-top-right-radius:5px;
 	font-weight:bold;
-	text-shadow:0px -1px 0 #87260c;
+	/*text-shadow:0px -1px 0 #87260c;*/
 	text-transform: uppercase;
 }
 #cal .header span {
@@ -201,17 +177,17 @@ textarea {
 }
 
 #cal table {
-	background:#fff;
+	background:var(--notesBGColor);
 	border-collapse: collapse;
 }
 #cal td {
-    /*color:#2d2d2d;*/
 	width:30px;
 	height:30px;
 	line-height:30px;
 	text-align:center;
-	border:1px solid #e6e6e6;
-	cursor:default;
+	border:1px solid var(--buttonbordercolor)/*#e6e6e6*/;
+    cursor:default;
+    color: var(--notesTextColor);
 }
 
 #cal #day td {
@@ -219,7 +195,7 @@ textarea {
 	line-height:26px;
 	text-transform:uppercase;
 	font-size:90%;
-	color:#9e9e9e;
+	color:var(--notesBGColor);
 }
 #cal #days td:not(:last-child) {
 	border-right:1px solid #fff;
@@ -236,8 +212,8 @@ textarea {
 */
 
 #cal #cal-frame td:not(.nil):hover {
-	color:#fff;
-	text-shadow:#6c1a07 0px -1px;
+	color:var(--titletext);
+	/*text-shadow:#6c1a07 0px -1px;*/
     background-color:var(--titlebar);
     /*
 	background:var(--titlebar);
@@ -274,7 +250,7 @@ textarea {
 }
 
 #notSelectedDate {
-    background:#ededed;
+    background: var(--notesBGColor);
 }
 /* #endregion CAL DIV STYLES */
 
@@ -289,7 +265,7 @@ textarea {
 
 .notesHeader {
     background-color:var(--titlebar);
-    color:#fff;
+    color:var(--titletext);
     text-align:center;
     font-weight: bold;
     font: 16px/1.2 "Helvetica Neue", Helvetica, Arial, san-serif;
@@ -378,6 +354,7 @@ textarea {
 
 .btnSelected {
     background-color: var(--buttonhover);
+    color:var(--buttonhovertext);
 }
 
 .taskSearch .tasksButton {
@@ -454,6 +431,9 @@ textarea {
 .search #txtSearch {
     height:23px;
     width:165px;
+    border: 1px;
+    background-color: var(--notesBGColor);
+    color: var(--notesTextColor);
     border-style: solid;
     border-color: lightgray;
     border-top-left-radius:5px;
@@ -583,13 +563,15 @@ textarea {
     right:-1px;
     top:20px;
     bottom: 14px;
-    background-color: rgb(240, 240, 240);
+    color: var(--notesTextColor);
+    background-color: var(--notesBGColor);
     display: none;
     padding: 10px;
     border: 1px;
     border-style: solid;
-    border-color: rgb(126, 126, 126);
+    border-color: var(--notesTextColor);
     overflow-y: scroll;
+    
     /*
     box-shadow: 5px 10px;
     box-shadow:0px 10px 10px rgba(0, 0, 0, 0.25);

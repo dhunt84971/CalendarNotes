@@ -26,6 +26,9 @@ var themeWarm = {
     name: "Warm",
     buttonface: "#2D262C",
     buttontext: "#fff",
+    buttonbordersize: "0px",
+    buttonborder: "none",
+    buttonbordercolor: "#fff",
     buttonhover: "#536471",
     buttonhovertext: "#fff",
     titlebar: "#CF5429",
@@ -41,6 +44,9 @@ var themeCool = {
     name: "Cool",
     buttonface: "#0D083B",
     buttontext: "#fff",
+    buttonbordersize: "0px",
+    buttonborder: "none",
+    buttonbordercolor: "#fff",
     buttonhover: "#5A5494",
     buttonhovertext: "#fff",
     titlebar: "#383276",
@@ -56,6 +62,9 @@ var themeGreen = {
     name: "Green",
     buttonface: "#074600",
     buttontext: "#fff",
+    buttonbordersize: "0px",
+    buttonborder: "none",
+    buttonbordercolor: "#fff",
     buttonhover: "#1A6811",
     buttonhovertext: "#fff",
     titlebar: "#2B8D21",
@@ -71,6 +80,9 @@ var themePink = {
     name:"Pink",
     buttonface: "#6B1F17",
     buttontext: "#fff",
+    buttonbordersize: "0px",
+    buttonborder: "none",
+    buttonbordercolor: "#fff",
     buttonhover: "#9A392F",
     buttonhovertext: "#fff",
     titlebar: "#BC2110",
@@ -86,6 +98,9 @@ var themeDefault = {
     name: "Default",
     buttonface: "#a74c00",
     buttontext: "#fff",
+    buttonbordersize: "0px",
+    buttonborder: "none",
+    buttonbordercolor: "#fff",
     buttonhover: "#d96200",
     buttonhovertext: "#fff",
     titlebar: "#ff7400",
@@ -97,7 +112,25 @@ var themeDefault = {
     bodyColor: "#e0e0e0"
 }
 
-var themes = [ themeDefault, themeWarm, themeCool, themeGreen, themePink ];
+var themeTron = {
+    name: "Tron",
+    buttonface: "#272727",
+    buttontext: "rgb(0, 255, 234)",
+    buttonbordersize: "1px",
+    buttonborder: "solid",
+    buttonbordercolor: "rgb(0, 255, 234)",
+    buttonhover: "rgb(0, 207, 190)",
+    buttonhovertext: "#000",
+    titlebar: "rgb(0, 255, 234)",
+    titletext: "#272727",
+    compColor1: "rgb(226, 255, 253)",
+    compColor2: "rgb(173, 224, 220)",
+    notesBGColor: "#272727",
+    notesTextColor: "rgb(0, 255, 234)",
+    bodyColor: "#272727"
+}
+
+var themes = [ themeDefault, themeWarm, themeCool, themeGreen, themePink, themeTron ];
 
 var select = document.getElementById("selThemes");  
 
@@ -116,6 +149,9 @@ function changeTheme(themeIndex, callback){
     var d = document.documentElement.style;
     d.setProperty("--buttonface", themes[themeIndex].buttonface);
     d.setProperty("--buttontext", themes[themeIndex].buttontext);
+    d.setProperty("--buttonbordersize", themes[themeIndex].buttonbordersize);
+    d.setProperty("--buttonborder", themes[themeIndex].buttonborder);
+    d.setProperty("--buttonbordercolor", themes[themeIndex].buttonbordercolor);
     d.setProperty("--buttonhover", themes[themeIndex].buttonhover);
     d.setProperty("--buttonhovertext", themes[themeIndex].buttonhovertext);
     d.setProperty("--titlebar", themes[themeIndex].titlebar);
@@ -130,7 +166,6 @@ function changeTheme(themeIndex, callback){
 }
 
 // #endregion THEMES
-
 
 // #region INITIALIZATION CODE
 tasksSelected();

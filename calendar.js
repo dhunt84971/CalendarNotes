@@ -37,7 +37,8 @@ var themeWarm = {
     compColor2: "#B29294",
     notesBGColor: "#fff",
     notesTextColor: "#000",
-    bodyColor: "#e0e0e0"
+    bodyColor: "#e0e0e0",
+    invertSettingsIcon: "false"
 }
 
 var themeCool = {
@@ -55,7 +56,8 @@ var themeCool = {
     compColor2: "#837EB1",
     notesBGColor: "#fff",
     notesTextColor: "#000",
-    bodyColor: "#e0e0e0"
+    bodyColor: "#e0e0e0",
+    invertSettingsIcon: "false"
 }
 
 var themeGreen = {
@@ -73,7 +75,8 @@ var themeGreen = {
     compColor2: "#92D18B",
     notesBGColor: "#fff",
     notesTextColor: "#000",
-    bodyColor: "#e0e0e0"
+    bodyColor: "#e0e0e0",
+    invertSettingsIcon: "false"
 }
 
 var themePink = {
@@ -91,7 +94,8 @@ var themePink = {
     compColor2: "#FF5E4D",
     notesBGColor: "#fff",
     notesTextColor: "#000",
-    bodyColor: "#e0e0e0"
+    bodyColor: "#e0e0e0",
+    invertSettingsIcon: "false"
 }
 
 var themeDefault = {
@@ -109,7 +113,8 @@ var themeDefault = {
     compColor2: "#ffcda4",
     notesBGColor: "#fff",
     notesTextColor: "#000",
-    bodyColor: "#e0e0e0"
+    bodyColor: "#e0e0e0",
+    invertSettingsIcon: "false"
 }
 
 var themeTron = {
@@ -127,10 +132,12 @@ var themeTron = {
     compColor2: "rgb(173, 224, 220)",
     notesBGColor: "#272727",
     notesTextColor: "rgb(0, 255, 234)",
-    bodyColor: "#272727"
+    bodyColor: "#272727",
+    invertSettingsIcon: "true"
 }
 
 var themes = [ themeDefault, themeWarm, themeCool, themeGreen, themePink, themeTron ];
+var selectedTheme = 0;
 
 var select = document.getElementById("selThemes");  
 
@@ -161,7 +168,9 @@ function changeTheme(themeIndex, callback){
     d.setProperty("--notesBGColor", themes[themeIndex].notesBGColor);
     d.setProperty("--notesTextColor", themes[themeIndex].notesTextColor);
     d.setProperty("--bodyColor", themes[themeIndex].bodyColor);
-
+    d.setProperty("--invertSettingsIcon", themes[themeIndex].invertSettingsIcon);
+    selectedTheme = themeIndex;
+    
     if (callback) callback();
 }
 
@@ -796,7 +805,9 @@ function loadSettingsfromFile(fName, callback){
         } else {
             settings = JSON.parse(data); //parse into an object
         }
-        changeTheme(settings.themeIndex);
+        changeTheme(settings.themeIndex, function(){
+            initSettingsIcon()
+        });
         if (callback) callback(err, settings);
         return settings;
     });
@@ -855,6 +866,17 @@ function createNotesDBTables(callback){
         });
     });
 
+}
+
+function initSettingsIcon(){
+    console.log("Themeindex = " + selectedTheme);
+    console.log("invertSettingsIcon = " + themes[selectedTheme].invertSettingsIcon);
+    if (themes[selectedTheme].invertSettingsIcon == "true") {
+        document.getElementById("btnSettings").setAttribute("src", "settingsIconBlk.png");
+    }
+    else{
+        document.getElementById("btnSettings").setAttribute("src", "settingsIconWht.png");        
+    }
 }
 
 // #endregion SETTINGS CODE
@@ -923,12 +945,20 @@ function dateSelected(dayNum){
 };
 
 document.getElementById("btnSettings").addEventListener("mouseenter", function(){
-    document.getElementById("btnSettings").setAttribute("src", "settingsIconBlk.png");
+    console.log("Themeindex = " + selectedTheme);
+    console.log("invertSettingsIcon = " + themes[selectedTheme].invertSettingsIcon);
+    if (themes[selectedTheme].invertSettingsIcon == "false") {
+        document.getElementById("btnSettings").setAttribute("src", "settingsIconBlk.png");
+    }
+    else{
+        document.getElementById("btnSettings").setAttribute("src", "settingsIconWht.png");        
+    }
 });
 
 document.getElementById("btnSettings").addEventListener("mouseleave", function(){
-    document.getElementById("btnSettings").setAttribute("src", "settingsIconWht.png");
+    initSettingsIcon();
 });
+
 
 document.getElementById("btnSettings").addEventListener("click", function(){
     //document.querySelector(".settingsBox").style.display="block";

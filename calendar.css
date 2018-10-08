@@ -29,6 +29,7 @@
     --notesBGColor: #272727;
     --notesTextColor: #000;
     --bodyColor: #272727;
+    --invertSettingsIcon: false;
     
 }
 body {
@@ -198,7 +199,7 @@ textarea {
 	color:var(--notesBGColor);
 }
 #cal #days td:not(:last-child) {
-	border-right:1px solid #fff;
+	border-right:1px var(--buttonbordercolor);
 }
 
 /*

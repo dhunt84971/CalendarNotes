@@ -449,7 +449,7 @@ textarea {
     border-style: solid;
     border-width: 1px;
     border-color: darkgray;
-    background-color:#fff;
+    background-color:var(--notesBGColor);
     height: 100%;
 }
 

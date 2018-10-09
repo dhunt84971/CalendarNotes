@@ -269,7 +269,6 @@ textarea {
     color:var(--titletext);
     text-align:center;
     font-weight: bold;
-    font: 16px/1.2 "Helvetica Neue", Helvetica, Arial, san-serif;
 }
 
 .settingsIcon {

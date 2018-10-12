@@ -1,8 +1,10 @@
 :root {
     /* Default theme */
-    /*
     --buttonface: #a74c00;
     --buttontext: #fff;
+    --buttonbordersize: 0px;
+    --buttonborder: none;
+    --buttonbordercolor: #fff;
     --buttonhover: #d96200;
     --buttonhovertext: #fff;
     --titlebar: #ff7400;
@@ -12,23 +14,6 @@
     --notesBGColor: #fff;
     --notesTextColor: #000;
     --bodyColor: #e0e0e0;
-    */
-    /* TRON Theme */
-    
-    --buttonface: #272727;
-    --buttontext: rgb(0, 255, 234);
-    --buttonbordersize: 1px;
-    --buttonborder: solid;
-    --buttonbordercolor: rgb(0, 255, 234);
-    --buttonhover: rgb(0, 207, 190);
-    --buttonhovertext: #000;
-    --titlebar: #272727;
-    --titletext: rgb(0, 255, 234);
-    --compColor1: rgb(226, 255, 253);
-    --compColor2: rgb(173, 224, 220);
-    --notesBGColor: #272727;
-    --notesTextColor: #000;
-    --bodyColor: #272727;
     --invertSettingsIcon: false;
     
 }

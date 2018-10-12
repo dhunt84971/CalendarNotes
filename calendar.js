@@ -218,8 +218,9 @@ var CALENDAR = function () {
                     dateSelected(daySelected);
                 }
                 else {
-                    alert("Error getting settings.");
-                    document.querySelector(".settingsBox").style.display="block";
+                    alert("No settings found.  Configure your settings.");
+                    toggleSettingsBox();
+                    
                 }
             });
             console.log("1" + document.querySelector(".curr").innerHTML);
@@ -804,10 +805,11 @@ function loadSettingsfromFile(fName, callback){
             console.log(err);
         } else {
             settings = JSON.parse(data); //parse into an object
-        }
-        changeTheme(settings.themeIndex, function(){
+            changeTheme(settings.themeIndex, function(){
             initSettingsIcon()
         });
+        }
+        
         if (callback) callback(err, settings);
         return settings;
     });
@@ -876,6 +878,17 @@ function initSettingsIcon(){
     }
     else{
         document.getElementById("btnSettings").setAttribute("src", "settingsIconWht.png");        
+    }
+}
+
+function toggleSettingsBox(){
+    if (!settingsShown) {
+        $("#settingsSlider").animate({right: "10px"});
+        settingsShown = true;
+    }
+    else{
+        $("#settingsSlider").animate({right: "-200px"});
+        settingsShown = false;
     }
 }
 
@@ -961,24 +974,13 @@ document.getElementById("btnSettings").addEventListener("mouseleave", function()
 
 
 document.getElementById("btnSettings").addEventListener("click", function(){
-    //document.querySelector(".settingsBox").style.display="block";
-    if (!settingsShown) {
-        $("#settingsSlider").animate({right: "10px"});
-        settingsShown = true;
-    }
-    else{
-        $("#settingsSlider").animate({right: "-200px"});
-        settingsShown = false;
-    }
-
-    console.log("Animatation done.");
+    toggleSettingsBox();
 });
 
 document.getElementById("btnSettingsClose").addEventListener("click", function(){
     dbConnection = getSettingsfromDialog();
     
     saveSettingstoFile(dbConnection, function(){
-        //document.querySelector(".settingsBox").style.display="none";
         dateSelected(lastDaySelected);
     });
     $("#settingsSlider").animate({right: "-200px"});

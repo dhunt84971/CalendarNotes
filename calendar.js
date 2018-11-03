@@ -1,5 +1,7 @@
 var mysql = require('mysql');
 var fs = require('fs');
+var marked = require('marked');
+
 var initialLoad = true;
 var settingsShown = false;
 var calRows = 5;
@@ -178,6 +180,7 @@ function changeTheme(themeIndex, callback){
 
 // #region INITIALIZATION CODE
 tasksSelected();
+document.getElementById("txtView").style.display = "none";
 
 // #endregion INITIALIZATION CODE
 
@@ -385,6 +388,9 @@ function getNotes(dateForDay){
           else{
             document.getElementById('txtNotes').value = " ";
           }
+          if (document.getElementById("btnView").innerHTML=="MARKDOWN"){
+            showNoteMarkdown();
+          }
       }
       else{
           alert("Error querying database.  Check settings.");
@@ -470,6 +476,18 @@ function sqlNoteExists(dateForDay, callback){
 
     connection.end();
     return retValue;
+}
+
+
+function showNoteMarkdown(){
+    var viewDiv = document.getElementById("txtView");
+    var notesText = document.getElementById("txtNotes");
+    var markedNote = marked(notesText.value);
+
+    viewDiv.innerHTML = markedNote;
+    //marked(notesText.value, () => {
+        viewDiv.style.display = "block";
+    //});
 }
 
 // #endregion NOTES CODE
@@ -1007,6 +1025,18 @@ document.getElementById("selThemes").addEventListener("change", function(){
     var themeIndex = el.options[el.selectedIndex].value;
     changeTheme(themeIndex);
 });
+
+document.getElementById("btnView").addEventListener("click", () => {
+    var el = document.getElementById("btnView");
+    if (el.innerHTML=="TEXT"){
+        el.innerHTML="MARKDOWN";
+        showNoteMarkdown();
+    }
+    else{
+        el.innerHTML="TEXT";
+        document.getElementById("txtView").style.display = "none";
+    }
+})
 
 // #endregion DOCUMENT EVENT HANDLERS
 

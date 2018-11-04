@@ -308,6 +308,32 @@ textarea {
 .notes .buttons .revertButton {
     right:0px;
 }
+
+/* Markdown view table style */
+.notes #txtView table {
+    border: 1px solid;
+    border-collapse: collapse;
+}
+
+.notes #txtView th {
+    border: 1px solid;
+    border-color: var(--compColor2);
+    padding: 5px;
+    background-color: var(--titlebar);
+    color: var(--titletext);
+    font-weight: bold;
+}
+
+.notes #txtView td {
+    border: 1px solid;
+    padding: 5px;
+}
+
+.notes #txtView blockquote {
+    background-color: var(--buttonhover);
+    color: var(--buttonhovertext);
+}
+
 /* #endregion NOTES DIV STYLES */
 
 /* #region TASKS DIV STYLES */

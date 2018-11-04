@@ -585,8 +585,8 @@ function sqlTasksExists(callback){
 function sqlSafeText(unSafeText){
     var safe;
     if (unSafeText){
-        safe = unSafeText;
-        safe = unSafeText.replace("'", "''");
+        //safe = unSafeText;
+        safe = unSafeText.replace(/'/g,"''");
         //safe = safe.replace("""", "''''");
     }
     return safe;

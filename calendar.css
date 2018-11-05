@@ -334,6 +334,15 @@ textarea {
     color: var(--buttonhovertext);
 }
 
+.notes #txtView pre {
+    background-color: var(--buttonhover);
+    color: var(--buttonhovertext);
+}
+
+.notes #txtView a {
+    color: var(--compColor2);
+}
+
 /* #endregion NOTES DIV STYLES */
 
 /* #region TASKS DIV STYLES */

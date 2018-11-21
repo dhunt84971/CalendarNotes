@@ -138,7 +138,27 @@ var themeTron = {
     invertSettingsIcon: "true"
 }
 
-var themes = [ themeDefault, themeWarm, themeCool, themeGreen, themePink, themeTron ];
+var themeClu = {
+    name: "Clu",
+    buttonface: "#272727",
+    buttontext: "#FFD93F",
+    buttonbordersize: "1px",
+    buttonborder: "solid",
+    buttonbordercolor: "#FFD93F",
+    buttonhover: "#FFE88D",
+    buttonhovertext: "#000",
+    titlebar: "#FFD93F",
+    titletext: "#272727",
+    compColor1: "#B89405",
+    compColor2: "#F3C60C",
+    notesBGColor: "#272727",
+    notesTextColor: "#FFD93F",
+    bodyColor: "#272727",
+    invertSettingsIcon: "true"
+}
+
+var themes = [ themeDefault, themeWarm, themeCool, 
+    themeGreen, themePink, themeTron, themeClu ];
 var selectedTheme = 0;
 
 var select = document.getElementById("selThemes");  

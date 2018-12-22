@@ -201,6 +201,7 @@ function changeTheme(themeIndex, callback){
 // #region INITIALIZATION CODE
 tasksSelected();
 document.getElementById("txtView").style.display = "none";
+document.getElementById("settingsSlider").style.display = "none";
 
 // #endregion INITIALIZATION CODE
 
@@ -921,11 +922,14 @@ function initSettingsIcon(){
 
 function toggleSettingsBox(){
     if (!settingsShown) {
+        document.getElementById("settingsSlider").style.display = "block";
         $("#settingsSlider").animate({right: "10px"});
         settingsShown = true;
     }
     else{
-        $("#settingsSlider").animate({right: "-200px"});
+        $("#settingsSlider").animate({right: "-200px"},500,() => {
+            document.getElementById("settingsSlider").style.display = "none";
+        });
         settingsShown = false;
     }
 }
@@ -1022,6 +1026,8 @@ document.getElementById("btnSettingsClose").addEventListener("click", function()
         dateSelected(lastDaySelected);
     });
     $("#settingsSlider").animate({right: "-200px"});
+    $("#settingsSlider").style.display = "none";
+    
     settingsShown = false;
 });
 

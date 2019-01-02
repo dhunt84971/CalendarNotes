@@ -253,15 +253,18 @@ var CALENDAR = function () {
 		
 		function switchMonth(next, month, year) {
 			var curr = label.text().trim().split(" "), calendar, tempYear = parseInt(curr[1], 10);
+            
+            // If null is passed then just keep the passed month and year value.
+            if (next != null) {
+                month = month || ((next) ? ((curr[0] === "December") ? 0 : months.indexOf(curr[0]) + 1) : ( (curr[0] === "January") ? 11 : months.indexOf(curr[0]) - 1) );
+                year  = year  || ((next && month === 0) ? tempYear + 1 : (!next && month === 11) ? tempYear -1 : tempYear);
+            }
 
-			month = month || ((next) ? ((curr[0] === "December") ? 0 : months.indexOf(curr[0]) + 1) : ( (curr[0] === "January") ? 11 : months.indexOf(curr[0]) - 1) );
-			year  = year  || ((next && month === 0) ? tempYear + 1 : (!next && month === 11) ? tempYear -1 : tempYear);
-				
 			console.profile("createCal");
 			calendar = createCal(year, month);
-			console.profileEnd("createCal");
-
-			$("#cal-frame", wrap)
+            console.profileEnd("createCal");
+            
+            $("#cal-frame", wrap)
 				.find(".curr")
 					.removeClass("curr")
 					.addClass("temp")
@@ -293,6 +296,7 @@ var CALENDAR = function () {
 			label.text(calendar.label);
             
             monthDisplayed = month + 1;
+
             yearDisplayed = year;
 
             if (callback) callback();

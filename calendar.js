@@ -441,6 +441,7 @@ function saveNotes(dateForDay, notesText) {
             insertNotes(dateForDay, notesText, null);
         }
     })
+    document.getElementById("btnSave").innerHTML = "SAVE";
 }
 
 function updateNotes(dateForDay, notesText, callback) {
@@ -1067,6 +1068,15 @@ document.getElementById("btnView").addEventListener("click", () => {
         document.getElementById("txtView").style.display = "none";
     }
 })
+
+document.getElementById("txtNotes").addEventListener("input", () =>{
+    document.getElementById("btnSave").innerHTML = "*SAVE*";
+})
+
+document.getElementById("txtTasks").addEventListener("input", () =>{
+    document.getElementById("btnSave").innerHTML = "*SAVE*";
+})
+
 
 // #endregion DOCUMENT EVENT HANDLERS
 

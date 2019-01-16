@@ -590,3 +590,12 @@ textarea {
     overflow-y: scroll;
 }
 /* #endregion SEARCH RESULT PREVIEW */
+
+/* #region CONTEXT MENU */
+.notesMenu {
+    background-color: var(--notesBGColor);
+    display: none;
+    position: fixed;
+    padding: 5px 5px 5px 5px;
+}
+/* #endregion CONTEXT MENU */

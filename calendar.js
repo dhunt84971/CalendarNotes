@@ -1194,10 +1194,10 @@ document.getElementById("txtNotes").addEventListener("contextmenu", (e)=>{
   console.log(menu);
 });
 
-document.getElementById("btnHideMenu").addEventListener("click", (e)=>{
-  var menu = document.querySelector(".notesMenu");
-  menu.style.display = "none";
-});
+// document.getElementById("btnHideMenu").addEventListener("click", (e)=>{
+//   var menu = document.querySelector(".notesMenu");
+//   menu.style.display = "none";
+// });
 
 document.getElementById("btnInsertTable").addEventListener("click", (e)=>{
   var tableTemplate = "| header1 | header2 | header3 |\n| --- | --- | --- |\n|  |  |  |";
@@ -1211,5 +1211,10 @@ document.getElementById("btnInsertTable").addEventListener("click", (e)=>{
   menu.style.display = "none";
   document.getElementById("btnSave").innerHTML = "*SAVE*";
 });
+
+// Hide the contextmenu whenever any where on the document is clicked.
+document.querySelector("body").addEventListener("click", () => {
+  document.querySelector(".notesMenu").style.display = "none";
+})
 
 // #endregion DOCUMENT EVENT HANDLERS

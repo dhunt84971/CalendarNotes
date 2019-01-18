@@ -1217,4 +1217,29 @@ document.querySelector("body").addEventListener("click", () => {
   document.querySelector(".notesMenu").style.display = "none";
 })
 
+// Intercept the tab key while in the txtNotes area.
+document.querySelector("#txtNotes").addEventListener('keydown',function(e) {
+  if(e.keyCode === 9) { // tab was pressed
+      // get caret position/selection
+      var start = this.selectionStart;
+      var end = this.selectionEnd;
+
+      var target = e.target;
+      var value = target.value;
+
+      // set textarea value to: text before caret + tab + text after caret
+      target.value = value.substring(0, start)
+                  + "\t"
+                  + value.substring(end);
+
+      // put caret at right position again (add one for the tab)
+      this.selectionStart = this.selectionEnd = start + 1;
+
+      // The notes have been changed.  Indicate this with the Save button stars.
+      document.getElementById("btnSave").innerHTML = "*SAVE*";
+
+      // prevent the focus lose
+      e.preventDefault();
+  }
+},false);
 // #endregion DOCUMENT EVENT HANDLERS

@@ -293,10 +293,17 @@ textarea {
     width:100px;
 }
 
-.notes .viewButton {
+.notes .viewTextButton {
     position: absolute;
     bottom: -25px;
     left: 120px;
+    width:100px;
+}
+
+.notes .viewMDButton {
+    position: absolute;
+    bottom: -25px;
+    left: 240px;
     width:100px;
 }
 

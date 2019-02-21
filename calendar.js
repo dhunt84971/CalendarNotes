@@ -207,6 +207,7 @@ function changeTheme(themeIndex, callback) {
 
 // #region INITIALIZATION CODE
 tasksSelected();
+notesViewSelected();
 document.getElementById("txtView").style.display = "none";
 document.getElementById("settingsSlider").style.display = "none";
 
@@ -586,6 +587,21 @@ function showNoteMarkdown() {
   viewDiv.style.display = "block";
   //});
 }
+
+function notesViewSelected() {
+  document.getElementById("txtNotes").style.display = "block";
+  document.getElementById("txtView").style.display = "none";
+  document.getElementById("btnViewText").classList.add("btnSelected");
+  document.getElementById("btnViewMD").classList.remove("btnSelected");
+}
+
+function mdViewSelected() {
+  document.getElementById("txtNotes").style.display = "none";
+  document.getElementById("btnViewText").classList.remove("btnSelected");
+  document.getElementById("btnViewMD").classList.add("btnSelected");
+  showNoteMarkdown();
+}
+
 
 // #endregion NOTES CODE
 
@@ -1166,15 +1182,12 @@ document.getElementById("selThemes").addEventListener("change", function() {
   changeTheme(themeIndex);
 });
 
-document.getElementById("btnView").addEventListener("click", () => {
-  var el = document.getElementById("btnView");
-  if (el.innerHTML == "TEXT") {
-    el.innerHTML = "MARKDOWN";
-    showNoteMarkdown();
-  } else {
-    el.innerHTML = "TEXT";
-    document.getElementById("txtView").style.display = "none";
-  }
+document.getElementById("btnViewText").addEventListener("click", () => {
+  notesViewSelected();
+});
+
+document.getElementById("btnViewMD").addEventListener("click", () => {
+  mdViewSelected();
 });
 
 document.getElementById("txtNotes").addEventListener("input", () => {

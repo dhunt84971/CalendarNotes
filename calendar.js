@@ -471,7 +471,7 @@ var CALENDAR = function() {
 
 // #region NOTES CODE
 // Get the notes from the MySQL database.
-function getNotes(dateForDay) {
+function getNotes(dateForDay, callback) {
   var connection = mysql.createConnection(dbConnection);
   connection.connect();
 
@@ -484,7 +484,7 @@ function getNotes(dateForDay) {
       } else {
         document.getElementById("txtNotes").value = " ";
       }
-      if (document.getElementById("btnView").innerHTML == "MARKDOWN") {
+      if (document.getElementById("txtView").style.display == "block") {
         showNoteMarkdown();
       }
     } else {
@@ -495,6 +495,10 @@ function getNotes(dateForDay) {
   });
 
   connection.end();
+
+  if (callback){
+    callback();
+  }
 }
 
 function saveNotes(dateForDay, notesText) {
@@ -578,10 +582,12 @@ function sqlNoteExists(dateForDay, callback) {
 }
 
 function showNoteMarkdown() {
+  
   var viewDiv = document.getElementById("txtView");
   var notesText = document.getElementById("txtNotes");
   var markedNote = marked(notesText.value);
 
+  console.log("Loading markdown view.");
   viewDiv.innerHTML = markedNote;
   //marked(notesText.value, () => {
   viewDiv.style.display = "block";
@@ -1113,6 +1119,7 @@ function dateSelected(dayNum) {
   getNotes(getSelectedDate());
   getTasks();
   lastDaySelected = getSelectedDate();
+  
   initialLoad = false;
 }
 

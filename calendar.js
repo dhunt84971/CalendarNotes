@@ -1,3 +1,4 @@
+const { dialog } = require("electron").remote;
 var mysql = require("mysql");
 var fs = require("fs");
 var marked = require("marked");
@@ -268,7 +269,8 @@ var CALENDAR = function() {
         dbConnection = settings;
         dateSelected(daySelected);
       } else {
-        alert("No settings found.  Configure your settings.");
+        ////alert("No settings found.  Configure your settings.");
+        ShowWarningMessageBox("No settings found.  Configure your settings.");
         toggleSettingsBox();
       }
     });
@@ -1057,6 +1059,32 @@ function toggleSettingsBox() {
 }
 
 // #endregion SETTINGS CODE
+
+// #region HELPER FUNCTIONS
+
+function ShowOKMessageBox(message){
+  const options = {
+      type: "info",
+      title: "Information",
+      buttons: ["OK"],
+      message: message,
+    };
+  
+    dialog.showMessageBox(null, options);
+}
+
+function ShowWarningMessageBox(message){
+  const options = {
+      type: "warning",
+      title: "Warning",
+      buttons: ["OK"],
+      message: message,
+    };
+  
+    dialog.showMessageBox(null, options);
+}
+
+// #endregion HELPER FUNCTIONS
 
 // #region DOCUMENT EVENT HANDLERS
 document.getElementById("btnNow").addEventListener("click", function() {

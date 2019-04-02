@@ -16,6 +16,7 @@
     --bodyColor: #e0e0e0;
     --invertSettingsIcon: false;
     --notesMenuBGColor: #464646;
+    --iconhover: white;
 }
 
 * {
@@ -29,7 +30,7 @@ body {
     background: var(--bodyColor);
     font: 13px/1.5 "Helvetica Neue", Helvetica, Arial, san-serif;
     overflow: hidden;
-    height: 100%
+    height: 100%;
 }
 
 /*#region LAYOUT STYLES */
@@ -175,6 +176,58 @@ textarea {
 p{
     margin-top: 12px;
 }
+
+/* #region ARROW DIVS */
+.div_arrow_up {
+    width: 0 !important; 
+    height: 0!important; 
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 10px solid rgb(51, 51, 51);
+    background-color: transparent !important;
+}
+
+.div_arrow_down {
+    width: 0 !important; 
+    height: 0 !important; 
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 10px solid rgb(51, 51, 51);;
+    background-color: transparent !important;
+}
+
+.div_arrow_collapse {
+    width: 0 !important; 
+    height: 0!important; 
+    border-top: 5px solid transparent;
+    border-right: 10px solid var(--buttonface);
+    border-bottom: 5px solid transparent;
+    background-color: transparent !important;
+    margin-top: 5px;
+    margin-right: 5px;
+}
+
+.div_arrow_collapse:hover {
+    border-right: 10px solid var(--iconhover);
+}
+
+.div_arrow_expand {
+    width: 0 !important; 
+    height: 0 !important; 
+    border-top: 5px solid transparent;
+    border-left: 10px solid var(--buttonface);
+    border-bottom: 5px solid transparent;
+    background-color: transparent !important;
+    margin-top: 5px;
+    margin-right: 5px;
+}
+
+.div_arrow_expand:hover {
+    border-left: 10px solid var(--iconhover);
+}
+
+/* #endregion ARROW DIVS */
+
 /* #region CAL DIV STYLES */
 #cal {
     display: table;

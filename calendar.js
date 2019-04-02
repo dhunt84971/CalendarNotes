@@ -729,7 +729,7 @@ function getMySQLNow() {
 }
 
 function getNow() {
-  // gets the current date and time in MyQL format.
+  // gets the current date and time in MySQL format.
   var today = new Date();
   return (
     twoDigits(1 + today.getMonth()) +
@@ -1104,6 +1104,24 @@ document.getElementById("btnGo").addEventListener("click", function() {
   var searchText = document.getElementById("txtSearch").value;
   console.log("Searching for " + searchText);
   clearSearchResults(searchNotes(searchText));
+});
+
+document.getElementById("btnHideLeft").addEventListener("click", function() {
+  var leftSideBar = document.getElementById("leftSideBar");
+  var btnHideLeft = document.getElementById("btnHideLeft");
+  var txtNotesTitle = document.getElementById("txtNotesTitle");
+  if (btnHideLeft.classList.contains("div_arrow_collapse")){
+    btnHideLeft.classList.remove("div_arrow_collapse");
+    btnHideLeft.classList.add("div_arrow_expand");
+    leftSideBar.classList.add("hide");
+    txtNotesTitle.innerText = "NOTES - " + daySelected + "/" + monthDisplayed + "/" + yearDisplayed;
+  }
+  else{
+    btnHideLeft.classList.add("div_arrow_collapse");
+    btnHideLeft.classList.remove("div_arrow_expand");
+    leftSideBar.classList.remove("hide");
+    txtNotesTitle.innerText = "NOTES";
+  }
 });
 
 // Callback from each td representing each day in the calendar.

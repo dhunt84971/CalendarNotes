@@ -6,8 +6,8 @@
   "scripts": {
     "start": "electron ."
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Dave Hunt",
+  "license": "MIT",
   "devDependencies": {
     "electron": "^2.0.9"
   },

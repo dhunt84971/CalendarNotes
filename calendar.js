@@ -323,7 +323,6 @@ var CALENDAR = function() {
 
     monthDisplayed = month + 1;
     yearDisplayed = year;
-    repositionTaskSearch();
   }
 
   function changeDate(month, year, callback) {
@@ -456,8 +455,6 @@ var CALENDAR = function() {
       label: months[month] + " " + year
     };
 
-    repositionTaskSearch();
-
     return createCal.cache[year][month];
   }
   createCal.cache = {};
@@ -486,7 +483,7 @@ function getNotes(dateForDay, callback) {
       } else {
         document.getElementById("txtNotes").value = " ";
       }
-      if (document.getElementById("txtView").style.display == "block") {
+      if (document.getElementById("txtView").style.display == "flex") {
         showNoteMarkdown();
       }
     } else {
@@ -592,19 +589,20 @@ function showNoteMarkdown() {
   console.log("Loading markdown view.");
   viewDiv.innerHTML = markedNote;
   //marked(notesText.value, () => {
-  viewDiv.style.display = "block";
+  viewDiv.style.display = "flex";
   //});
 }
 
 function notesViewSelected() {
-  document.getElementById("txtNotes").style.display = "block";
+  document.getElementById("txtNotesArea").style.display = "flex";
   document.getElementById("txtView").style.display = "none";
   document.getElementById("btnViewText").classList.add("btnSelected");
   document.getElementById("btnViewMD").classList.remove("btnSelected");
 }
 
 function mdViewSelected() {
-  document.getElementById("txtNotes").style.display = "none";
+  document.getElementById("txtNotesArea").style.display = "none";
+  document.getElementById("txtView").style.display = "flex";
   document.getElementById("btnViewText").classList.remove("btnSelected");
   document.getElementById("btnViewMD").classList.add("btnSelected");
   showNoteMarkdown();
@@ -801,7 +799,7 @@ function searchNotes(srchText, callback) {
     if (!err) {
       if (rows.length > 0) {
         console.log("Search results found = " + rows.length);
-        for (var irec = 0; irec <= rows.length; irec++) {
+        for (var irec = 0; irec < rows.length; irec++) {
           addSearchResultItem(rows[irec].srchDate);
         }
       } else {
@@ -818,30 +816,15 @@ function searchNotes(srchText, callback) {
   if (callback) callback();
 }
 
-function repositionTaskSearch() {
-  var ts = document.querySelector(".taskSearch");
-  var s = document.querySelector(".search");
-  var t = document.querySelector(".tasks");
-  if (calRows == 5) {
-    ts.classList.add("tsUp");
-    s.classList.add("sUp");
-    t.classList.add("tUp");
-  } else {
-    ts.classList.remove("tsUp");
-    s.classList.remove("sUp");
-    t.classList.remove("tUp");
-  }
-}
-
 function searchSelected() {
-  document.querySelector(".search").style.display = "block";
+  document.querySelector(".search").style.display = "flex";
   document.querySelector(".tasks").style.display = "none";
   document.getElementById("btnTasks").classList.remove("btnSelected");
   document.getElementById("btnSearch").classList.add("btnSelected");
 }
 
 function tasksSelected() {
-  document.querySelector(".tasks").style.display = "block";
+  document.querySelector(".tasks").style.display = "flex";
   document.querySelector(".search").style.display = "none";
   document.getElementById("btnTasks").classList.add("btnSelected");
   document.getElementById("btnSearch").classList.remove("btnSelected");
@@ -929,12 +912,19 @@ function getNotePreview(dateForDay, callback) {
 function showSearchPreview(srchDate) {
   getNotePreview(srchDate, function() {
     var txtSearchPreview = document.getElementById("txtSearchPreview");
-    txtSearchPreview.style.display = "block";
+    txtSearchPreview.style.display = "flex";
+    var txtNotesArea = document.getElementById("txtNotesArea");
+    txtNotesArea.classList.add("hide");
+    console.log(txtNotesArea);
+    document.getElementById("txtView").classList.add("hide");
+    txtSearchPreview.style.display = "flex";
+    
   });
 }
 
 function hideSearchPreview() {
   document.getElementById("txtSearchPreview").style.display = "none";
+  document.getElementById("txtNotesArea").classList.remove("hide");
 }
 
 function gotoDate(selDate) {

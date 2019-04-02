@@ -15,18 +15,119 @@
     --notesTextColor: #000;
     --bodyColor: #e0e0e0;
     --invertSettingsIcon: false;
-    --notesMenuBGColor: #464646;    
-}
-body {
-	background: var(--bodyColor);
-    font: 13px/1.5 "Helvetica Neue", Helvetica, Arial, san-serif;
-    overflow: hidden;
+    --notesMenuBGColor: #464646;
 }
 
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    background: var(--bodyColor);
+    font: 13px/1.5 "Helvetica Neue", Helvetica, Arial, san-serif;
+    overflow: hidden;
+    height: 100%
+}
+
+/*#region LAYOUT STYLES */
+.container {
+    height: 100%;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.boxFillHor {
+    display: flex;
+    flex-direction: row;
+    flex: 1 1 auto;
+    padding: 5px;
+    min-width: 0%;
+    width: 100%;
+    min-height: 0%;
+    height: 100%;
+}
+
+.boxFillVer {
+    display: flex;
+    flex-direction: row;
+    flex: 1 1 auto;
+    padding: 5px;
+    min-width: 0%;
+    width: 100%;
+    min-height: 0%;
+    height: 100%;
+}
+
+.hbox {
+    display: flex;
+    flex-direction: row;
+    flex: 0 0 auto;
+    padding: 5px;
+}
+
+.hboxFill {
+    display: flex;
+    flex-direction: row;
+    flex: 1 1 auto;
+    padding: 5px;
+    width: 100%;
+}
+
+.vbox {
+    display: flex;
+    flex-direction: column;
+    flex: 0 0 auto;
+    padding: 5px;
+}
+
+.vboxFill {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    padding: 5px;
+    height: 100%;
+}
+
+.noMargin {
+    margin: 0;
+}
+
+.noPadding {
+    padding: 0;
+}
+
+.horizDivider {
+    padding: 0;
+    width: 5px;
+}
+
+.vertDivider {
+    padding: 0;
+    height: 5px;
+}
+
+.indentPadding{
+    padding-left: 5px;
+}
+
+.flushRight{
+    margin-right: 0px !important;
+}
+
+.flushLeft{
+    margin-left: 0px !important;
+}
+
+/*#endregion LAYOUT STYLES */
+
 textarea {
-    outline: 0;
     resize: none;
     font: 13px/1.5 "Helvetica Neue", Helvetica, Arial, san-serif;
+    margin-top: 1px;
 }
 
 .btn {
@@ -36,12 +137,12 @@ textarea {
     border: var(--buttonbordersize);
     border-style: var(--buttonborder);
     border-color: var(--buttonbordercolor);
-    text-align:center;
+    text-align: center;
     font-weight: bold;
-    border-top-left-radius:5px;
-	border-top-right-radius:5px;
-    border-bottom-left-radius:5px;
-	border-bottom-right-radius:5px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
 }
 
 .btn:hover {
@@ -58,7 +159,7 @@ textarea {
 .header {
     background-color: var(--titlebar);
     color: var(--titletext);
-    text-align:center;
+    text-align: center;
     font-weight: bold;
 }
 
@@ -67,124 +168,140 @@ textarea {
     color: var(--titletext);
 }
 
+.hide {
+    display: none !important;
+}
+
+p{
+    margin-top: 12px;
+}
 /* #region CAL DIV STYLES */
 #cal {
-    position: absolute;
-    left: 10px;
-    top:0px;
-    margin:10px auto;
-	display:table;
-	box-shadow:0px 3px 3px rgba(0, 0, 0, 0.25);
-	-moz-box-shadow:0px 3px 3px rgba(0, 0, 0, 0.25);
-	-webkit-box-shadow:0px 3px 3px rgba(0, 0, 0, 0.25);
+    display: table;
+    box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.25);
+    -moz-box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.25);
+    -webkit-box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.25);
+    width: 100%;
 }
 
 #cal .header {
-	cursor:var(--titletext);
+    cursor: var(--titletext);
     background-color: var(--titlebar);
     /*
 	background: var(--titlebar);
 	background: -moz-linear-gradient(top, #b32b0c, var(--titlebar));
 	background: -webkit-gradient(linear, left top, left bottom, from(#b32b0c), to(var(--titlebar)));
     */
-	height:34px;
-	position:relative;
-	color: var(--titletext);
-	-webkit-border-top-left-radius:5px;
-	-webkit-border-top-right-radius:5px;
-	-moz-border-radius-topleft:5px;
-	-moz-border-radius-topright:5px;
-	border-top-left-radius:5px;
-	border-top-right-radius:5px;
-	font-weight:bold;
-	/*text-shadow:0px -1px 0 #87260c;*/
-	text-transform: uppercase;
+    height: 34px;
+    position: relative;
+    color: var(--titletext);
+    -webkit-border-top-left-radius: 5px;
+    -webkit-border-top-right-radius: 5px;
+    -moz-border-radius-topleft: 5px;
+    -moz-border-radius-topright: 5px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    font-weight: bold;
+    /*text-shadow:0px -1px 0 #87260c;*/
+    text-transform: uppercase;
 }
+
 #cal .header span {
-	display:inline-block;
-	line-height:34px;
+    display: inline-block;
+    line-height: 34px;
 }
 
 #cal .header .button {
-	width:24px;
-	text-align:center;
-	position:absolute;
+    width: 24px;
+    text-align: center;
+    position: absolute;
 }
+
 #cal .header .button:hover {
-	/*
+    /*
     background: -moz-linear-gradient(top, #d94215, #bb330f);
 	background: -webkit-gradient(linear, left top, left bottom, from(#d94215), to(#bb330f));
     */
     background-color: var(--buttonhover);
     cursor: pointer;
 }
+
 #cal .header .right.button {
-	right:0;
-	top:0; 
-	border-left:1px solid var(--compColor1);
-	border-top-right-radius: 5px;
-	-moz-border-radius-topright:5px;
-	-webkit-border-top-right-radius: 5px;
-    
+    right: 0;
+    top: 0;
+    border-left: 1px solid var(--compColor1);
+    border-top-right-radius: 5px;
+    -moz-border-radius-topright: 5px;
+    -webkit-border-top-right-radius: 5px;
+
 }
 
 #cal .header .now:hover {
-	/*
+    /*
     background: -moz-linear-gradient(top, #d94215, #bb330f);
 	background: -webkit-gradient(linear, left top, left bottom, from(#d94215), to(#bb330f));
     */
     background-color: var(--buttonhover);
     cursor: pointer;
 }
+
 #cal .header .right.now {
     position: absolute;
     width: 24px;
-	right:24px;
-	top:0; 
-	border-left:1px solid var(--compColor1);
-	border-top-right-radius: 5px;
-	-moz-border-radius-topright:5px;
-	-webkit-border-top-right-radius: 5px;
+    right: 24px;
+    top: 0;
+    border-left: 1px solid var(--compColor1);
+    border-top-right-radius: 5px;
+    -moz-border-radius-topright: 5px;
+    -webkit-border-top-right-radius: 5px;
 }
 
 #cal .header .left.button {
-	left:0;
-	border-right:1px solid var(--compColor1);
-	border-top-left-radius: 5px;
-	-moz-border-radius-topleft:5px;
-	-webkit-border-top-left-radius: 5px;
+    left: 0;
+    border-right: 1px solid var(--compColor1);
+    border-top-left-radius: 5px;
+    -moz-border-radius-topleft: 5px;
+    -webkit-border-top-left-radius: 5px;
 }
 
 
 #cal .header .month-year {
-	letter-spacing:1px;
-	width:100%;
-	text-align:center;
+    letter-spacing: 1px;
+    width: 100%;
+    text-align: center;
 }
 
 #cal table {
-	background:var(--notesBGColor);
-	border-collapse: collapse;
+    background: var(--notesBGColor);
+    border-collapse: collapse;
 }
+
 #cal td {
-	width:30px;
-	height:30px;
-	line-height:30px;
-	text-align:center;
-	border:1px solid var(--buttonbordercolor)/*#e6e6e6*/;
-    cursor:default;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    border: 1px solid var(--buttonbordercolor)
+        /*#e6e6e6*/
+    ;
+    cursor: default;
     color: var(--notesTextColor);
 }
 
 #cal #day td {
-	height:26px;
-	line-height:26px;
-	text-transform:uppercase;
-	font-size:90%;
-	color:var(--notesBGColor);
+    height: 26px;
+    line-height: 26px;
+    text-transform: uppercase;
+    font-size: 90%;
+    color: var(--notesBGColor);
 }
+
+#cal #days {
+    width: 100%;
+}
+
 #cal #days td:not(:last-child) {
-	border-right:1px var(--buttonbordercolor);
+    border-right: 1px var(--buttonbordercolor);
 }
 
 /*
@@ -197,123 +314,96 @@ textarea {
 }
 */
 
+#cal .curr {
+    width: 100%;
+}
+
 #cal #cal-frame td:not(.nil):hover {
-	color:var(--titletext);
-	/*text-shadow:#6c1a07 0px -1px;*/
-    background-color:var(--titlebar);
+    color: var(--titletext);
+    /*text-shadow:#6c1a07 0px -1px;*/
+    background-color: var(--titlebar);
     /*
 	background:var(--titlebar);
 	background: -moz-linear-gradient(top, #b32b0c, var(--titlebar));
 	background: -webkit-gradient(linear, left top, left bottom, from(#b32b0c), to(var(--titlebar)));
     */
-	box-shadow:0px 0px 0px;
-	-moz-box-shadow:0px 0px 0px;
-	-webkit-box-shadow:0px 0px 0px;
+    box-shadow: 0px 0px 0px;
+    -moz-box-shadow: 0px 0px 0px;
+    -webkit-box-shadow: 0px 0px 0px;
     cursor: pointer;
 }
+
 #cal #cal-frame td span {
-	font-size:80%;
-	position:relative;
+    font-size: 80%;
+    position: relative;
 }
+
 #cal #cal-frame td span:first-child {
-	bottom:5px;
+    bottom: 5px;
 }
 
 #cal #cal-frame td span:last-child {
-	top:5px;
+    top: 5px;
 }
 
 #cal #cal-frame table.temp {
-	position:absolute;
-} 
+    position: absolute;
+}
 
 #cal #cal-frame table.curr {
-	float:right;
+    float: right;
 }
 
 #selectedDate {
-    background:var(--titlebar);
+    background: var(--titlebar);
 }
 
 #notSelectedDate {
     background: var(--notesBGColor);
 }
+
 /* #endregion CAL DIV STYLES */
 
 /* #region NOTES DIV STYLES */
+
+/*
 .notes {
-    position:absolute;
-    left:250px;
-    right:10px;
-    top:10px;
-    bottom:35px;
+    position: absolute;
+    left: 250px;
+    right: 10px;
+    top: 10px;
+    bottom: 35px;
 }
+*/
 
 .notesHeader {
-    background-color:var(--titlebar);
-    color:var(--titletext);
-    text-align:center;
+    background-color: var(--titlebar);
+    color: var(--titletext);
+    text-align: center;
     font-weight: bold;
-}
-
-.settingsIcon {
-    position: absolute;
-    right: 5px;
-    top: -2px;
-}
-
-.notes .txtNotesArea {
-    position:absolute;
-    left:0px;
-    right:0px;
-    top:20px;
-    bottom: 15px;
+    padding-left: 5px;
 }
 
 .notes textarea {
-    width:100%;
-    height:100%;
+    width: 100%;
+    height: 100%;
     padding: 10px;
     box-sizing: border-box;
     background-color: var(--notesBGColor);
     color: var(--notesTextColor);
 }
 
-.notes .revertButton {
-    position: absolute;
-    bottom: -25px;
-    right: 0px;
-    width:100px;
+.notes .botButton {
+    min-width: 100px;
+    margin-left: 5px;
 }
 
-.notes .saveButton {
-    position: absolute;
-    bottom: -25px;
-    left: 0px;
-    width:100px;
-}
-
-.notes .viewTextButton {
-    position: absolute;
-    bottom: -25px;
-    left: 120px;
-    width:100px;
-}
-
-.notes .viewMDButton {
-    position: absolute;
-    bottom: -25px;
-    left: 240px;
-    width:100px;
-}
-
-.notes .header span {
-	display:inline-block;
-	line-height:34px;
+.notes .header {
+    height: 34px;
 }
 
 .notes .buttons .revertButton {
-    right:0px;
+    width: 100px;
 }
 
 /* Markdown view table style */
@@ -354,126 +444,82 @@ textarea {
 
 /* #region TASKS DIV STYLES */
 .tasks {
-    position:absolute;
-    left:10px;
-    width:230px;
-    top:330px;
-    bottom:10px;
-}
-
-.tUp {
-    top:300px;
+    width: 230px;
 }
 
 .tasks textarea {
-    position:relative;
-    width:100%;
-    height:100%;
     padding: 3px;
-    box-sizing: border-box;
     background-color: var(--compColor2);
 }
 
 .taskSearch {
-    position:absolute;
-    left:10px;
-    width:230px;
-    top:293px;
-    height:30px;
-}
-
-.tsUp {
-    top:263px;
+    width: 230px;
+    height: 30px;
 }
 
 .btnSelected {
     background-color: var(--buttonhover);
-    color:var(--buttonhovertext);
+    color: var(--buttonhovertext);
 }
 
-.taskSearch .tasksButton {
-    position: absolute;
-    bottom: 0px;
-    left: 0px;
-    width:100px;
+.tasksButton {
+    min-width: 100px;
 }
 
-.taskSearch .searchButton {
-    position: absolute;
-    bottom:0px;
-    right: 0px;
-    width:100px;
+.searchButton {
+    min-width: 100px;
 }
 
 .tasksHeader {
-    background-color:var(--titlebar);
-    color:var(--titletext);
-    text-align:center;
+    background-color: var(--titlebar);
+    color: var(--titletext);
+    text-align: center;
     font-weight: bold;
-}
-
-.tasks .txtTasksArea {
-    position:absolute;
-    left:0px;
-    right:0px;
-    top:20px;
-    bottom:0px;
 }
 
 #txtTasks {
+    display: flex;
     font: 13px/1.1 "Helvetica Neue", Helvetica, Arial, san-serif;
+    height: 100%;
 }
 
 #tasksLabel {
-    background:var(--titlebar);
-    color:#fff;
+    background: var(--titlebar);
+    color: #fff;
     font-weight: bold;
-    
 }
 
 /* #endregion TASKS DIV STYLES */
 
 /* #region SEARCH DIV STYLES */
 .search {
-    position:absolute;
-    left:10px;
-    width:230px;
-    top:330px;
-    bottom:35px;
-    margin-bottom: 26px;
-}
-
-.sUp {
-    top:300px;
+    width: 230px;
 }
 
 .searchHeader {
-    background-color:var(--titlebar);
+    background-color: var(--titlebar);
     color: var(--titletext);
-    text-align:center;
+    text-align: center;
     font-weight: bold;
 }
 
 .search #btnGo {
-    position: absolute;
     padding: 2px;
-    top:21px;
-    right: 0px;
-    width:50px;
+    width: 50px;
 }
 
 .search #txtSearch {
-    height:23px;
-    width:165px;
+    height: 25px;
+    width: 165px;
     border: 1px;
     background-color: var(--notesBGColor);
     color: var(--notesTextColor);
     border-style: solid;
     border-color: lightgray;
-    border-top-left-radius:5px;
-	border-top-right-radius:5px;
-    border-bottom-left-radius:5px;
-    border-bottom-right-radius:5px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
     padding-left: 5px;
 }
 
@@ -482,13 +528,13 @@ textarea {
     border-style: solid;
     border-width: 1px;
     border-color: darkgray;
-    background-color:var(--notesBGColor);
+    background-color: var(--notesBGColor);
     height: 100%;
 }
 
 .srchResultItem {
-    background-color:var(--compColor2);
-    color:#000;
+    background-color: var(--compColor2);
+    color: #000;
     padding: 5px;
     text-align: center;
     border-style: solid;
@@ -503,6 +549,7 @@ textarea {
     border-bottom-right-radius:2px;
     */
 }
+
 /* #endregion SEARCHDIV STYLES */
 
 /* #region SETTINGS BOX */
@@ -512,8 +559,8 @@ textarea {
 
 .settingsBox {
     position: absolute;
-    width:500px;
-    height:250px;
+    width: 500px;
+    height: 250px;
     top: 50%;
     left: 50%;
     margin-left: -250px;
@@ -524,9 +571,9 @@ textarea {
     border: 1px;
     border-style: solid;
     border-color: rgb(126, 126, 126);
-    box-shadow:0px 10px 10px rgba(0, 0, 0, 0.25);
-	-moz-box-shadow:0px 10px 10px rgba(0, 0, 0, 0.25);
-	-webkit-box-shadow:0px 10px 10px rgba(0, 0, 0, 0.25);
+    box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.25);
+    -moz-box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.25);
+    -webkit-box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.25);
 }
 
 .dbSettingsBox {
@@ -535,7 +582,7 @@ textarea {
 }
 
 .settingsWrapper {
-    width:400px;
+    width: 400px;
 }
 
 .entryLabel {
@@ -551,7 +598,7 @@ textarea {
 }
 
 .entryField {
-    padding-left:5px;
+    padding-left: 5px;
     width: 100%;
     box-sizing: border-box;
 }
@@ -573,20 +620,15 @@ textarea {
     padding: 6px;
     background-color: var(--compColor2);
     box-shadow: 5px 10px;
-    box-shadow:0px 10px 10px rgba(0, 0, 0, 0.25);
-	-moz-box-shadow:0px 10px 10px rgba(0, 0, 0, 0.25);
-    -webkit-box-shadow:0px 10px 10px rgba(0, 0, 0, 0.25);
+    box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.25);
+    -moz-box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.25);
+    -webkit-box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.25);
 }
 
 /* #endregion SETTINGS BOX */
 
 /* #region SEARCH RESULT PREVIEW */
 .searchPreview {
-    position: absolute;
-    left:0px;
-    right:-1px;
-    top:20px;
-    bottom: 14px;
     color: var(--notesTextColor);
     background-color: var(--notesBGColor);
     display: none;
@@ -594,43 +636,10 @@ textarea {
     border: 1px;
     border-style: solid;
     border-color: var(--notesTextColor);
-    overflow-y: scroll;
+    overflow-y: auto;
     overflow-x: hidden;
 }
+
 /* #endregion SEARCH RESULT PREVIEW */
 
 /* #region CONTEXT MENU */
-.notesMenu {
-    background-color: var(--notesMenuBGColor);
-    display: none;
-    position: fixed;
-    width: 200px;
-    padding: 5px 5px 5px 5px;
-    margin: 5px 5px 5px 2px;
-}
-
-.btnMenu {
-    background-color: var(--buttonface);
-    color: var(--buttontext);
-    font: 13px/0.9 "Helvetica Neue", Helvetica, Arial, san-serif;
-    padding: 5px;
-    text-align: left;
-    font-weight: bold;
-    border-top-left-radius:5px;
-	border-top-right-radius:5px;
-    border-bottom-left-radius:5px;
-    border-bottom-right-radius:5px;
-    margin-bottom: 1px;
-}
-
-.btnMenu:hover {
-    /*
-    background: -moz-linear-gradient(top, #d94215, #bb330f);
-    background: -webkit-gradient(linear, left top, left bottom, from(#dfe373), to(#a7bb0f));
-    border-color: #000;
-    */
-    background-color: var(--buttonhover);
-    cursor: pointer;
-    color: var(--buttonhovertext);
-}
-/* #endregion CONTEXT MENU */

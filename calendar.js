@@ -881,19 +881,27 @@ function getNotePreview(dateForDay, callback) {
           var pattern = new RegExp(searchWords[i], "gi");
           previewTextMarked = previewTextMarked.replace(
             pattern,
-            "<mark>$&</mark>"
+            "<span><mark>$&</mark></span>"
           );
         }
-        previewTextMarked = previewTextMarked.replace(
+        previewTextMarked = "<div>" + previewTextMarked.replace(
           /(\r\n|\n|\r)/g,
-          "<br />"
+          "</div><div>"
         );
+        // Add a paragraph break for each empty div.
+        previewTextMarked = previewTextMarked.replaceAll(
+          "<div></div>",
+          "<div><br/></div>"
+        );
+        // Get rid of ther last <div>.
+        previewTextMarked = previewTextMarked.slice(0,-5);
 
-        previewText = previewText.replace(
+        /* previewText = previewText.replace(
           searchText,
           "<mark>" + searchText + "</mark>"
-        );
+        ); 
         previewText = previewText.replace(/(\r\n|\n|\r)/g, "<br />");
+        */
         txtSearchPreview.innerHTML = previewTextMarked;
       } else {
         txtSearchPreview.innerText = dateForDay;
@@ -909,6 +917,11 @@ function getNotePreview(dateForDay, callback) {
   if (callback) callback();
 }
 
+String.prototype.replaceAll = function(search, replacement) {
+  var target = this;
+  return target.replace(new RegExp(search, 'g'), replacement);
+};
+
 function showSearchPreview(srchDate) {
   getNotePreview(srchDate, function() {
     var txtSearchPreview = document.getElementById("txtSearchPreview");
@@ -918,7 +931,6 @@ function showSearchPreview(srchDate) {
     console.log(txtNotesArea);
     document.getElementById("txtView").classList.add("hide");
     txtSearchPreview.style.display = "flex";
-    
   });
 }
 

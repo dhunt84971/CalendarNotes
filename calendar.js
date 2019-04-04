@@ -484,7 +484,7 @@ function getNotes(dateForDay, callback) {
         document.getElementById("txtNotes").value = " ";
       }
       if (!document.getElementById("btnViewText").classList.contains("btnSelected")) {
-        showNoteMarkdown();
+        document.getElementById("txtView").innerHTML = marked(rows[0].NoteText);
       }
     } else {
       alert("Error querying database.  Check settings.");
@@ -859,6 +859,29 @@ function convertMySQLDate(dateForDay) {
   return yy + "-" + mm + "-" + dd;
 }
 
+function highlightWords(words, content){
+  for (var i = 0; i < words.length; i++) {
+    var pattern = new RegExp(words[i], "gi");
+    newContent = content.replace(
+      pattern,
+      "<span><mark>$&</mark></span>"
+    );
+  }
+  /*newContent = "<div>" + newContent.replace(
+    /(\r\n|\n|\r)/g,
+    "</div><div>"
+  );
+  // Add a paragraph break for each empty div.
+  newContent = newContent.replaceAll(
+    "<div></div>",
+    "<div><br/></div>"
+  );
+  // Get rid of ther last <div>.
+  newContent = newContent.slice(0,-5);
+  */
+  return newContent;
+}
+
 function getNotePreview(dateForDay, callback) {
   var txtSearchPreview = document.getElementById("txtSearchPreview");
   var connection = mysql.createConnection(dbConnection);
@@ -874,35 +897,13 @@ function getNotePreview(dateForDay, callback) {
       if (rows.length > 0) {
         console.log("getNotes rows returned = " + rows.length);
         var previewText = rows[0].NoteText;
+        if (document.getElementById("btnViewMD").classList.contains("btnSelected")){
+          previewText = marked(previewText);
+        }
         var searchText = document.getElementById("txtSearch").value;
         var searchWords = searchText.split(" ");
-        var previewTextMarked = previewText;
-        for (var i = 0; i < searchWords.length; i++) {
-          var pattern = new RegExp(searchWords[i], "gi");
-          previewTextMarked = previewTextMarked.replace(
-            pattern,
-            "<span><mark>$&</mark></span>"
-          );
-        }
-        previewTextMarked = "<div>" + previewTextMarked.replace(
-          /(\r\n|\n|\r)/g,
-          "</div><div>"
-        );
-        // Add a paragraph break for each empty div.
-        previewTextMarked = previewTextMarked.replaceAll(
-          "<div></div>",
-          "<div><br/></div>"
-        );
-        // Get rid of ther last <div>.
-        previewTextMarked = previewTextMarked.slice(0,-5);
-
-        /* previewText = previewText.replace(
-          searchText,
-          "<mark>" + searchText + "</mark>"
-        ); 
-        previewText = previewText.replace(/(\r\n|\n|\r)/g, "<br />");
-        */
-        txtSearchPreview.innerHTML = previewTextMarked;
+        var previewTextHighlighted = highlightWords(searchWords, previewText);
+        txtSearchPreview.innerHTML = previewTextHighlighted;
       } else {
         txtSearchPreview.innerText = dateForDay;
       }

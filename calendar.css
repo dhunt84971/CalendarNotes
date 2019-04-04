@@ -21,7 +21,7 @@
 
 * {
     margin: 0;
-    padding: 0;
+    /*padding: 0;*/
     box-sizing: border-box;
 }
 
@@ -684,13 +684,13 @@ p{
 .searchPreview {
     color: var(--notesTextColor);
     background-color: var(--notesBGColor);
-    display: none;
     padding: 10px;
     border: 1px;
     border-style: solid;
     border-color: var(--notesTextColor);
     overflow-y: auto;
     overflow-x: hidden;
+    padding: 10px;
 }
 
 /* #endregion SEARCH RESULT PREVIEW */

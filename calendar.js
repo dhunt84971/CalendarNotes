@@ -209,8 +209,8 @@ function changeTheme(themeIndex, callback) {
 // #region INITIALIZATION CODE
 tasksSelected();
 notesViewSelected();
-document.getElementById("txtView").style.display = "none";
-document.getElementById("settingsSlider").style.display = "none";
+document.getElementById("txtView").classList.add("hide");
+document.getElementById("settingsSlider").classList.add("hide");
 
 // #endregion INITIALIZATION CODE
 
@@ -483,7 +483,7 @@ function getNotes(dateForDay, callback) {
       } else {
         document.getElementById("txtNotes").value = " ";
       }
-      if (document.getElementById("txtView").style.display == "flex") {
+      if (!document.getElementById("btnViewText").classList.contains("btnSelected")) {
         showNoteMarkdown();
       }
     } else {
@@ -589,20 +589,20 @@ function showNoteMarkdown() {
   console.log("Loading markdown view.");
   viewDiv.innerHTML = markedNote;
   //marked(notesText.value, () => {
-  viewDiv.style.display = "flex";
+  viewDiv.classList.remove("hide");
   //});
 }
 
 function notesViewSelected() {
-  document.getElementById("txtNotesArea").style.display = "flex";
-  document.getElementById("txtView").style.display = "none";
+  document.getElementById("txtNotesArea").classList.remove("hide");
+  document.getElementById("txtView").classList.add("hide");
   document.getElementById("btnViewText").classList.add("btnSelected");
   document.getElementById("btnViewMD").classList.remove("btnSelected");
 }
 
 function mdViewSelected() {
-  document.getElementById("txtNotesArea").style.display = "none";
-  document.getElementById("txtView").style.display = "flex";
+  document.getElementById("txtNotesArea").classList.add("hide");
+  document.getElementById("txtView").classList.remove("hide");
   document.getElementById("btnViewText").classList.remove("btnSelected");
   document.getElementById("btnViewMD").classList.add("btnSelected");
   showNoteMarkdown();
@@ -817,15 +817,15 @@ function searchNotes(srchText, callback) {
 }
 
 function searchSelected() {
-  document.querySelector(".search").style.display = "flex";
-  document.querySelector(".tasks").style.display = "none";
+  document.querySelector(".search").classList.remove("hide");
+  document.querySelector(".tasks").classList.add("hide");
   document.getElementById("btnTasks").classList.remove("btnSelected");
   document.getElementById("btnSearch").classList.add("btnSelected");
 }
 
 function tasksSelected() {
-  document.querySelector(".tasks").style.display = "flex";
-  document.querySelector(".search").style.display = "none";
+  document.querySelector(".tasks").classList.remove("hide");
+  document.querySelector(".search").classList.add("hide");
   document.getElementById("btnTasks").classList.add("btnSelected");
   document.getElementById("btnSearch").classList.remove("btnSelected");
 }
@@ -925,18 +925,23 @@ String.prototype.replaceAll = function(search, replacement) {
 function showSearchPreview(srchDate) {
   getNotePreview(srchDate, function() {
     var txtSearchPreview = document.getElementById("txtSearchPreview");
-    txtSearchPreview.style.display = "flex";
+    txtSearchPreview.classList.remove("hide");
     var txtNotesArea = document.getElementById("txtNotesArea");
     txtNotesArea.classList.add("hide");
     console.log(txtNotesArea);
     document.getElementById("txtView").classList.add("hide");
-    txtSearchPreview.style.display = "flex";
+    txtSearchPreview.classList.remove("hide");
   });
 }
 
 function hideSearchPreview() {
-  document.getElementById("txtSearchPreview").style.display = "none";
-  document.getElementById("txtNotesArea").classList.remove("hide");
+  document.getElementById("txtSearchPreview").classList.add("hide");
+  if (document.getElementById("btnViewMD").classList.contains("btnSelected")){
+    document.getElementById("txtView").classList.remove("hide");
+  }
+  else{
+    document.getElementById("txtNotesArea").classList.remove("hide");
+  }
 }
 
 function gotoDate(selDate) {
@@ -1049,12 +1054,12 @@ function initSettingsIcon() {
 
 function toggleSettingsBox() {
   if (!settingsShown) {
-    document.getElementById("settingsSlider").style.display = "block";
+    document.getElementById("settingsSlider").classList.remove("hide");
     $("#settingsSlider").animate({ right: "10px" });
     settingsShown = true;
   } else {
     $("#settingsSlider").animate({ right: "-200px" }, 500, () => {
-      document.getElementById("settingsSlider").style.display = "none";
+      document.getElementById("settingsSlider").classList.add("hide");
     });
     settingsShown = false;
   }
@@ -1208,7 +1213,7 @@ document
       dateSelected(lastDaySelected);
     });
     $("#settingsSlider").animate({ right: "-200px" });
-    $("#settingsSlider").style.display = "none";
+    $("#settingsSlider").classList.add("hide");
 
     settingsShown = false;
   });
@@ -1264,7 +1269,7 @@ document.getElementById("txtNotes").addEventListener("contextmenu", (e)=>{
 
 // document.getElementById("btnHideMenu").addEventListener("click", (e)=>{
 //   var menu = document.querySelector(".notesMenu");
-//   menu.style.display = "none";
+//   menu.classList.add("hide");
 // });
 
 document.getElementById("btnInsertTable").addEventListener("click", (e)=>{
@@ -1276,13 +1281,13 @@ document.getElementById("btnInsertTable").addEventListener("click", (e)=>{
   var textAfter  = v.substring( cursorPos, v.length );
   $('#txtNotes').val( textBefore + tableTemplate + textAfter );
   var menu = document.querySelector(".notesMenu");
-  menu.style.display = "none";
+  menu.classList.add("hide");
   document.getElementById("btnSave").innerHTML = "*SAVE*";
 });
 
 // Hide the contextmenu whenever any where on the document is clicked.
 document.querySelector("body").addEventListener("click", () => {
-  document.querySelector(".notesMenu").style.display = "none";
+  document.querySelector(".notesMenu").classList.add("hide");
 })
 
 // Intercept the tab key while in the txtNotes area.

@@ -584,6 +584,7 @@ function showNoteMarkdown() {
   
   var viewDiv = document.getElementById("txtView");
   var notesText = document.getElementById("txtNotes");
+  console.log("show notesText = " + notesText.value);
   var markedNote = marked(notesText.value);
 
   console.log("Loading markdown view.");
@@ -817,15 +818,15 @@ function searchNotes(srchText, callback) {
 }
 
 function searchSelected() {
-  document.querySelector(".search").classList.remove("hide");
-  document.querySelector(".tasks").classList.add("hide");
+  document.getElementById("divSearch").classList.remove("hide");
+  document.getElementById("divTasks").classList.add("hide");
   document.getElementById("btnTasks").classList.remove("btnSelected");
   document.getElementById("btnSearch").classList.add("btnSelected");
 }
 
 function tasksSelected() {
-  document.querySelector(".tasks").classList.remove("hide");
-  document.querySelector(".search").classList.add("hide");
+  document.getElementById("divTasks").classList.remove("hide");
+  document.getElementById("divSearch").classList.add("hide");
   document.getElementById("btnTasks").classList.add("btnSelected");
   document.getElementById("btnSearch").classList.remove("btnSelected");
 }
@@ -859,7 +860,7 @@ function convertMySQLDate(dateForDay) {
   return yy + "-" + mm + "-" + dd;
 }
 
-function highlightWords(words, content){
+function highlightWords(words, content, markD){
   for (var i = 0; i < words.length; i++) {
     var pattern = new RegExp(words[i], "gi");
     newContent = content.replace(
@@ -867,24 +868,27 @@ function highlightWords(words, content){
       "<span><mark>$&</mark></span>"
     );
   }
-  /*newContent = "<div>" + newContent.replace(
-    /(\r\n|\n|\r)/g,
-    "</div><div>"
-  );
-  // Add a paragraph break for each empty div.
-  newContent = newContent.replaceAll(
-    "<div></div>",
-    "<div><br/></div>"
-  );
-  // Get rid of ther last <div>.
-  newContent = newContent.slice(0,-5);
-  */
+  if (!markD){
+    newContent = "<div>" + newContent.replace(
+      /(\r\n|\n|\r)/g,
+      "</div><div>"
+    );
+    // Add a paragraph break for each empty div.
+    newContent = newContent.replaceAll(
+      "<div></div>",
+      "<div><br/></div>"
+    );
+    // Get rid of ther last <div>.
+    newContent = newContent.slice(0,-5);
+  }
+  
   return newContent;
 }
 
 function getNotePreview(dateForDay, callback) {
   var txtSearchPreview = document.getElementById("txtSearchPreview");
   var connection = mysql.createConnection(dbConnection);
+  var markD = false;
   connection.connect();
 
   var sqlQuery =
@@ -898,11 +902,13 @@ function getNotePreview(dateForDay, callback) {
         console.log("getNotes rows returned = " + rows.length);
         var previewText = rows[0].NoteText;
         if (document.getElementById("btnViewMD").classList.contains("btnSelected")){
+          console.log("db notesText = " + previewText);
           previewText = marked(previewText);
+          markD = true;
         }
         var searchText = document.getElementById("txtSearch").value;
         var searchWords = searchText.split(" ");
-        var previewTextHighlighted = highlightWords(searchWords, previewText);
+        var previewTextHighlighted = highlightWords(searchWords, previewText, markD);
         txtSearchPreview.innerHTML = previewTextHighlighted;
       } else {
         txtSearchPreview.innerText = dateForDay;

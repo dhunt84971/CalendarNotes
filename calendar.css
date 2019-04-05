@@ -91,6 +91,7 @@ body {
     flex: 1 1 auto;
     padding: 5px;
     height: 100%;
+    overflow: auto;
 }
 
 .noMargin {
@@ -227,6 +228,10 @@ p{
 }
 
 /* #endregion ARROW DIVS */
+
+#leftSideBar {
+    width:230px;
+}
 
 /* #region CAL DIV STYLES */
 #cal {
@@ -419,15 +424,6 @@ p{
 
 /* #region NOTES DIV STYLES */
 
-/*
-.notes {
-    position: absolute;
-    left: 250px;
-    right: 10px;
-    top: 10px;
-    bottom: 35px;
-}
-*/
 
 .notesHeader {
     background-color: var(--titlebar);
@@ -460,12 +456,12 @@ p{
 }
 
 /* Markdown view table style */
-.notes #txtView table {
+.markd table {
     border: 1px solid;
     border-collapse: collapse;
 }
 
-.notes #txtView th {
+.markd th {
     border: 1px solid;
     border-color: var(--compColor2);
     padding: 5px;
@@ -474,33 +470,30 @@ p{
     font-weight: bold;
 }
 
-.notes #txtView td {
+.markd td {
     border: 1px solid;
     padding: 5px;
 }
 
-.notes #txtView blockquote {
+.markd blockquote {
     background-color: var(--buttonhover);
     color: var(--buttonhovertext);
 }
 
-.notes #txtView pre {
+.markd pre {
     background-color: var(--buttonhover);
     color: var(--buttonhovertext);
 }
 
-.notes #txtView a {
+.markd a {
     color: var(--compColor2);
 }
 
 /* #endregion NOTES DIV STYLES */
 
 /* #region TASKS DIV STYLES */
-.tasks {
-    width: 230px;
-}
 
-.tasks textarea {
+#divTasks textarea {
     padding: 3px;
     background-color: var(--compColor2);
 }
@@ -545,10 +538,6 @@ p{
 /* #endregion TASKS DIV STYLES */
 
 /* #region SEARCH DIV STYLES */
-.search {
-    width: 230px;
-}
-
 .searchHeader {
     background-color: var(--titlebar);
     color: var(--titletext);
@@ -556,12 +545,12 @@ p{
     font-weight: bold;
 }
 
-.search #btnGo {
+#btnGo {
     padding: 2px;
     width: 50px;
 }
 
-.search #txtSearch {
+#txtSearch {
     height: 25px;
     width: 165px;
     border: 1px;
@@ -691,6 +680,7 @@ p{
     overflow-y: auto;
     overflow-x: hidden;
     padding: 10px;
+    width: 100%;
 }
 
 /* #endregion SEARCH RESULT PREVIEW */

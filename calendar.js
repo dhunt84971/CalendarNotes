@@ -820,15 +820,15 @@ function searchNotes(srchText, callback) {
 function searchSelected() {
   document.getElementById("divSearch").classList.remove("hide");
   document.getElementById("divTasks").classList.add("hide");
-  document.getElementById("btnTasks").classList.remove("btnSelected");
-  document.getElementById("btnSearch").classList.add("btnSelected");
+  document.getElementById("btnTasks").classList.remove("tabSelected");
+  document.getElementById("btnSearch").classList.add("tabSelected");
 }
 
 function tasksSelected() {
   document.getElementById("divTasks").classList.remove("hide");
   document.getElementById("divSearch").classList.add("hide");
-  document.getElementById("btnTasks").classList.add("btnSelected");
-  document.getElementById("btnSearch").classList.remove("btnSelected");
+  document.getElementById("btnTasks").classList.add("tabSelected");
+  document.getElementById("btnSearch").classList.remove("tabSelected");
 }
 
 function clearSearchResults(callback) {
@@ -1073,6 +1073,30 @@ function toggleSettingsBox() {
 }
 
 // #endregion SETTINGS CODE
+
+// #region RESIZE LEFT SIDE BAR
+var startX, startLeftWidth;
+var leftDiv = document.getElementById("leftSideBar");
+
+function initVDrag(e) {
+  startX = e.clientX;
+  startLeftWidth = parseInt(document.defaultView.getComputedStyle(leftDiv).width, 10);
+  document.documentElement.addEventListener('mousemove', doVDrag, false);
+  document.documentElement.addEventListener('mouseup', stopVDrag, false);
+}
+
+function doVDrag(e) {
+  leftDiv.style.width = (startLeftWidth + e.clientX - startX) + 'px';
+  console.log("doVDrag");
+}
+
+function stopVDrag(e) {
+  document.documentElement.removeEventListener('mousemove', doVDrag, false);
+  document.documentElement.removeEventListener('mouseup', stopVDrag, false);
+}
+
+// #endregion RESIZE LEFT SIDE BAR
+
 
 // #region HELPER FUNCTIONS
 
@@ -1322,4 +1346,6 @@ document.querySelector("#txtNotes").addEventListener('keydown',function(e) {
       e.preventDefault();
   }
 },false);
+
+document.getElementById("vSplitter").addEventListener("mousedown", initVDrag, false);
 // #endregion DOCUMENT EVENT HANDLERS

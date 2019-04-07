@@ -19,6 +19,15 @@
     --iconhover: white;
 }
 
+/* Stop the highlighting of non-input areas. */
+:not(input):not(textarea),
+:not(input):not(textarea)::after,
+:not(input):not(textarea)::before {
+    -webkit-user-select: none;
+    user-select: none;
+    /*  cursor: default; */
+}
+
 * {
     margin: 0;
     /*padding: 0;*/
@@ -132,6 +141,7 @@ textarea {
     margin-top: 1px;
 }
 
+/* #region BUTTONS */
 .btn {
     background-color: var(--buttonface);
     color: var(--buttontext);
@@ -158,6 +168,42 @@ textarea {
     color: var(--buttonhovertext);
 }
 
+/* #endregion BUTTONS */
+
+/* #region TABS */
+.tab {
+    margin-left: 1px;
+    background-color: var(--buttonface);
+    color: var(--buttontext);
+    padding: 5px;
+    border: var(--buttonbordersize);
+    border-style: var(--buttonborder);
+    border-color: var(--buttonbordercolor);
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom: 0px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.tab:hover {
+    background-color: var(--buttonhover);
+    cursor: pointer;
+    color: var(--buttonhovertext);
+}
+
+.tabSelected {
+    background-color: var(--titlebar);
+    color: var(--titletext);
+}
+
+.tabFooter {
+    background-color: var(--titlebar);
+    padding: 0px;
+    height: 5px;
+}
+/* #endregion TABS */
+
 .header {
     background-color: var(--titlebar);
     color: var(--titletext);
@@ -165,10 +211,6 @@ textarea {
     font-weight: bold;
 }
 
-#cal .dateSelected {
-    background-color: var(--titlebar);
-    color: var(--titletext);
-}
 
 .hide {
     display: none !important;
@@ -177,6 +219,18 @@ textarea {
 p{
     margin-top: 12px;
 }
+
+/* #region RESIZING STYLES */
+.vsplit {
+    width:5px;
+    background: var(--notesBGColor);
+    cursor: ew-resize;
+}
+
+.vsplit:hover {
+background: var(--buttonhover);
+}
+/* #endregion RESIZING STYLES  
 
 /* #region ARROW DIVS */
 .div_arrow_up {
@@ -229,9 +283,12 @@ p{
 
 /* #endregion ARROW DIVS */
 
+/* #region LEFT SIDE BAR */
 #leftSideBar {
     width:230px;
 }
+
+/* #endregion LEFT SIDE BAR */
 
 /* #region CAL DIV STYLES */
 #cal {
@@ -240,6 +297,11 @@ p{
     -moz-box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.25);
     -webkit-box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.25);
     width: 100%;
+}
+
+#cal .dateSelected {
+    background-color: var(--titlebar);
+    color: var(--titletext);
 }
 
 #cal .header {
@@ -500,7 +562,7 @@ p{
 
 .taskSearch {
     width: 230px;
-    height: 30px;
+    height: 20px;
 }
 
 .btnSelected {
@@ -509,11 +571,11 @@ p{
 }
 
 .tasksButton {
-    min-width: 100px;
+    min-width: 70px;
 }
 
 .searchButton {
-    min-width: 100px;
+    min-width: 70px;
 }
 
 .tasksHeader {

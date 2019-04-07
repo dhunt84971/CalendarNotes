@@ -87,17 +87,16 @@
 				<div class="vbox vertDivider"></div>
 				<div class="vboxFill noPadding">
 					<div class="hbox noPadding">
-						<div class="tasksButton btn" id="btnTasks">TASKS</div>
+						<div class="tasksButton tab" id="btnTasks">TASKS</div>
+						<div class="searchButton tab" id="btnSearch">SEARCH</div>
 						<div class="hboxFill"></div>
-						<div class="searchButton btn" id="btnSearch">SEARCH</div>
 					</div>
-					<div class="vbox vertDivider"></div>
 					<div class="vboxFill noPadding" id="divTasks">
-						<div class="tasksHeader">TASKS</div>
+						<div class="tabFooter"></div>
 						<div class="vboxFill noPadding"><textarea id="txtTasks"></textarea></div>
 					</div>
 					<div class="vboxFill noPadding" id="divSearch">
-						<div class="searchHeader">SEARCH</div>
+						<div class="tabFooter"></div>
 						<div class="hbox noPadding">
 							<input class="hboxFill" id="txtSearch">
 							<div class="btn" id="btnGo">GO</div>
@@ -106,7 +105,8 @@
 					</div>
 				</div>
 			</div>
-			<div class="vbox horizDivider"></div>
+			<!--<div class="vbox horizDivider"></div>-->
+			<div class="vsplit" id="vSplitter"></div>
 			<div class="vboxFill noPadding">
 				<!-- #region NOTES AND TASKS BOXES -->
 				<div class="vboxFill notes noPadding">

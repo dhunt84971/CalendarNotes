@@ -222,7 +222,7 @@ p{
 
 /* #region RESIZING STYLES */
 .vsplit {
-    width:5px;
+    min-width:5px;
     background: var(--notesBGColor);
     cursor: ew-resize;
 }

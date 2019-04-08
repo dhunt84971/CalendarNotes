@@ -1115,7 +1115,7 @@ function initSettingsIcon() {
 function toggleSettingsBox() {
   if (!settingsShown) {
     document.getElementById("settingsSlider").classList.remove("hide");
-    $("#settingsSlider").animate({ right: "10px" });
+    $("#settingsSlider").animate({ right: "5px" });
     settingsShown = true;
   } else {
     $("#settingsSlider").animate({ right: "-200px" }, 500, () => {

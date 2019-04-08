@@ -590,23 +590,62 @@ function showNoteMarkdown() {
   console.log("Loading markdown view.");
   viewDiv.innerHTML = markedNote;
   //marked(notesText.value, () => {
-  viewDiv.classList.remove("hide");
+  //viewDiv.classList.remove("hide");
   //});
 }
 
-function notesViewSelected() {
-  document.getElementById("txtNotesArea").classList.remove("hide");
+function hideAllViews(){
+  document.getElementById("txtNotesArea").classList.add("hide");
   document.getElementById("txtView").classList.add("hide");
+  document.getElementById("txtDocArea").classList.add("hide");
+  document.getElementById("txtDocView").classList.add("hide");
+}
+
+function notesViewSelected() {
+  hideAllViews();
   document.getElementById("btnViewText").classList.add("btnSelected");
   document.getElementById("btnViewMD").classList.remove("btnSelected");
+  if (document.getElementById("btnDocs").classList.contains("tabSelected")){
+    document.getElementById("txtDocArea").classList.remove("hide");
+  }
+  else{
+    document.getElementById("txtNotesArea").classList.remove("hide");
+  }
+
 }
 
 function mdViewSelected() {
-  document.getElementById("txtNotesArea").classList.add("hide");
-  document.getElementById("txtView").classList.remove("hide");
+  hideAllViews();
   document.getElementById("btnViewText").classList.remove("btnSelected");
   document.getElementById("btnViewMD").classList.add("btnSelected");
+  if (document.getElementById("btnDocs").classList.contains("tabSelected")){
+    document.getElementById("txtDocView").classList.remove("hide");
+  }
+  else{
+    document.getElementById("txtView").classList.remove("hide");
+  }
   showNoteMarkdown();
+}
+
+function docsViewSelected() {
+  hideAllViews();
+  // If markdown view is selected display the view div.
+  if (document.getElementById("btnViewMD").classList.contains("btnSelected")){
+    document.getElementById("txtDocView").classList.remove("hide");
+  }
+  else{
+    document.getElementById("txtDocArea").classList.remove("hide");
+  }
+}
+
+function docsViewUnselected() {
+  hideAllViews();
+  if (document.getElementById("btnViewMD").classList.contains("btnSelected")){
+    document.getElementById("txtView").classList.remove("hide");
+  }
+  else{
+    document.getElementById("txtNotesArea").classList.remove("hide");
+  }
 }
 
 
@@ -817,18 +856,32 @@ function searchNotes(srchText, callback) {
   if (callback) callback();
 }
 
-function searchSelected() {
-  document.getElementById("divSearch").classList.remove("hide");
-  document.getElementById("divTasks").classList.add("hide");
+function unselectButton(){
   document.getElementById("btnTasks").classList.remove("tabSelected");
+  document.getElementById("btnSearch").classList.remove("tabSelected");
+  document.getElementById("btnDocs").classList.remove("tabSelected");
+  document.getElementById("divTasks").classList.add("hide");
+  document.getElementById("divSearch").classList.add("hide");
+  document.getElementById("divDocs").classList.add("hide");
+}
+
+function searchSelected() {
+  unselectButton();
   document.getElementById("btnSearch").classList.add("tabSelected");
+  document.getElementById("divSearch").classList.remove("hide");
 }
 
 function tasksSelected() {
-  document.getElementById("divTasks").classList.remove("hide");
-  document.getElementById("divSearch").classList.add("hide");
+  unselectButton();
   document.getElementById("btnTasks").classList.add("tabSelected");
-  document.getElementById("btnSearch").classList.remove("tabSelected");
+  document.getElementById("divTasks").classList.remove("hide");
+}
+
+function docsSelected() {
+  unselectButton();
+  document.getElementById("btnDocs").classList.add("tabSelected");
+  document.getElementById("divDocs").classList.remove("hide");
+
 }
 
 function clearSearchResults(callback) {
@@ -1097,7 +1150,6 @@ function stopVDrag(e) {
 
 // #endregion RESIZE LEFT SIDE BAR
 
-
 // #region HELPER FUNCTIONS
 
 function ShowOKMessageBox(message){
@@ -1140,11 +1192,18 @@ document.getElementById("btnRevert").addEventListener("click", function() {
 });
 
 document.getElementById("btnSearch").addEventListener("click", function() {
+  docsViewUnselected();
   searchSelected();
 });
 
 document.getElementById("btnTasks").addEventListener("click", function() {
+  docsViewUnselected();
   tasksSelected();
+});
+
+document.getElementById("btnDocs").addEventListener("click", function() {
+  docsViewSelected();
+  docsSelected();
 });
 
 document.getElementById("btnGo").addEventListener("click", function() {
@@ -1286,6 +1345,10 @@ document.getElementById("txtNotes").addEventListener("input", () => {
 });
 
 document.getElementById("txtTasks").addEventListener("input", () => {
+  document.getElementById("btnSave").innerHTML = "*SAVE*";
+});
+
+document.getElementById("txtDoc").addEventListener("input", () => {
   document.getElementById("btnSave").innerHTML = "*SAVE*";
 });
 

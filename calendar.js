@@ -1357,7 +1357,7 @@ document.getElementById("txtNotes").addEventListener("contextmenu", (e)=>{
   var menu = document.querySelector(".notesMenu");
   menu.style.left = e.clientX + "px";
   menu.style.top = e.clientY + "px";
-  menu.style.display = "block";
+  menu.classList.remove("hide");
   console.log(menu);
 });
 

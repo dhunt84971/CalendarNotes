@@ -216,11 +216,19 @@ textarea {
     display: none !important;
 }
 
-p {
+.searchPreview p {
+    margin-top: 12px;
+}
+
+.searchPreview ul {
     margin-top: 12px;
 }
 
 .searchPreview table {
+    margin-top: 12px;
+}
+
+.searchPreview h1 h2 h3 h4 h5 {
     margin-top: 12px;
 }
 

@@ -216,21 +216,6 @@ textarea {
     display: none !important;
 }
 
-.searchPreview p {
-    margin-top: 12px;
-}
-
-.searchPreview ul {
-    margin-top: 12px;
-}
-
-.searchPreview table {
-    margin-top: 12px;
-}
-
-.searchPreview h1 h2 h3 h4 h5 {
-    margin-top: 12px;
-}
 
 /* #region RESIZING STYLES */
 .vsplit {
@@ -533,6 +518,7 @@ background: var(--buttonhover);
 .markd table {
     border: 1px solid;
     border-collapse: collapse;
+    margin-top: 12px;
 }
 
 .markd th {
@@ -561,6 +547,38 @@ background: var(--buttonhover);
 
 .markd a {
     color: var(--compColor2);
+}
+
+.markd p {
+    margin-top: 12px;
+}
+
+.markd ul {
+    margin-top: 12px;
+}
+
+.markd li ul {
+    margin-top: 0px;
+}
+
+.markd h1 {
+    margin-top: 12px;
+}
+
+.markd h2 {
+    margin-top: 10px;
+}
+
+.markd h3 {
+    margin-top: 12px;
+}
+
+.markd h4 {
+    margin-top: 12px;
+}
+
+.markd h5 {
+    margin-top: 12px;
 }
 
 /* #endregion NOTES DIV STYLES */

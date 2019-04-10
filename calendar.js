@@ -211,6 +211,7 @@ tasksSelected();
 notesViewSelected();
 document.getElementById("txtView").classList.add("hide");
 document.getElementById("settingsSlider").classList.add("hide");
+marked.setOptions({gfm:true, breaks:true});
 
 // #endregion INITIALIZATION CODE
 

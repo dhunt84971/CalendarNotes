@@ -103,6 +103,19 @@ body {
     overflow: auto;
 }
 
+.flexCenterVert {
+    align-items: center;
+}
+
+.flexCenterHoriz {
+    justify-content: center;
+}
+
+.flexMiddle {
+    align-items: center;
+    justify-content: center;
+}
+
 .noMargin {
     margin: 0;
 }
@@ -204,7 +217,7 @@ textarea {
 .tabFooter {
     background-color: var(--titlebar);
     padding: 0px;
-    height: 5px;
+    min-height: 5px;
 }
 /* #endregion TABS */
 
@@ -259,7 +272,7 @@ background: var(--buttonhover);
     border-right: 10px solid var(--buttonface);
     border-bottom: 5px solid transparent;
     background-color: transparent !important;
-    margin-top: 5px;
+    margin-top: 7px;
     margin-right: 5px;
 }
 
@@ -274,7 +287,7 @@ background: var(--buttonhover);
     border-left: 10px solid var(--buttonface);
     border-bottom: 5px solid transparent;
     background-color: transparent !important;
-    margin-top: 5px;
+    margin-top: 7px;
     margin-right: 5px;
 }
 
@@ -487,13 +500,13 @@ background: var(--buttonhover);
 
 /* #region NOTES DIV STYLES */
 
-
 .notesHeader {
     background-color: var(--titlebar);
     color: var(--titletext);
     text-align: center;
     font-weight: bold;
     padding-left: 5px;
+    min-height: 23px;
 }
 
 .notes textarea {
@@ -510,15 +523,11 @@ background: var(--buttonhover);
     margin-left: 5px;
 }
 
-.notes .header {
-    height: 34px;
-}
-
 .notes .buttons .revertButton {
     width: 100px;
 }
 
-/* Markdown view table style */
+    /* #region MARKDOWN STYLES */
 .markd table {
     border: 1px solid;
     border-collapse: collapse;
@@ -584,6 +593,8 @@ background: var(--buttonhover);
 .markd h5 {
     margin-top: 12px;
 }
+
+/* #endregion MARKDOWN STYLES */
 
 /* #endregion NOTES DIV STYLES */
 
@@ -670,6 +681,16 @@ background: var(--buttonhover);
     height: 100%;
 }
 
+.docsList {
+    overflow: auto;
+    border-style: solid;
+    border-width: 1px;
+    border-color: darkgray;
+    background-color: var(--notesBGColor);
+    height: 100%;
+    margin-top: 1px;
+}
+
 .srchResultItem {
     background-color: var(--compColor2);
     color: #000;
@@ -678,6 +699,7 @@ background: var(--buttonhover);
     border-style: solid;
     border-color: lightgray;
     border-width: 1px;
+    min-height: 30px;
     /*
     border-style: solid;
     border-color: lightgray;

@@ -117,16 +117,22 @@
 				<div class="vboxFill notes noPadding">
 
 					<div class="hboxFill notesHeader noPadding">
-						<div class="div_arrow_collapse" id="btnHideLeft"></div>
-						<div class="hboxFill noPadding" id="txtNotesTitle">NOTES</div>
+							<div class="div_arrow_collapse" id="btnHideLeft"></div>
+						<div class="hboxFill noPadding flexCenterVert" id="txtNotesTitle">NOTES</div>
 						<div class="hboxFill"></div>
 						<img id="btnSettings" src="settingsIconWht.png" width="23px" height="23px">
 					</div>
 					<div class="vboxFill noPadding" id="txtNotesArea"><textarea id="txtNotes"></textarea></div>
 					<div class="vboxFill searchPreview hide markd" id="txtView"></div>
 					<div class="vboxFill searchPreview hide markd" id="txtSearchPreview"></div>
-					<div class="vboxFill noPadding hide" id="txtDocArea"><textarea id="txtDoc"></textarea></div>
-					<div class="vboxFill searchPreview hide markd" id="txtDocView"></div>
+					<div class="vboxFill noPadding hide" id="divDocsView">
+						<div class="boxFillHor noPadding noMargin">
+							<div class="vboxFill noPadding hide" id="txtDocArea"><textarea id="txtDoc"></textarea></div>
+							<div class="vboxFill searchPreview hide markd" id="txtDocView"></div>
+							<div class="vsplit" id="vSplitterDoc"></div>
+							<div class="vbox noPadding" id="docsSideBar"><div class="vboxFill docsList" id="lstDocs"></div></div>
+						</div>
+					</div>
 					<div class="vbox vertDivider"></div>
 					<div class="hboxFill noPadding">
 						<div class="btn botButton flushLeft" id="btnSave"> SAVE </div>

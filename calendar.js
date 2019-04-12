@@ -598,6 +598,7 @@ function showNoteMarkdown() {
 function hideAllViews(){
   document.getElementById("txtNotesArea").classList.add("hide");
   document.getElementById("txtView").classList.add("hide");
+  document.getElementById("divDocsView").classList.add("hide");
   document.getElementById("txtDocArea").classList.add("hide");
   document.getElementById("txtDocView").classList.add("hide");
 }
@@ -630,6 +631,7 @@ function mdViewSelected() {
 
 function docsViewSelected() {
   hideAllViews();
+  document.getElementById("divDocsView").classList.remove("hide");
   // If markdown view is selected display the view div.
   if (document.getElementById("btnViewMD").classList.contains("btnSelected")){
     document.getElementById("txtDocView").classList.remove("hide");
@@ -1150,6 +1152,14 @@ function stopVDrag(e) {
 }
 
 // #endregion RESIZE LEFT SIDE BAR
+
+// #region RESIZE RIGHT SIDE BAR
+var startRightWidth;
+var rightDiv = document.getElementById("leftSideBar");
+
+
+// #endregion RESIZE RIGHT SIDE BAR
+
 
 // #region HELPER FUNCTIONS
 

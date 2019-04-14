@@ -1,4 +1,6 @@
-const { dialog } = require("electron").remote;
+const {
+  dialog
+} = require("electron").remote;
 var mysql = require("mysql");
 var fs = require("fs");
 var marked = require("marked");
@@ -211,12 +213,15 @@ tasksSelected();
 notesViewSelected();
 document.getElementById("txtView").classList.add("hide");
 document.getElementById("settingsSlider").classList.add("hide");
-marked.setOptions({gfm:true, breaks:true});
+marked.setOptions({
+  gfm: true,
+  breaks: true
+});
 
 // #endregion INITIALIZATION CODE
 
 // #region CALENDAR OBJECT CODE
-var CALENDAR = function() {
+var CALENDAR = function () {
   var wrap,
     label,
     months = [
@@ -238,13 +243,13 @@ var CALENDAR = function() {
     wrap = $(newWrap || "#cal");
     label = wrap.find("#label");
 
-    wrap.find("#prev").bind("click.calender", function() {
+    wrap.find("#prev").bind("click.calender", function () {
       switchMonth(false);
     });
-    wrap.find("#next").bind("click.calender", function() {
+    wrap.find("#next").bind("click.calender", function () {
       switchMonth(true);
     });
-    label.bind("click.calendar", function() {
+    label.bind("click.calendar", function () {
       switchMonth(null, new Date().getMonth(), new Date().getFullYear());
     });
 
@@ -258,7 +263,7 @@ var CALENDAR = function() {
     console.log("MySQL Datetime  = " + getMySQLNow());
 
     // Load the settings from the file.
-    loadSettingsfromFile(settingsFile, function(err, settings) {
+    loadSettingsfromFile(settingsFile, function (err, settings) {
       if (!err) {
         // Load the settings entry fields.
         document.getElementById("txtHost").value = settings.host;
@@ -280,9 +285,9 @@ var CALENDAR = function() {
 
   function switchMonth(next, month, year) {
     var curr = label
-        .text()
-        .trim()
-        .split(" "),
+      .text()
+      .trim()
+      .split(" "),
       calendar,
       tempYear = parseInt(curr[1], 10);
 
@@ -290,20 +295,20 @@ var CALENDAR = function() {
     if (next != null) {
       month =
         month ||
-        (next
-          ? curr[0] === "December"
-            ? 0
-            : months.indexOf(curr[0]) + 1
-          : curr[0] === "January"
-          ? 11
-          : months.indexOf(curr[0]) - 1);
+        (next ?
+          curr[0] === "December" ?
+          0 :
+          months.indexOf(curr[0]) + 1 :
+          curr[0] === "January" ?
+          11 :
+          months.indexOf(curr[0]) - 1);
       year =
         year ||
-        (next && month === 0
-          ? tempYear + 1
-          : !next && month === 11
-          ? tempYear - 1
-          : tempYear);
+        (next && month === 0 ?
+          tempYear + 1 :
+          !next && month === 11 ?
+          tempYear - 1 :
+          tempYear);
     }
 
     console.profile("createCal");
@@ -317,7 +322,7 @@ var CALENDAR = function() {
       .end()
       .prepend(calendar.calendar())
       .find(".temp")
-      .fadeOut("slow", function() {
+      .fadeOut("slow", function () {
         $(this).remove();
       });
     label.text(calendar.label);
@@ -339,7 +344,7 @@ var CALENDAR = function() {
       .end()
       .prepend(calendar.calendar())
       .find(".temp")
-      .fadeOut("slow", function() {
+      .fadeOut("slow", function () {
         $(this).remove();
       });
     label.text(calendar.label);
@@ -418,9 +423,9 @@ var CALENDAR = function() {
     calRows = 0;
     for (i = 0; i < calendar.length; i++) {
       rowDays = "<tr>";
-      for (var j = 0; j < calendar[i].length; j++) {
+      for (j = 0; j < calendar[i].length; j++) {
         if (calendar[i][j]) {
-          var day = twoDigits(calendar[i][j]);
+          day = twoDigits(calendar[i][j]);
           rowDays +=
             "<td id='day" +
             day +
@@ -450,7 +455,7 @@ var CALENDAR = function() {
 		*/
 
     createCal.cache[year][month] = {
-      calendar: function() {
+      calendar: function () {
         return calendar.clone();
       },
       label: months[month] + " " + year
@@ -476,7 +481,7 @@ function getNotes(dateForDay, callback) {
   connection.connect();
 
   var sqlQuery = "SELECT * from Notes where NoteDate = '" + dateForDay + "'";
-  connection.query(sqlQuery, function(err, rows, fields) {
+  connection.query(sqlQuery, function (err, rows, fields) {
     if (!err) {
       if (rows.length > 0) {
         console.log("getNotes rows returned = " + rows.length);
@@ -496,7 +501,7 @@ function getNotes(dateForDay, callback) {
 
   connection.end();
 
-  if (callback){
+  if (callback) {
     callback();
   }
 }
@@ -506,7 +511,7 @@ function saveNotes(dateForDay, notesText) {
   console.log("Saving notes = '" + notesText + "'");
   if (notesText == "") notesText = " ";
 
-  sqlNoteExists(dateForDay, function(result) {
+  sqlNoteExists(dateForDay, function (result) {
     if (result) {
       updateNotes(dateForDay, notesText, null);
     } else {
@@ -518,14 +523,14 @@ function saveNotes(dateForDay, notesText) {
 
 function updateNotes(dateForDay, notesText, callback) {
   var connection = mysql.createConnection(dbConnection);
-  connection.connect(function(err) {
+  connection.connect(function (err) {
     if (err) throw err;
     var sql = "UPDATE Notes SET NoteText = '" + sqlSafeText(notesText) + "', ";
     sql += "LastModified = '" + getMySQLNow() + "' ";
     sql += "WHERE NoteDate = '" + dateForDay + "'";
     console.log("Executing SQL query = " + sql);
 
-    connection.query(sql, function(err, result) {
+    connection.query(sql, function (err, result) {
       if (err) throw err;
       console.log(result.affectedRows + " record(s) updated");
       if (callback) callback(err, result);
@@ -537,7 +542,7 @@ function updateNotes(dateForDay, notesText, callback) {
 
 function insertNotes(dateForDay, notesText, callback) {
   var connection = mysql.createConnection(dbConnection);
-  connection.connect(function(err) {
+  connection.connect(function (err) {
     if (err) throw err;
     var sql = "INSERT INTO Notes (NoteDate, NoteText, LastModified) VALUES (";
     sql += "'" + dateForDay + "', ";
@@ -545,7 +550,7 @@ function insertNotes(dateForDay, notesText, callback) {
     sql += "'" + getMySQLNow() + "')";
     console.log("Executing SQL query = " + sql);
 
-    connection.query(sql, function(err, result) {
+    connection.query(sql, function (err, result) {
       if (err) throw err;
       if (callback) callback(err, result);
     });
@@ -560,14 +565,14 @@ function sqlNoteExists(dateForDay, callback) {
   connection.connect();
   console.log(
     "Searching for Note : " +
-      "SELECT * from Notes where NoteDate = '" +
-      dateForDay +
-      "'"
+    "SELECT * from Notes where NoteDate = '" +
+    dateForDay +
+    "'"
   );
 
   connection.query(
     "SELECT * from Notes where NoteDate = '" + dateForDay + "'",
-    function(err, rows, fields) {
+    function (err, rows, fields) {
       if (!err) {
         console.log("Rows found = " + rows.length);
         console.log("Returning = " + (rows.length > 0));
@@ -582,7 +587,7 @@ function sqlNoteExists(dateForDay, callback) {
 }
 
 function showNoteMarkdown() {
-  
+
   var viewDiv = document.getElementById("txtView");
   var notesText = document.getElementById("txtNotes");
   console.log("show notesText = " + notesText.value);
@@ -595,7 +600,7 @@ function showNoteMarkdown() {
   //});
 }
 
-function hideAllViews(){
+function hideAllViews() {
   document.getElementById("txtNotesArea").classList.add("hide");
   document.getElementById("txtView").classList.add("hide");
   document.getElementById("divDocsView").classList.add("hide");
@@ -607,10 +612,9 @@ function notesViewSelected() {
   hideAllViews();
   document.getElementById("btnViewText").classList.add("btnSelected");
   document.getElementById("btnViewMD").classList.remove("btnSelected");
-  if (document.getElementById("btnDocs").classList.contains("tabSelected")){
+  if (document.getElementById("btnDocs").classList.contains("tabSelected")) {
     document.getElementById("txtDocArea").classList.remove("hide");
-  }
-  else{
+  } else {
     document.getElementById("txtNotesArea").classList.remove("hide");
   }
 
@@ -620,10 +624,9 @@ function mdViewSelected() {
   hideAllViews();
   document.getElementById("btnViewText").classList.remove("btnSelected");
   document.getElementById("btnViewMD").classList.add("btnSelected");
-  if (document.getElementById("btnDocs").classList.contains("tabSelected")){
+  if (document.getElementById("btnDocs").classList.contains("tabSelected")) {
     document.getElementById("txtDocView").classList.remove("hide");
-  }
-  else{
+  } else {
     document.getElementById("txtView").classList.remove("hide");
   }
   showNoteMarkdown();
@@ -633,20 +636,18 @@ function docsViewSelected() {
   hideAllViews();
   document.getElementById("divDocsView").classList.remove("hide");
   // If markdown view is selected display the view div.
-  if (document.getElementById("btnViewMD").classList.contains("btnSelected")){
+  if (document.getElementById("btnViewMD").classList.contains("btnSelected")) {
     document.getElementById("txtDocView").classList.remove("hide");
-  }
-  else{
+  } else {
     document.getElementById("txtDocArea").classList.remove("hide");
   }
 }
 
 function docsViewUnselected() {
   hideAllViews();
-  if (document.getElementById("btnViewMD").classList.contains("btnSelected")){
+  if (document.getElementById("btnViewMD").classList.contains("btnSelected")) {
     document.getElementById("txtView").classList.remove("hide");
-  }
-  else{
+  } else {
     document.getElementById("txtNotesArea").classList.remove("hide");
   }
 }
@@ -660,7 +661,7 @@ function getTasks() {
   var connection = mysql.createConnection(dbConnection);
   connection.connect();
 
-  connection.query("SELECT * FROM TasksList LIMIT 1", function(
+  connection.query("SELECT * FROM TasksList LIMIT 1", function (
     err,
     rows,
     fields
@@ -675,9 +676,10 @@ function getTasks() {
 
   connection.end();
 }
+
 function saveTasks(tasksText) {
   //var noteExists = sqlNoteExists(dateForDay);
-  sqlTasksExists(function(result) {
+  sqlTasksExists(function (result) {
     if (result) {
       updateTasks(tasksText, null);
     } else {
@@ -688,13 +690,13 @@ function saveTasks(tasksText) {
 
 function updateTasks(tasksText, callback) {
   var connection = mysql.createConnection(dbConnection);
-  connection.connect(function(err) {
+  connection.connect(function (err) {
     if (err) throw err;
     var sql =
       "UPDATE TasksList SET TasksList = '" + sqlSafeText(tasksText) + "'";
     console.log("Executing SQL query = " + sql);
 
-    connection.query(sql, function(err, result) {
+    connection.query(sql, function (err, result) {
       if (err) throw err;
       console.log(result.affectedRows + " record(s) updated");
       if (callback) callback(err, result);
@@ -706,13 +708,13 @@ function updateTasks(tasksText, callback) {
 
 function insertTasks(tasksText, callback) {
   var connection = mysql.createConnection(dbConnection);
-  connection.connect(function(err) {
+  connection.connect(function (err) {
     if (err) throw err;
     var sql = "INSERT INTO TasksList (TasksList) VALUES (";
     sql += "'" + sqlSafeText(tasksText) + "')";
     console.log("Executing SQL query = " + sql);
 
-    connection.query(sql, function(err, result) {
+    connection.query(sql, function (err, result) {
       if (err) throw err;
       if (callback) callback(err, result);
     });
@@ -727,7 +729,7 @@ function sqlTasksExists(callback) {
   connection.connect();
   console.log("Searching for Tasks : " + "SELECT * from TasksList");
 
-  connection.query("SELECT * from TasksList", function(err, rows, fields) {
+  connection.query("SELECT * from TasksList", function (err, rows, fields) {
     if (!err) {
       console.log("Rows found = " + rows.length);
       console.log("Returning = " + (rows.length > 0));
@@ -741,6 +743,92 @@ function sqlTasksExists(callback) {
 }
 
 // #endregion TASKS CODE
+
+// #region DOCS CODE
+/*
+// :: TODO :: 
+
+// Load docs
+
+// Update docs
+
+// Add doc
+function addDocLocation(parentDoc, docName){
+  var docFullName = parentDoc == "" ? docName : parentDoc + "/" + docName;
+  // Make sure the document name is unique.
+  var docNewName = getUniqueDocName(docFullName);
+  // Add the document name to the database.
+  var connection = mysql.createConnection(dbConnection);
+  connection.connect(function (err) {
+    if (err) throw err;
+    var sql = "INSERT INTO Docs (DocName, DocLocation, DocColor, DocText, LastModified) VALUES (";
+    sql += "'New Page', ";
+    sql += "'" + docFullName + "', ";
+    sql += "";
+    sql += "'" + sqlSafeText(notesText) + "', ";
+    sql += "'" + getMySQLNow() + "')";
+    console.log("Executing SQL query = " + sql);
+
+    connection.query(sql, function (err, result) {
+      if (err) throw err;
+      if (callback) callback(err, result);
+    });
+  });
+}
+
+function docNameExists(docFullName, callback){
+  var retValue = docFullName;
+  var connection = mysql.createConnection(dbConnection);
+  connection.connect();
+  connection.query(
+    "SELECT DocLocation from Docs WHERE DocLocation = '" + docFullName + "'",
+    function (err, rows, fields) {
+      if (!err) {
+        console.log("Rows found = " + rows.length);
+        console.log("Returning = " + (rows.length > 0));
+        retValue = rows.length > 0;
+        if (callback) callback(retValue);
+        return retValue;
+      }
+    }
+  );
+}
+
+function getUniqueDocName(docFullName){
+  var fileNameIndex = 0;
+  var docReturnName = docFullName;
+  var uniqueNameFound = false;
+  var syncQuery = new Promise(function(resolve, reject){
+    resolve(docNameExists(docReturnName));
+  });
+  syncQuery.then(function(value){
+    uniqueNameFound = value ? false : true;
+  });
+  while (!uniqueNameFound){
+    fileNameIndex += 1;
+    docReturnName = docFullName + "(" + fileNameIndex + ")";
+    syncQuery.then(function(value){
+      uniqueNameFound = value ? false : true;
+    });
+  }
+  return docReturnName;
+}
+
+// Load pages
+
+// Update pages
+
+// Add page
+
+// Delete page
+
+// Rename page
+
+// Cut page
+
+// Paste page
+*/
+// #endregion DOCS CODE
 
 // #region SQL HELPER FUNCTIONS
 function sqlSafeText(unSafeText) {
@@ -796,11 +884,11 @@ function getSelectedDate() {
 /// Create SQL table.
 function createSQLTable(dbConnection, query, callback) {
   var connection = mysql.createConnection(dbConnection);
-  connection.connect(function(err) {
+  connection.connect(function (err) {
     if (err) throw err;
     console.log("Executing SQL query = " + query);
 
-    connection.query(query, function(err, result) {
+    connection.query(query, function (err, result) {
       if (err) throw err;
       if (callback) callback(err);
     });
@@ -838,7 +926,7 @@ function searchNotes(srchText, callback) {
   connection.connect();
 
   //connection.query('SELECT * from TasksList where ID = 1', function(err, rows, fields) {
-  connection.query(sqlCommand, function(err, rows, fields) {
+  connection.query(sqlCommand, function (err, rows, fields) {
     if (!err) {
       if (rows.length > 0) {
         console.log("Search results found = " + rows.length);
@@ -859,7 +947,7 @@ function searchNotes(srchText, callback) {
   if (callback) callback();
 }
 
-function unselectButton(){
+function unselectButton() {
   document.getElementById("btnTasks").classList.remove("tabSelected");
   document.getElementById("btnSearch").classList.remove("tabSelected");
   document.getElementById("btnDocs").classList.remove("tabSelected");
@@ -916,7 +1004,7 @@ function convertMySQLDate(dateForDay) {
   return yy + "-" + mm + "-" + dd;
 }
 
-function highlightWords(words, content, markD){
+function highlightWords(words, content, markD) {
   for (var i = 0; i < words.length; i++) {
     var pattern = new RegExp(words[i], "gi");
     newContent = content.replace(
@@ -924,7 +1012,7 @@ function highlightWords(words, content, markD){
       "<span><mark>$&</mark></span>"
     );
   }
-  if (!markD){
+  if (!markD) {
     newContent = "<div>" + newContent.replace(
       /(\r\n|\n|\r)/g,
       "</div><div>"
@@ -935,9 +1023,9 @@ function highlightWords(words, content, markD){
       "<div><br/></div>"
     );
     // Get rid of ther last <div>.
-    newContent = newContent.slice(0,-5);
+    newContent = newContent.slice(0, -5);
   }
-  
+
   return newContent;
 }
 
@@ -952,12 +1040,12 @@ function getNotePreview(dateForDay, callback) {
     convertMySQLDate(dateForDay) +
     "'";
   console.log(sqlQuery);
-  connection.query(sqlQuery, function(err, rows, fields) {
+  connection.query(sqlQuery, function (err, rows, fields) {
     if (!err) {
       if (rows.length > 0) {
         console.log("getNotes rows returned = " + rows.length);
         var previewText = rows[0].NoteText;
-        if (document.getElementById("btnViewMD").classList.contains("btnSelected")){
+        if (document.getElementById("btnViewMD").classList.contains("btnSelected")) {
           console.log("db notesText = " + previewText);
           previewText = marked(previewText);
           markD = true;
@@ -980,13 +1068,13 @@ function getNotePreview(dateForDay, callback) {
   if (callback) callback();
 }
 
-String.prototype.replaceAll = function(search, replacement) {
+String.prototype.replaceAll = function (search, replacement) {
   var target = this;
   return target.replace(new RegExp(search, 'g'), replacement);
 };
 
 function showSearchPreview(srchDate) {
-  getNotePreview(srchDate, function() {
+  getNotePreview(srchDate, function () {
     var txtSearchPreview = document.getElementById("txtSearchPreview");
     txtSearchPreview.classList.remove("hide");
     var txtNotesArea = document.getElementById("txtNotesArea");
@@ -999,10 +1087,9 @@ function showSearchPreview(srchDate) {
 
 function hideSearchPreview() {
   document.getElementById("txtSearchPreview").classList.add("hide");
-  if (document.getElementById("btnViewMD").classList.contains("btnSelected")){
+  if (document.getElementById("btnViewMD").classList.contains("btnSelected")) {
     document.getElementById("txtView").classList.remove("hide");
-  }
-  else{
+  } else {
     document.getElementById("txtNotesArea").classList.remove("hide");
   }
 }
@@ -1013,7 +1100,7 @@ function gotoDate(selDate) {
   var dd = dateParts[1];
   var yy = dateParts[2];
 
-  calChangeDate(mm, yy, function() {
+  calChangeDate(mm, yy, function () {
     dateSelected(dd);
   });
 }
@@ -1035,7 +1122,7 @@ function loadSettingsfromFile(fName, callback) {
       console.log(err);
     } else {
       settings = JSON.parse(data); //parse into an object
-      changeTheme(settings.themeIndex, function() {
+      changeTheme(settings.themeIndex, function () {
         initSettingsIcon();
       });
     }
@@ -1062,7 +1149,7 @@ function getSettingsfromDialog() {
 function testDBConnection() {
   var settings = getSettingsfromDialog();
   var connection = mysql.createConnection(settings);
-  connection.connect(function(err) {
+  connection.connect(function (err) {
     if (err) {
       alert("Database connection failed.");
     } else {
@@ -1092,8 +1179,8 @@ function createNotesDBTables(callback) {
     ") ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;";
   var settings = getSettingsfromDialog();
 
-  createSQLTable(settings, createNotesTable, function(err) {
-    createSQLTable(settings, createTasksTable, function(err) {
+  createSQLTable(settings, createNotesTable, function (err) {
+    createSQLTable(settings, createTasksTable, function (err) {
       if (callback) callback(err);
     });
   });
@@ -1118,10 +1205,14 @@ function initSettingsIcon() {
 function toggleSettingsBox() {
   if (!settingsShown) {
     document.getElementById("settingsSlider").classList.remove("hide");
-    $("#settingsSlider").animate({ right: "5px" });
+    $("#settingsSlider").animate({
+      right: "5px"
+    });
     settingsShown = true;
   } else {
-    $("#settingsSlider").animate({ right: "-200px" }, 500, () => {
+    $("#settingsSlider").animate({
+      right: "-200px"
+    }, 500, () => {
       document.getElementById("settingsSlider").classList.add("hide");
     });
     settingsShown = false;
@@ -1130,111 +1221,114 @@ function toggleSettingsBox() {
 
 // #endregion SETTINGS CODE
 
-// #region RESIZE LEFT SIDE BAR
-var startX, startLeftWidth;
+// #region RESIZE SIDE BARS
+var startX, startWidth;
 var leftDiv = document.getElementById("leftSideBar");
+var rightDiv = document.getElementById("docsSideBar");
+var dragTargetDiv;
 
 function initVDrag(e) {
   startX = e.clientX;
-  startLeftWidth = parseInt(document.defaultView.getComputedStyle(leftDiv).width, 10);
+  console.log("Initializing resize drag....");
+  console.log(e.target.id);
+  dragTargetDiv = e.target.id == "vSplitter" ? leftDiv : rightDiv;
+  startWidth = parseInt(document.defaultView.getComputedStyle(dragTargetDiv).width, 10);
   document.documentElement.addEventListener('mousemove', doVDrag, false);
   document.documentElement.addEventListener('mouseup', stopVDrag, false);
 }
 
 function doVDrag(e) {
-  leftDiv.style.width = (startLeftWidth + e.clientX - startX) + 'px';
+  if (dragTargetDiv === leftDiv) {
+    leftDiv.style.width = (startWidth + e.clientX - startX) + 'px';
+  } else {
+    rightDiv.style.width = (startWidth + startX - e.clientX) + 'px';
+    console.log("Setting rightDiv width to " + (startWidth + startX - e.clientX) + 'px');
+  }
+
   console.log("doVDrag");
 }
 
 function stopVDrag(e) {
+  console.log("Called stopVDrag....");
   document.documentElement.removeEventListener('mousemove', doVDrag, false);
   document.documentElement.removeEventListener('mouseup', stopVDrag, false);
 }
 
-// #endregion RESIZE LEFT SIDE BAR
-
-// #region RESIZE RIGHT SIDE BAR
-var startRightWidth;
-var rightDiv = document.getElementById("leftSideBar");
-
-
-// #endregion RESIZE RIGHT SIDE BAR
-
+// #endregion RESIZE SIDE BARS
 
 // #region HELPER FUNCTIONS
 
-function ShowOKMessageBox(message){
+function ShowOKMessageBox(message) {
   const options = {
-      type: "info",
-      title: "Information",
-      buttons: ["OK"],
-      message: message,
-    };
-  
-    dialog.showMessageBox(null, options);
+    type: "info",
+    title: "Information",
+    buttons: ["OK"],
+    message: message,
+  };
+
+  dialog.showMessageBox(null, options);
 }
 
-function ShowWarningMessageBox(message){
+function ShowWarningMessageBox(message) {
   const options = {
-      type: "warning",
-      title: "Warning",
-      buttons: ["OK"],
-      message: message,
-    };
-  
-    dialog.showMessageBox(null, options);
+    type: "warning",
+    title: "Warning",
+    buttons: ["OK"],
+    message: message,
+  };
+
+  dialog.showMessageBox(null, options);
 }
 
 // #endregion HELPER FUNCTIONS
 
 // #region DOCUMENT EVENT HANDLERS
-document.getElementById("btnNow").addEventListener("click", function() {
+document.getElementById("btnNow").addEventListener("click", function () {
   gotoDate(getNow());
 });
 
-document.getElementById("btnSave").addEventListener("click", function() {
+document.getElementById("btnSave").addEventListener("click", function () {
   saveNotes(lastDaySelected, document.getElementById("txtNotes").value);
   saveTasks(document.getElementById("txtTasks").value);
 });
 
-document.getElementById("btnRevert").addEventListener("click", function() {
+document.getElementById("btnRevert").addEventListener("click", function () {
   getNotes(getSelectedDate());
   getTasks();
 });
 
-document.getElementById("btnSearch").addEventListener("click", function() {
+document.getElementById("btnSearch").addEventListener("click", function () {
   docsViewUnselected();
   searchSelected();
 });
 
-document.getElementById("btnTasks").addEventListener("click", function() {
+document.getElementById("btnTasks").addEventListener("click", function () {
   docsViewUnselected();
   tasksSelected();
 });
 
-document.getElementById("btnDocs").addEventListener("click", function() {
+document.getElementById("btnDocs").addEventListener("click", function () {
   docsViewSelected();
   docsSelected();
 });
 
-document.getElementById("btnGo").addEventListener("click", function() {
+document.getElementById("btnGo").addEventListener("click", function () {
   //addSearchResultItem("Test");
   var searchText = document.getElementById("txtSearch").value;
   console.log("Searching for " + searchText);
   clearSearchResults(searchNotes(searchText));
 });
 
-document.getElementById("btnHideLeft").addEventListener("click", function() {
+document.getElementById("btnHideLeft").addEventListener("click", function () {
   var leftSideBar = document.getElementById("leftSideBar");
   var btnHideLeft = document.getElementById("btnHideLeft");
   var txtNotesTitle = document.getElementById("txtNotesTitle");
-  if (btnHideLeft.classList.contains("div_arrow_collapse")){
+  if (btnHideLeft.classList.contains("div_arrow_collapse")) {
     btnHideLeft.classList.remove("div_arrow_collapse");
     btnHideLeft.classList.add("div_arrow_expand");
     leftSideBar.classList.add("hide");
     txtNotesTitle.innerText = "NOTES - " + daySelected + "/" + monthDisplayed + "/" + yearDisplayed;
-  }
-  else{
+  } else {
     btnHideLeft.classList.add("div_arrow_collapse");
     btnHideLeft.classList.remove("div_arrow_expand");
     leftSideBar.classList.remove("hide");
@@ -1273,13 +1367,13 @@ function dateSelected(dayNum) {
   getNotes(getSelectedDate());
   getTasks();
   lastDaySelected = getSelectedDate();
-  
+
   initialLoad = false;
 }
 
 document
   .getElementById("btnSettings")
-  .addEventListener("mouseenter", function() {
+  .addEventListener("mouseenter", function () {
     console.log("Themeindex = " + selectedTheme);
     console.log(
       "invertSettingsIcon = " + themes[selectedTheme].invertSettingsIcon
@@ -1297,23 +1391,25 @@ document
 
 document
   .getElementById("btnSettings")
-  .addEventListener("mouseleave", function() {
+  .addEventListener("mouseleave", function () {
     initSettingsIcon();
   });
 
-document.getElementById("btnSettings").addEventListener("click", function() {
+document.getElementById("btnSettings").addEventListener("click", function () {
   toggleSettingsBox();
 });
 
 document
   .getElementById("btnSettingsClose")
-  .addEventListener("click", function() {
+  .addEventListener("click", function () {
     dbConnection = getSettingsfromDialog();
 
-    saveSettingstoFile(dbConnection, function() {
+    saveSettingstoFile(dbConnection, function () {
       dateSelected(lastDaySelected);
     });
-    $("#settingsSlider").animate({ right: "-200px" });
+    $("#settingsSlider").animate({
+      right: "-200px"
+    });
     $("#settingsSlider").classList.add("hide");
 
     settingsShown = false;
@@ -1321,14 +1417,14 @@ document
 
 document
   .getElementById("btnTestConnection")
-  .addEventListener("click", function() {
+  .addEventListener("click", function () {
     testDBConnection();
   });
 
 document
   .getElementById("btnCreateTables")
-  .addEventListener("click", function() {
-    createNotesDBTables(function(err) {
+  .addEventListener("click", function () {
+    createNotesDBTables(function (err) {
       if (!err) {
         alert("Tables created.");
       } else {
@@ -1337,7 +1433,7 @@ document
     });
   });
 
-document.getElementById("selThemes").addEventListener("change", function() {
+document.getElementById("selThemes").addEventListener("change", function () {
   var el = document.getElementById("selThemes");
   var themeIndex = el.options[el.selectedIndex].value;
   changeTheme(themeIndex);
@@ -1363,7 +1459,7 @@ document.getElementById("txtDoc").addEventListener("input", () => {
   document.getElementById("btnSave").innerHTML = "*SAVE*";
 });
 
-document.getElementById("txtNotes").addEventListener("contextmenu", (e)=>{
+document.getElementById("txtNotes").addEventListener("contextmenu", (e) => {
   console.log(e.clientX);
   var menu = document.querySelector(".notesMenu");
   menu.style.left = e.clientX + "px";
@@ -1377,14 +1473,14 @@ document.getElementById("txtNotes").addEventListener("contextmenu", (e)=>{
 //   menu.classList.add("hide");
 // });
 
-document.getElementById("btnInsertTable").addEventListener("click", (e)=>{
+document.getElementById("btnInsertTable").addEventListener("click", (e) => {
   var tableTemplate = "| header1 | header2 | header3 |\n| --- | --- | --- |\n|  |  |  |";
   var cursorPos = $('#txtNotes').prop('selectionStart');
   console.log("txtNotes cursorposition = " + cursorPos);
   var v = $('#txtNotes').val();
-  var textBefore = v.substring(0,  cursorPos );
-  var textAfter  = v.substring( cursorPos, v.length );
-  $('#txtNotes').val( textBefore + tableTemplate + textAfter );
+  var textBefore = v.substring(0, cursorPos);
+  var textAfter = v.substring(cursorPos, v.length);
+  $('#txtNotes').val(textBefore + tableTemplate + textAfter);
   var menu = document.querySelector(".notesMenu");
   menu.classList.add("hide");
   document.getElementById("btnSave").innerHTML = "*SAVE*";
@@ -1393,33 +1489,36 @@ document.getElementById("btnInsertTable").addEventListener("click", (e)=>{
 // Hide the contextmenu whenever any where on the document is clicked.
 document.querySelector("body").addEventListener("click", () => {
   document.querySelector(".notesMenu").classList.add("hide");
-})
+});
 
 // Intercept the tab key while in the txtNotes area.
-document.querySelector("#txtNotes").addEventListener('keydown',function(e) {
-  if(e.keyCode === 9) { // tab was pressed
-      // get caret position/selection
-      var start = this.selectionStart;
-      var end = this.selectionEnd;
+document.querySelector("#txtNotes").addEventListener('keydown', function (e) {
+  if (e.keyCode === 9) { // tab was pressed
+    // get caret position/selection
+    var start = this.selectionStart;
+    var end = this.selectionEnd;
 
-      var target = e.target;
-      var value = target.value;
+    var target = e.target;
+    var value = target.value;
 
-      // set textarea value to: text before caret + tab + text after caret
-      target.value = value.substring(0, start)
-                  + "\t"
-                  + value.substring(end);
+    // set textarea value to: text before caret + tab + text after caret
+    target.value = value.substring(0, start) +
+      "\t" +
+      value.substring(end);
 
-      // put caret at right position again (add one for the tab)
-      this.selectionStart = this.selectionEnd = start + 1;
+    // put caret at right position again (add one for the tab)
+    this.selectionStart = this.selectionEnd = start + 1;
 
-      // The notes have been changed.  Indicate this with the Save button stars.
-      document.getElementById("btnSave").innerHTML = "*SAVE*";
+    // The notes have been changed.  Indicate this with the Save button stars.
+    document.getElementById("btnSave").innerHTML = "*SAVE*";
 
-      // prevent the focus lose
-      e.preventDefault();
+    // prevent the focus lose
+    e.preventDefault();
   }
-},false);
+}, false);
 
 document.getElementById("vSplitter").addEventListener("mousedown", initVDrag, false);
+document.getElementById("vSplitterDoc").addEventListener("mousedown", initVDrag, false);
+
+document.getElementById("btnAddDoc").addEventListener("click", addDocLocation("","New Document"));
 // #endregion DOCUMENT EVENT HANDLERS

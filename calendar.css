@@ -124,6 +124,10 @@ body {
     padding: 0;
 }
 
+.border {
+    border: solid 1px var(--buttonbordercolor) !important;
+}
+
 .horizDivider {
     padding: 0;
     width: 5px;

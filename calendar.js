@@ -274,6 +274,7 @@ var CALENDAR = function () {
         console.log(settings);
         dbConnection = settings;
         dateSelected(daySelected);
+        loadDocs();
       } else {
         ////alert("No settings found.  Configure your settings.");
         ShowWarningMessageBox("No settings found.  Configure your settings.");
@@ -744,9 +745,37 @@ function sqlTasksExists(callback) {
 
 // #region DOCS CODE
 
+var lstDocuments = document.getElementById("lstDocuments");
+var dvDocuments = new div_treeview(lstDocuments, "/");
+dvDocuments.onSelect(documentSelected);
+console.log(dvDocuments);
+
 // :: TODO :: 
 
 // Load docs
+function loadDocs(){
+  // Load treeview with the documents.
+  var connection = mysql.createConnection(dbConnection);
+    connection.connect();
+    connection.query(
+      "SELECT DISTINCT DocLocation from Docs", function (err, data) {
+        if (err) throw err;
+        console.log(data);
+        for(var i=0; i<data.length; i++){
+          
+          dvDocuments.addTVItem(lstDocuments,data[i].DocLocation, false);
+        }
+        // Pick the first location.
+        dvDocuments.selectFirstItem();
+      
+        connection.end();
+      }
+    );
+}
+
+function documentSelected(){
+  
+}
 
 // Update docs
 

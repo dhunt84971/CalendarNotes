@@ -745,7 +745,7 @@ function sqlTasksExists(callback) {
 // #endregion TASKS CODE
 
 // #region DOCS CODE
-/*
+
 // :: TODO :: 
 
 // Load docs
@@ -753,63 +753,69 @@ function sqlTasksExists(callback) {
 // Update docs
 
 // Add doc
-function addDocLocation(parentDoc, docName){
+function addDocLocation(parentDoc, docName, callback){
   var docFullName = parentDoc == "" ? docName : parentDoc + "/" + docName;
   // Make sure the document name is unique.
-  var docNewName = getUniqueDocName(docFullName);
-  // Add the document name to the database.
-  var connection = mysql.createConnection(dbConnection);
-  connection.connect(function (err) {
-    if (err) throw err;
-    var sql = "INSERT INTO Docs (DocName, DocLocation, DocColor, DocText, LastModified) VALUES (";
-    sql += "'New Page', ";
-    sql += "'" + docFullName + "', ";
-    sql += "";
-    sql += "'" + sqlSafeText(notesText) + "', ";
-    sql += "'" + getMySQLNow() + "')";
-    console.log("Executing SQL query = " + sql);
-
-    connection.query(sql, function (err, result) {
+  var docNewName;
+  getUniqueDocName(docFullName, (docNewName)=>{
+    // Add the document name to the database.
+    var connection = mysql.createConnection(dbConnection);
+    connection.connect(function (err) {
       if (err) throw err;
-      if (callback) callback(err, result);
+      var sql = "INSERT INTO Docs (DocName, DocLocation, DocColor, DocText, LastModified) VALUES (";
+      sql += "'New Page', ";
+      sql += "'" + docNewName + "', ";
+      sql += "-1, ";
+      sql += "'', ";
+      sql += "'" + getMySQLNow() + "')";
+      console.log("Executing SQL query = " + sql);
+
+      connection.query(sql, function (err, result) {
+        if (err) throw err;
+        if (callback) callback(err, result);
+      });
     });
   });
 }
 
 function docNameExists(docFullName, callback){
-  var retValue = docFullName;
-  var connection = mysql.createConnection(dbConnection);
-  connection.connect();
-  connection.query(
-    "SELECT DocLocation from Docs WHERE DocLocation = '" + docFullName + "'",
-    function (err, rows, fields) {
-      if (!err) {
-        console.log("Rows found = " + rows.length);
-        console.log("Returning = " + (rows.length > 0));
-        retValue = rows.length > 0;
-        if (callback) callback(retValue);
-        return retValue;
+  return new Promise(function(resolve, reject){
+    var retValue = docFullName;
+    var connection = mysql.createConnection(dbConnection);
+    connection.connect();
+    connection.query(
+      "SELECT DocLocation from Docs WHERE DocLocation = '" + docFullName + "'",
+      function (err, rows, fields) {
+        if (err){
+          reject(new Error("DB error occurred!"))
+        }
+        else{
+          console.log("Rows found = " + rows.length);
+          console.log("Returning = " + (rows.length > 0));
+          retValue = rows.length > 0;
+          if (callback) callback(retValue);
+          resolve(retValue);
+        }
       }
-    }
-  );
+    );
+  });
 }
 
-function getUniqueDocName(docFullName){
+async function getUniqueDocName(docFullName, callback){
   var fileNameIndex = 0;
   var docReturnName = docFullName;
-  var uniqueNameFound = false;
-  var syncQuery = new Promise(function(resolve, reject){
-    resolve(docNameExists(docReturnName));
-  });
-  syncQuery.then(function(value){
-    uniqueNameFound = value ? false : true;
-  });
-  while (!uniqueNameFound){
+  console.log("looking for name " + docFullName);
+  var nameFound = await docNameExists(docFullName);
+  console.log("looping");
+  while (nameFound){
+    console.log("incrementing name");
     fileNameIndex += 1;
     docReturnName = docFullName + "(" + fileNameIndex + ")";
-    syncQuery.then(function(value){
-      uniqueNameFound = value ? false : true;
-    });
+    console.log("searching for " + docReturnName);
+    nameFound = await docNameExists(docReturnName);
+  }
+  if (callback){
+    callback(docReturnName);
   }
   return docReturnName;
 }
@@ -827,7 +833,7 @@ function getUniqueDocName(docFullName){
 // Cut page
 
 // Paste page
-*/
+
 // #endregion DOCS CODE
 
 // #region SQL HELPER FUNCTIONS
@@ -1520,5 +1526,7 @@ document.querySelector("#txtNotes").addEventListener('keydown', function (e) {
 document.getElementById("vSplitter").addEventListener("mousedown", initVDrag, false);
 document.getElementById("vSplitterDoc").addEventListener("mousedown", initVDrag, false);
 
-document.getElementById("btnAddDoc").addEventListener("click", addDocLocation("","New Document"));
+document.getElementById("btnAddDoc").addEventListener("click", ()=>{
+  addDocLocation("","New Document");
+});
 // #endregion DOCUMENT EVENT HANDLERS

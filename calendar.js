@@ -497,9 +497,8 @@ function getNotes(dateForDay, callback) {
       console.log("Error while performing Query, " + sqlQuery);
       console.log(dbConnection);
     }
+    connection.end();
   });
-
-  connection.end();
 
   if (callback) {
     callback();
@@ -534,10 +533,10 @@ function updateNotes(dateForDay, notesText, callback) {
       if (err) throw err;
       console.log(result.affectedRows + " record(s) updated");
       if (callback) callback(err, result);
+      connection.end();
     });
   });
 
-  //connection.end();
 }
 
 function insertNotes(dateForDay, notesText, callback) {
@@ -553,10 +552,10 @@ function insertNotes(dateForDay, notesText, callback) {
     connection.query(sql, function (err, result) {
       if (err) throw err;
       if (callback) callback(err, result);
+      connection.end();
     });
   });
 
-  //connection.end();
 }
 
 function sqlNoteExists(dateForDay, callback) {
@@ -579,10 +578,10 @@ function sqlNoteExists(dateForDay, callback) {
         retValue = rows.length > 0;
         if (callback) callback(retValue);
       }
+      connection.end();
     }
   );
 
-  connection.end();
   return retValue;
 }
 
@@ -672,9 +671,9 @@ function getTasks() {
     } else {
       console.log("Error while performing Query.");
     }
+    connection.end();
   });
-
-  connection.end();
+  
 }
 
 function saveTasks(tasksText) {
@@ -700,10 +699,9 @@ function updateTasks(tasksText, callback) {
       if (err) throw err;
       console.log(result.affectedRows + " record(s) updated");
       if (callback) callback(err, result);
+      connection.end();
     });
   });
-
-  //connection.end();
 }
 
 function insertTasks(tasksText, callback) {
@@ -717,10 +715,10 @@ function insertTasks(tasksText, callback) {
     connection.query(sql, function (err, result) {
       if (err) throw err;
       if (callback) callback(err, result);
+      connection.end();
     });
   });
 
-  //connection.end();
 }
 
 function sqlTasksExists(callback) {
@@ -736,9 +734,9 @@ function sqlTasksExists(callback) {
       retValue = rows.length > 0;
       if (callback) callback(retValue);
     }
+    connection.end();
   });
 
-  connection.end();
   return retValue;
 }
 
@@ -773,6 +771,7 @@ function addDocLocation(parentDoc, docName, callback){
       connection.query(sql, function (err, result) {
         if (err) throw err;
         if (callback) callback(err, result);
+        connection.end();
       });
     });
   });
@@ -796,6 +795,7 @@ function docNameExists(docFullName, callback){
           if (callback) callback(retValue);
           resolve(retValue);
         }
+        connection.end();
       }
     );
   });

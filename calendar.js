@@ -787,7 +787,7 @@ function docNameExists(docFullName, callback){
       "SELECT DocLocation from Docs WHERE DocLocation = '" + docFullName + "'",
       function (err, rows, fields) {
         if (err){
-          reject(new Error("DB error occurred!"))
+          reject(new Error("DB error occurred!"));
         }
         else{
           console.log("Rows found = " + rows.length);

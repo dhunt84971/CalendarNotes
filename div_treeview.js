@@ -75,7 +75,7 @@ function div_treeview(divTVElement, divTVDelimeter) {
             console.log(e.target);
             if (e.target.classList.contains("div_treeview_item")){
                 removeAllSelected(divTVElement);
-                e.target.classList.add("div_treeview_selected")
+                e.target.classList.add("div_treeview_selected");
                 callback(getFullPath(e.target));  
             }
             else if (e.target.classList.contains(_mkStyle)){
@@ -90,10 +90,12 @@ function div_treeview(divTVElement, divTVDelimeter) {
     }
 
     function selectFirstItem(){
-        removeAllSelected(divTVElement);
-        var firstItem = divTVElement.children[0].children[0];
-        firstItem.classList.add("div_treeview_selected")
-        onSelect_Callback(firstItem.innerText);
+        if (divTVElement.innerHTML !=""){
+            removeAllSelected(divTVElement);
+            var firstItem = divTVElement.children[0].children[0];
+            firstItem.classList.add("div_treeview_selected");
+            if (onSelect_Callback) onSelect_Callback(firstItem.innerText);
+        }
     }
 
     function onDblClick(callback){

@@ -747,10 +747,18 @@ function sqlTasksExists(callback) {
 
 var lstDocuments = document.getElementById("lstDocuments");
 var dvDocuments = new div_treeview(lstDocuments, "/");
+var documentSelected = function (text){
+  selectDocument(text);
+}
 dvDocuments.onSelect(documentSelected);
 console.log(dvDocuments);
 
 // :: TODO :: 
+
+// Select doc
+function selectDocument(docName){
+  loadPages(docName);
+}
 
 // Load docs
 function loadDocs(){
@@ -771,10 +779,6 @@ function loadDocs(){
         connection.end();
       }
     );
-}
-
-function documentSelected(){
-  
 }
 
 // Update docs
@@ -802,6 +806,7 @@ function addDocLocation(parentDoc, docName, callback){
         if (callback) callback(err, result);
         connection.end();
       });
+      dvDocuments.addTVItem(lstDocuments, docNewName, false);
     });
   });
 }
@@ -850,10 +855,51 @@ async function getUniqueDocName(docFullName, callback){
 }
 
 // Load pages
+function emptyDiv(divById){
+  document.getElementById(divById).innerHTML = "";
+}
 
+function addItemtoDiv(divById, itemInnerText, classAdd){
+  var newItem = document.createElement("div");
+  newItem.innerText = itemInnerText;
+  newItem.classList.add(classAdd);
+  document.getElementById(divById).appendChild(newItem);
+}
+
+async function loadPages(docFullName, callback){
+  var data = await getPages(docFullName);
+  emptyDiv("lstDocs");
+  for (var i=0; i<data.length;i++){
+    addItemtoDiv("lstDocs", data[i].DocName, "btn");
+  }
+}
+
+function getPages(docFullName, callback){
+  return new Promise(function(resolve, reject){
+    var connection = mysql.createConnection(dbConnection);
+      connection.connect();
+      connection.query(
+        "SELECT DocName from Docs WHERE DocLocation = '" + docFullName + "'",
+        function (err, rows, fields) {
+          if (err){
+            reject(new Error("DB error occurred!"));
+          }
+          else{
+            
+            retValue = rows;
+            if (callback) callback(retValue);
+            resolve(rows);
+          }
+          connection.end();
+        }
+      );
+  });
+}
 // Update pages
 
 // Add page
+
+
 
 // Delete page
 

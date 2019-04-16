@@ -807,6 +807,7 @@ function addDocLocation(parentDoc, docName, callback){
         connection.end();
       });
       dvDocuments.addTVItem(lstDocuments, docNewName, false);
+      selectDocument(docNewName);
     });
   });
 }

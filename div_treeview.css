@@ -72,3 +72,22 @@
     border-top: 10px solid rgb(51, 51, 51);;
     background-color: transparent !important;
 }
+
+.div_treeview_arrow_dnrt {
+    width: 0 !important; 
+    height: 0!important; 
+    border-left: 10px solid transparent;
+    border-right: 0px solid rgb(51, 51, 51);
+    border-bottom: 10px solid rgb(51, 51, 51);
+    background-color: transparent !important;
+}
+
+.div_treeview_arrow_right {
+    width: 0 !important; 
+    height: 0!important; 
+    border-top: 5px solid transparent;
+    border-left: 10px solid rgb(51, 51, 51);
+    border-right: 0px solid transparent;
+    border-bottom: 5px solid transparent;
+    background-color: transparent !important;
+}

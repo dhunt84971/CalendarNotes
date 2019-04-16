@@ -1,8 +1,8 @@
 function div_treeview(divTVElement, divTVDelimeter) {
 
     var onSelect_Callback;
-    var _expandedStyle = "div_treeview_arrow_up";
-    var _collapsedStyle = "div_treeview_arrow_down";
+    var _expandedStyle = "div_treeview_arrow_dnrt";
+    var _collapsedStyle = "div_treeview_arrow_right";
     var _mkStyle = "div_treeview_marker";
 
     function addTVText(parent, text) {

@@ -9,9 +9,15 @@
 .div_treeview_hbox {
     display: flex;
     flex-direction: row;
+    align-items: center;
     flex: 0 0 auto;
     padding: 5px;
-    background: gray;
+    background: var(--notesBGColor);
+    min-height: 30px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
 }
 
 .div_treeview_leftMargin {
@@ -19,17 +25,18 @@
 }
 
 .div_treeview_item {
-    color: white;
+    color: var(--notesTextColor);
     padding: 2px 2px 2px 2px;
 }
 
 .div_treeview_item:hover {
-    background-color: #a0a0a0;
+    background-color: var(--buttonhover);
     cursor: pointer;
+    color: var(--buttonhovertext);
 }
 
 .div_treeview_selected {
-    background-color: #08a9c5;
+    background-color: var(--compColor1);
     color: black;
 }
 
@@ -47,11 +54,10 @@
     margin-right: 5px;
     width: 10px;
     height: 10px;
-    background-color: rgb(88, 88, 88);
+    background-color: var(--compColor1);
 }
 
 .div_treeview_marker:hover {
-    background-color: #08a9c5;
     cursor: pointer;
 }
 
@@ -60,7 +66,7 @@
     height: 0!important; 
     border-left: 5px solid transparent;
     border-right: 5px solid transparent;
-    border-bottom: 10px solid rgb(51, 51, 51);
+    border-bottom: 10px solid var(--notesTextColor);
     background-color: transparent !important;
 }
 
@@ -69,7 +75,7 @@
     height: 0 !important; 
     border-left: 5px solid transparent;
     border-right: 5px solid transparent;
-    border-top: 10px solid rgb(51, 51, 51);;
+    border-top: 10px solid var(--notesTextColor);
     background-color: transparent !important;
 }
 
@@ -77,17 +83,26 @@
     width: 0 !important; 
     height: 0!important; 
     border-left: 10px solid transparent;
-    border-right: 0px solid rgb(51, 51, 51);
-    border-bottom: 10px solid rgb(51, 51, 51);
+    border-right: 0px solid var(--notesTextColor);
+    border-bottom: 10px solid var(--notesTextColor);
     background-color: transparent !important;
+}
+.div_treeview_arrow_dnrt:hover {
+    cursor: pointer;
+    border-right: 0px solid var(--buttonhover);
+    border-bottom: 10px solid var(--buttonhover);
 }
 
 .div_treeview_arrow_right {
     width: 0 !important; 
     height: 0!important; 
     border-top: 5px solid transparent;
-    border-left: 10px solid rgb(51, 51, 51);
+    border-left: 10px solid var(--notesTextColor);
     border-right: 0px solid transparent;
     border-bottom: 5px solid transparent;
     background-color: transparent !important;
+}
+.div_treeview_arrow_right:hover {
+    cursor: pointer;
+    border-left: 10px solid var(--buttonhover);
 }

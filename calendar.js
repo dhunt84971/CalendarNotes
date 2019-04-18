@@ -863,7 +863,10 @@ function emptyDiv(divById){
 function addItemtoDiv(divById, itemInnerText, classAdd){
   var newItem = document.createElement("div");
   newItem.innerText = itemInnerText;
-  newItem.classList.add(classAdd);
+  var classes = classAdd.split(" ");
+  for (var i=0; i<classes.length;i++){
+    newItem.classList.add(classes[i]);
+  }
   document.getElementById(divById).appendChild(newItem);
 }
 
@@ -871,7 +874,7 @@ async function loadPages(docFullName, callback){
   var data = await getPages(docFullName);
   emptyDiv("lstDocs");
   for (var i=0; i<data.length;i++){
-    addItemtoDiv("lstDocs", data[i].DocName, "btn");
+    addItemtoDiv("lstDocs", data[i].DocName, "btn srchResultItem");
   }
 }
 

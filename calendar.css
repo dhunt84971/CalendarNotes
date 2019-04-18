@@ -241,7 +241,7 @@ textarea {
 /* #region RESIZING STYLES */
 .vsplit {
     min-width:5px;
-    background: var(--notesBGColor);
+    background: var(--bodyColor);
     cursor: ew-resize;
 }
 

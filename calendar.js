@@ -751,9 +751,22 @@ var documentSelected = function (text){
   selectDocument(text);
 }
 dvDocuments.onSelect(documentSelected);
-console.log(dvDocuments);
+var onDocContextMenu = function (el, fullPath){
+  docContextMenu(el, fullPath);
+}
+dvDocuments.onRightClick(onDocContextMenu);
 
 // :: TODO :: 
+
+// Doc context menu
+function docContextMenu (el, fullPath){
+  console.log(el.clientX);
+  var menu = document.querySelector(".docsMenu");
+  menu.style.left = el.clientX + "px";
+  menu.style.top = el.clientY + "px";
+  menu.classList.remove("hide");
+  console.log(menu);
+}
 
 // Select doc
 function selectDocument(docName){
@@ -1574,6 +1587,7 @@ document.getElementById("btnInsertTable").addEventListener("click", (e) => {
 // Hide the contextmenu whenever any where on the document is clicked.
 document.querySelector("body").addEventListener("click", () => {
   document.querySelector(".notesMenu").classList.add("hide");
+  document.querySelector(".docsMenu").classList.add("hide");
 });
 
 // Intercept the tab key while in the txtNotes area.

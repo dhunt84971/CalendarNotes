@@ -112,6 +112,17 @@ function div_treeview(divTVElement, divTVDelimeter) {
         });
     }
 
+    function onRightClick(callback){
+        divTVElement.ownerDocument.addEventListener("contextmenu", (e)=>{
+            if (e.target.classList.contains("div_treeview_item")){
+                if (onSelect_Callback){
+                    onSelect_Callback(getFullPath(e.target));
+                }
+                callback(e, getFullPath(e.target));
+            }
+        });
+    }
+
     function getFullPath(divItem){
         var fullPath = [];
         var noParent = false;
@@ -238,6 +249,7 @@ function div_treeview(divTVElement, divTVDelimeter) {
     this.addTVItem = addTVItem;
     this.onSelect = onSelect;
     this.onDblClick = onDblClick;
+    this.onRightClick = onRightClick;
     this.expandAll = expandAll;
     this.collapseAll = collapseAll;
     this.selectFirstItem = selectFirstItem;

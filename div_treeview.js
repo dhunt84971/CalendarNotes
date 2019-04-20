@@ -47,7 +47,9 @@ function div_treeview(divTVElement, divTVDelimeter) {
             if (!found) {
                 var newItem = document.createElement("div");
                 newItem.classList.add("div_treeview_vbox");
-                isSubitem ? newItem.classList.add("div_treeview_leftMargin") : null;
+                if (isSubitem){
+                    newItem.classList.add("div_treeview_leftMargin");
+                }
                 var newParent = parent.appendChild(newItem);
                 addTVText(newParent, tvItems[0]);
 
@@ -230,11 +232,13 @@ function div_treeview(divTVElement, divTVDelimeter) {
         if (!divItem){
             divItem = divTVElement;
         }
-        if (divItem.classList.contains(_expandedStyle)){
-            console.log("found expanded marker.");
+        if (divItem.classList.contains(_mkStyle)){
             if(divItem.parentNode.parentNode.children.length == 1){
                 divItem.classList.remove(_expandedStyle);
                 divItem.classList.remove(_collapsedStyle);
+            }
+            else{
+                divItem.classList.add(_expandedStyle);
             }
         }
         var children = divItem.children;
@@ -242,7 +246,6 @@ function div_treeview(divTVElement, divTVDelimeter) {
             fixLastMarkers(children[i]);
         }
     }
-
 
     // Expose all public functions/objects here.
     this.loadItems = loadItems;

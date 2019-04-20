@@ -1,6 +1,8 @@
-const {
-  dialog
-} = require("electron").remote;
+const { dialog } = require("electron").remote;
+const electron = require("electron");
+const { remote } = require("electron");
+const ipc = require("electron").ipcRenderer;
+
 var mysql = require("mysql");
 var fs = require("fs");
 var marked = require("marked");
@@ -758,8 +760,10 @@ dvDocuments.onRightClick(onDocContextMenu);
 
 // :: TODO :: 
 
-// Doc context menu
+// Show Doc context menu
+var contextSelectedDoc;
 function docContextMenu (el, fullPath){
+  contextSelectedDoc = fullPath;
   console.log(el.clientX);
   var menu = document.querySelector(".docsMenu");
   menu.style.left = el.clientX + "px";
@@ -792,6 +796,56 @@ function loadDocs(){
         connection.end();
       }
     );
+}
+
+// Rename doc
+function renameDoc(docFullPath){
+  // Display dialog box for data entry.
+  var docs = docFullPath.split("/");
+  showRenameWindow(docs[docs.length-1]);
+}
+
+function showRenameWindow(oldName) {
+
+  // Get the current window size and position.
+  const pos = remote.getCurrentWindow().getPosition();
+  const size = remote.getCurrentWindow().getSize();
+  var xPos = pos[0] + (size[0] / 2) - 170;
+  var yPos = pos[1] + (size[1] / 2) - 200;
+
+  let win = new remote.BrowserWindow({
+      parent: remote.getCurrentWindow(),
+      ////frame: false,
+      modal: true,
+      width: 340,
+      height: 450,
+      resizable: false,
+      x: xPos,
+      y: yPos,
+      show: false
+  });
+
+  var theUrl = 'file://' + __dirname + '/renameItem.html'
+  console.log('url', theUrl);
+
+  win.loadURL(theUrl);
+  //win.webContents.openDevTools();
+  win.setMenuBarVisibility(false);
+
+  win.webContents.on('did-finish-load', () => {
+      win.webContents.send('data', oldName);
+  });
+  
+  win.once('ready-to-show', () => {
+      win.show();
+  });
+
+};
+
+
+// Remove doc
+function removeDoc(docFullPath){
+  // Display warning confirmation dialog to remove doc.
 }
 
 // Update docs
@@ -1622,4 +1676,21 @@ document.getElementById("vSplitterDoc").addEventListener("mousedown", initVDrag,
 document.getElementById("btnAddDoc").addEventListener("click", ()=>{
   addDocLocation("","New Document");
 });
+
+// #region DOC CONTEXT MENU EVENT HANDLERS
+document.getElementById("btnAddSubDoc").addEventListener("click", ()=>{
+  addDocLocation(contextSelectedDoc,"New Document");
+});
+
+document.getElementById("btnRenameDoc").addEventListener("click", ()=>{
+  renameDoc(contextSelectedDoc);
+});
+
+document.getElementById("btnRemoveDoc").addEventListener("click", ()=>{
+  removeDoc(contextSelectedDoc);
+});
+
+// #endregion DOC CONTEXT MENU EVENT HANDLERS
+
+
 // #endregion DOCUMENT EVENT HANDLERS

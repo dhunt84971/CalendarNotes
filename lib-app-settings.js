@@ -142,7 +142,7 @@
             });
 
         } else {
-            saveSettingsToFile((err, _settings) => {
+            saveSettingsToFile((err) => {
                 console.log("save settings using a callback.");
                 callback(err);
             });

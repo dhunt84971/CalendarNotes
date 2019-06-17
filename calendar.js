@@ -2,6 +2,7 @@ const { dialog } = require("electron").remote;
 const electron = require("electron");
 const { remote } = require("electron");
 const ipc = require("electron").ipcRenderer;
+const libAppSettings = require("./lib-app-settings");
 
 var mysql = require("mysql");
 var fs = require("fs");
@@ -12,6 +13,7 @@ var settingsShown = false;
 var calRows = 5;
 
 const settingsFile = "./.settings";
+var appSettings = new libAppSettings(settingsFile);
 
 var monthDisplayed, daySelected, yearDisplayed;
 var lastDaySelected;
@@ -241,7 +243,7 @@ var CALENDAR = function () {
       "December"
     ];
 
-  function init(newWrap) {
+  async function init(newWrap) {
     wrap = $(newWrap || "#cal");
     label = wrap.find("#label");
 
@@ -265,7 +267,28 @@ var CALENDAR = function () {
     console.log("MySQL Datetime  = " + getMySQLNow());
 
     // Load the settings from the file.
-    loadSettingsfromFile(settingsFile, function (err, settings) {
+    await appSettings.loadSettingsFromFile()
+    .then((settings)=>{
+      changeTheme(settings.themeIndex, function () {
+        initSettingsIcon();
+      });
+      document.getElementById("txtHost").value = settings.host;
+      document.getElementById("txtPort").value = settings.port;
+      document.getElementById("txtDatabase").value = settings.database;
+      document.getElementById("txtUsername").value = settings.user;
+      document.getElementById("txtPassword").value = settings.password;
+      dbConnection = settings;
+      dateSelected(daySelected);
+      loadDocs();
+    })
+    .catch((err)=>{
+        // Assume any error means the settings file does not exist and create it.
+        ////alert("No settings found.  Configure your settings.");
+        ShowWarningMessageBox("No settings found.  Configure your settings.");
+        toggleSettingsBox();
+    });
+    
+    /*loadSettingsfromFile(settingsFile, function (err, settings) {
       if (!err) {
         // Load the settings entry fields.
         document.getElementById("txtHost").value = settings.host;
@@ -283,6 +306,7 @@ var CALENDAR = function () {
         toggleSettingsBox();
       }
     });
+    */
     console.log("1" + document.querySelector(".curr").innerHTML);
   }
 
@@ -1556,9 +1580,17 @@ document
   .addEventListener("click", function () {
     dbConnection = getSettingsfromDialog();
 
+    appSettings.setSettingsInFile(dbConnection, (err) => {
+      if (!err) {
+        dateSelected(lastDaySelected);
+      }
+    });
+
+    /*
     saveSettingstoFile(dbConnection, function () {
       dateSelected(lastDaySelected);
     });
+    */
     $("#settingsSlider").animate({
       right: "-200px"
     });

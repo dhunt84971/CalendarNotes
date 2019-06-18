@@ -2,7 +2,7 @@ const { dialog } = require("electron").remote;
 const electron = require("electron");
 const { remote } = require("electron");
 const ipc = require("electron").ipcRenderer;
-const libAppSettings = require("./lib-app-settings");
+const libAppSettings = require("lib-app-settings");
 
 var mysql = require("mysql");
 var fs = require("fs");

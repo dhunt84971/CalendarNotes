@@ -280,6 +280,8 @@ var CALENDAR = function () {
       dbConnection = settings;
       dateSelected(daySelected);
       loadDocs();
+      document.getElementById("leftSideBar").style.width = settings.leftSideBarWidth;
+      document.getElementById("docsSideBar").style.width = settings.docsSideBarWidth;
     })
     .catch((err)=>{
         // Assume any error means the settings file does not exist and create it.
@@ -1285,29 +1287,6 @@ function gotoDate(selDate) {
 // #region SETTINGS CODE
 
 /// Save settings to the .settings file.
-function saveSettingstoFile(settings, callback) {
-  var json = JSON.stringify(settings);
-  fs.writeFile(settingsFile, json, "utf8", callback);
-}
-
-/// Load settings from the .settings file.
-function loadSettingsfromFile(fName, callback) {
-  var settings;
-  fs.readFile(fName, "utf8", function readFileCallback(err, data) {
-    if (err) {
-      console.log(err);
-    } else {
-      settings = JSON.parse(data); //parse into an object
-      changeTheme(settings.themeIndex, function () {
-        initSettingsIcon();
-      });
-    }
-
-    if (callback) callback(err, settings);
-    return settings;
-  });
-}
-
 function getSettingsfromDialog() {
   var el = document.getElementById("selThemes");
   var settings = {
@@ -1418,16 +1397,22 @@ function doVDrag(e) {
     leftDiv.style.width = (startWidth + e.clientX - startX) + 'px';
   } else {
     rightDiv.style.width = (startWidth + startX - e.clientX) + 'px';
-    console.log("Setting rightDiv width to " + (startWidth + startX - e.clientX) + 'px');
   }
-
-  console.log("doVDrag");
 }
 
 function stopVDrag(e) {
-  console.log("Called stopVDrag....");
   document.documentElement.removeEventListener('mousemove', doVDrag, false);
   document.documentElement.removeEventListener('mouseup', stopVDrag, false);
+  // Save the new size to the settings file.
+  saveWidths();
+}
+
+function saveWidths(){
+  if (dragTargetDiv === leftDiv) {
+    appSettings.setSettingInFile("leftSideBarWidth", leftDiv.style.width);
+  } else {
+    appSettings.setSettingInFile("docsSideBarWidth", rightDiv.style.width);
+  }
 }
 
 // #endregion RESIZE SIDE BARS
@@ -1466,6 +1451,7 @@ document.getElementById("btnNow").addEventListener("click", function () {
 document.getElementById("btnSave").addEventListener("click", function () {
   saveNotes(lastDaySelected, document.getElementById("txtNotes").value);
   saveTasks(document.getElementById("txtTasks").value);
+  initWidths();
 });
 
 document.getElementById("btnRevert").addEventListener("click", function () {
@@ -1543,7 +1529,7 @@ function dateSelected(dayNum) {
   getNotes(getSelectedDate());
   getTasks();
   lastDaySelected = getSelectedDate();
-
+  
   initialLoad = false;
 }
 
@@ -1586,11 +1572,6 @@ document
       }
     });
 
-    /*
-    saveSettingstoFile(dbConnection, function () {
-      dateSelected(lastDaySelected);
-    });
-    */
     $("#settingsSlider").animate({
       right: "-200px"
     });

@@ -1489,7 +1489,7 @@ document.getElementById("btnHideLeft").addEventListener("click", function () {
     btnHideLeft.classList.remove("div_arrow_collapse");
     btnHideLeft.classList.add("div_arrow_expand");
     leftSideBar.classList.add("hide");
-    txtNotesTitle.innerText = "NOTES - " + daySelected + "/" + monthDisplayed + "/" + yearDisplayed;
+    txtNotesTitle.innerText = "NOTES - " + monthDisplayed + "/" + daySelected + "/" + yearDisplayed;
   } else {
     btnHideLeft.classList.add("div_arrow_collapse");
     btnHideLeft.classList.remove("div_arrow_expand");

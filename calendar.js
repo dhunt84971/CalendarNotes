@@ -619,13 +619,23 @@ function showNoteMarkdown() {
   var viewDiv = document.getElementById("txtView");
   var notesText = document.getElementById("txtNotes");
   console.log("show notesText = " + notesText.value);
-  var markedNote = marked(notesText.value);
-
+  var customMods = notesText.value;
   console.log("Loading markdown view.");
+  
+  // Replace all check marks with their respective images.
+  // ~_~ = <img src="./images/chkmt.png" width="12px">
+  // ~X~ = <img src="./images/chk_x.png" width="12px">
+  customMods = customMods.replace(/\|_\|/g, "<img src='./images/chkmt.png' width='12px'>")
+  customMods = customMods.replace(/\|X\|/g, "<img src='./images/chk_x.png' width='12px'>")
+
+  var markedNote = marked(customMods);
+
   viewDiv.innerHTML = markedNote;
   //marked(notesText.value, () => {
   //viewDiv.classList.remove("hide");
   //});
+
+
 }
 
 function hideAllViews() {

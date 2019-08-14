@@ -247,11 +247,21 @@ var CALENDAR = function () {
     wrap = $(newWrap || "#cal");
     label = wrap.find("#label");
 
-    wrap.find("#prev").bind("click.calender", function () {
-      switchMonth(false);
+    wrap.find("#prev").bind("click.calender", function (ev) {
+      if (ev.ctrlKey){
+        switchYear(false);
+      }
+      else{
+        switchMonth(false);
+      }
     });
     wrap.find("#next").bind("click.calender", function () {
-      switchMonth(true);
+      if (ev.ctrlKey){
+        switchYear(true);
+      }
+      else{
+        switchMonth(true);
+      }
     });
     label.bind("click.calendar", function () {
       switchMonth(null, new Date().getMonth(), new Date().getFullYear());
@@ -310,6 +320,22 @@ var CALENDAR = function () {
     });
     */
     console.log("1" + document.querySelector(".curr").innerHTML);
+  }
+
+  function switchYear(next, year) {
+    var curr = label
+      .text()
+      .trim()
+      .split(" "),
+      calendar,
+      tempYear = parseInt(curr[1], 10);
+
+    if (next != null) {
+      year =
+        year || (next ? tempYear + 1 : tempYear - 1);
+    }
+    
+    switchMonth(null, months.indexOf(curr[0]), year);
   }
 
   function switchMonth(next, month, year) {

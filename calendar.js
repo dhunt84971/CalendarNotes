@@ -255,7 +255,7 @@ var CALENDAR = function () {
         switchMonth(false);
       }
     });
-    wrap.find("#next").bind("click.calender", function () {
+    wrap.find("#next").bind("click.calender", function (ev) {
       if (ev.ctrlKey){
         switchYear(true);
       }

@@ -1051,9 +1051,10 @@ function convertMySQLDate(dateForDay) {
 }
 
 function highlightWords(words, content, markD) {
+  var newContent = content;
   for (var i = 0; i < words.length; i++) {
     var pattern = new RegExp(words[i], "gi");
-    newContent = content.replace(
+    newContent = newContent.replace(
       pattern,
       "<span><mark>$&</mark></span>"
     );

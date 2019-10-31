@@ -1385,7 +1385,9 @@ function dateSelected(dayNum) {
   if (daySelected != dayNum) {
     //} && (!initialLoad)){
     var lastDayClicked = document.getElementById("day" + daySelected);
-    lastDayClicked.classList.remove("dateSelected");
+    if (lastDayClicked){
+      lastDayClicked.classList.remove("dateSelected");
+    }
   }
   daySelected = dayNum;
   console.log(getSelectedDate());

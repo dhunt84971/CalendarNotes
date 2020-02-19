@@ -119,6 +119,7 @@ var CALENDAR = function () {
       document.getElementById("txtDatabase").value = settings.database;
       document.getElementById("txtUsername").value = settings.user;
       document.getElementById("txtPassword").value = settings.password;
+      document.getElementById("chkDocuments").checked = settings.documents == true;
       dbConnection = settings;
       dateSelected(daySelected);
       loadDocs();
@@ -132,25 +133,6 @@ var CALENDAR = function () {
         toggleSettingsBox();
     });
     
-    /*loadSettingsfromFile(settingsFile, function (err, settings) {
-      if (!err) {
-        // Load the settings entry fields.
-        document.getElementById("txtHost").value = settings.host;
-        document.getElementById("txtPort").value = settings.port;
-        document.getElementById("txtDatabase").value = settings.database;
-        document.getElementById("txtUsername").value = settings.user;
-        document.getElementById("txtPassword").value = settings.password;
-        console.log(settings);
-        dbConnection = settings;
-        dateSelected(daySelected);
-        loadDocs();
-      } else {
-        ////alert("No settings found.  Configure your settings.");
-        ShowWarningMessageBox("No settings found.  Configure your settings.");
-        toggleSettingsBox();
-      }
-    });
-    */
     console.log("1" + document.querySelector(".curr").innerHTML);
   }
 
@@ -1164,7 +1146,8 @@ function getSettingsfromDialog() {
     password: document.getElementById("txtPassword").value,
     database: document.getElementById("txtDatabase").value,
     port: document.getElementById("txtPort").value,
-    themeIndex: el.options[el.selectedIndex].value
+    themeIndex: el.options[el.selectedIndex].value,
+    documents: document.getElementById("chkDocuments").checked
   };
   return settings;
 }
@@ -1439,15 +1422,19 @@ document
 
     appSettings.setSettingsInFile(dbConnection, (err) => {
       if (!err) {
+        console.log("Settings file saved.");
         dateSelected(lastDaySelected);
+      }
+      else{
+        console.log("Error saving settings file.");
       }
     });
 
     $("#settingsSlider").animate({
       right: "-200px"
     });
-    $("#settingsSlider").classList.add("hide");
-
+    document.getElementById("settingsSlider").classList.add("hide");
+    
     settingsShown = false;
   });
 

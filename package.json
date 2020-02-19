@@ -9,13 +9,13 @@
   "author": "Dave Hunt",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^2.0.18"
+    "electron": "^8.0.1"
   },
   "dependencies": {
     "fs": "0.0.1-security",
     "js-datepicker": "^4.6.6",
-    "lib-app-settings": "^1.0.1",
-    "marked": "^0.6.3",
-    "mysql": "^2.17.1"
+    "lib-app-settings": "^1.0.2",
+    "marked": "^0.8.0",
+    "mysql": "^2.18.1"
   }
 }

@@ -20,7 +20,7 @@ var lastDaySelected;
 
 // These are placeholders that will be written over when the settings
 // are read from the settings file.
-var dbConnection = {
+var _settings = {
   host: "localhost",
   user: "calendaruser",
   password: "calendaruser",
@@ -111,6 +111,7 @@ var CALENDAR = function () {
     // Load the settings from the file.
     await appSettings.loadSettingsFromFile()
     .then((settings)=>{
+      document.getElementById("selThemes").selectedIndex = settings.themeIndex;
       changeTheme(settings.themeIndex, function () {
         initSettingsIcon();
       });
@@ -120,11 +121,13 @@ var CALENDAR = function () {
       document.getElementById("txtUsername").value = settings.user;
       document.getElementById("txtPassword").value = settings.password;
       document.getElementById("chkDocuments").checked = settings.documents == true;
-      dbConnection = settings;
+      settings.documents ? null : document.getElementById("btnDocs").classList.add("hide");
+      _settings = settings;
       dateSelected(daySelected);
       loadDocs();
       document.getElementById("leftSideBar").style.width = settings.leftSideBarWidth;
       document.getElementById("docsSideBar").style.width = settings.docsSideBarWidth;
+      
     })
     .catch((err)=>{
         // Assume any error means the settings file does not exist and create it.
@@ -346,7 +349,7 @@ var CALENDAR = function () {
 // #region NOTES CODE
 // Get the notes from the MySQL database.
 function getNotes(dateForDay, callback) {
-  var connection = mysql.createConnection(dbConnection);
+  var connection = mysql.createConnection(_settings);
   connection.connect();
 
   var sqlQuery = "SELECT * from Notes where NoteDate = '" + dateForDay + "'";
@@ -364,7 +367,7 @@ function getNotes(dateForDay, callback) {
     } else {
       alert("Error querying database.  Check settings.");
       console.log("Error while performing Query, " + sqlQuery);
-      console.log(dbConnection);
+      console.log(_settings);
     }
     connection.end();
   });
@@ -390,7 +393,7 @@ function saveNotes(dateForDay, notesText) {
 }
 
 function updateNotes(dateForDay, notesText, callback) {
-  var connection = mysql.createConnection(dbConnection);
+  var connection = mysql.createConnection(_settings);
   connection.connect(function (err) {
     if (err) throw err;
     var sql = "UPDATE Notes SET NoteText = '" + sqlSafeText(notesText) + "', ";
@@ -409,7 +412,7 @@ function updateNotes(dateForDay, notesText, callback) {
 }
 
 function insertNotes(dateForDay, notesText, callback) {
-  var connection = mysql.createConnection(dbConnection);
+  var connection = mysql.createConnection(_settings);
   connection.connect(function (err) {
     if (err) throw err;
     var sql = "INSERT INTO Notes (NoteDate, NoteText, LastModified) VALUES (";
@@ -429,7 +432,7 @@ function insertNotes(dateForDay, notesText, callback) {
 
 function sqlNoteExists(dateForDay, callback) {
   var retValue = false;
-  var connection = mysql.createConnection(dbConnection);
+  var connection = mysql.createConnection(_settings);
   connection.connect();
   console.log(
     "Searching for Note : " +
@@ -536,7 +539,7 @@ function docsViewUnselected() {
 // #region TASKS CODE
 // Get the tasks from the MySQL database.
 function getTasks() {
-  var connection = mysql.createConnection(dbConnection);
+  var connection = mysql.createConnection(_settings);
   connection.connect();
 
   connection.query("SELECT * FROM TasksList LIMIT 1", function (
@@ -567,7 +570,7 @@ function saveTasks(tasksText) {
 }
 
 function updateTasks(tasksText, callback) {
-  var connection = mysql.createConnection(dbConnection);
+  var connection = mysql.createConnection(_settings);
   connection.connect(function (err) {
     if (err) throw err;
     var sql =
@@ -584,7 +587,7 @@ function updateTasks(tasksText, callback) {
 }
 
 function insertTasks(tasksText, callback) {
-  var connection = mysql.createConnection(dbConnection);
+  var connection = mysql.createConnection(_settings);
   connection.connect(function (err) {
     if (err) throw err;
     var sql = "INSERT INTO TasksList (TasksList) VALUES (";
@@ -602,7 +605,7 @@ function insertTasks(tasksText, callback) {
 
 function sqlTasksExists(callback) {
   var retValue = false;
-  var connection = mysql.createConnection(dbConnection);
+  var connection = mysql.createConnection(_settings);
   connection.connect();
   console.log("Searching for Tasks : " + "SELECT * from TasksList");
 
@@ -656,7 +659,7 @@ function selectDocument(docName){
 // Load docs
 function loadDocs(){
   // Load treeview with the documents.
-  var connection = mysql.createConnection(dbConnection);
+  var connection = mysql.createConnection(_settings);
     connection.connect();
     connection.query(
       "SELECT DISTINCT DocLocation from Docs", function (err, data) {
@@ -733,7 +736,7 @@ function addDocLocation(parentDoc, docName, callback){
   var docNewName;
   getUniqueDocName(docFullName, (docNewName)=>{
     // Add the document name to the database.
-    var connection = mysql.createConnection(dbConnection);
+    var connection = mysql.createConnection(_settings);
     connection.connect(function (err) {
       if (err) throw err;
       var sql = "INSERT INTO Docs (DocName, DocLocation, DocColor, DocText, LastModified) VALUES (";
@@ -758,7 +761,7 @@ function addDocLocation(parentDoc, docName, callback){
 function docNameExists(docFullName, callback){
   return new Promise(function(resolve, reject){
     var retValue = docFullName;
-    var connection = mysql.createConnection(dbConnection);
+    var connection = mysql.createConnection(_settings);
     connection.connect();
     connection.query(
       "SELECT DocLocation from Docs WHERE DocLocation = '" + docFullName + "'",
@@ -823,7 +826,7 @@ async function loadPages(docFullName, callback){
 
 function getPages(docFullName, callback){
   return new Promise(function(resolve, reject){
-    var connection = mysql.createConnection(dbConnection);
+    var connection = mysql.createConnection(_settings);
       connection.connect();
       connection.query(
         "SELECT DocName from Docs WHERE DocLocation = '" + docFullName + "'",
@@ -910,8 +913,8 @@ function getSelectedDate() {
 }
 
 /// Create SQL table.
-function createSQLTable(dbConnection, query, callback) {
-  var connection = mysql.createConnection(dbConnection);
+function createSQLTable(_settings, query, callback) {
+  var connection = mysql.createConnection(_settings);
   connection.connect(function (err) {
     if (err) throw err;
     console.log("Executing SQL query = " + query);
@@ -950,7 +953,7 @@ function searchNotes(srchText, callback) {
     " ORDER BY NoteDate DESC";
   console.log("SQL = " + sqlCommand);
 
-  var connection = mysql.createConnection(dbConnection);
+  var connection = mysql.createConnection(_settings);
   connection.connect();
 
   //connection.query('SELECT * from TasksList where ID = 1', function(err, rows, fields) {
@@ -1060,7 +1063,7 @@ function highlightWords(words, content, markD) {
 
 function getNotePreview(dateForDay, callback) {
   var txtSearchPreview = document.getElementById("txtSearchPreview");
-  var connection = mysql.createConnection(dbConnection);
+  var connection = mysql.createConnection(_settings);
   var markD = false;
   connection.connect();
 
@@ -1088,7 +1091,7 @@ function getNotePreview(dateForDay, callback) {
       }
     } else {
       console.log("Error while performing Query, " + sqlQuery);
-      console.log(dbConnection);
+      console.log(_settings);
     }
   });
 
@@ -1418,11 +1421,11 @@ document.getElementById("btnSettings").addEventListener("click", function () {
 document
   .getElementById("btnSettingsClose")
   .addEventListener("click", function () {
-    dbConnection = getSettingsfromDialog();
-
-    appSettings.setSettingsInFile(dbConnection, (err) => {
+    _settings = getSettingsfromDialog();
+    _settings.documents ? document.getElementById("btnDocs").classList.remove("hide") 
+      : document.getElementById("btnDocs").classList.add("hide");
+    appSettings.setSettingsInFile(_settings, (err) => {
       if (!err) {
-        console.log("Settings file saved.");
         dateSelected(lastDaySelected);
       }
       else{

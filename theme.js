@@ -15,7 +15,8 @@ var themeWarm = {
     notesBGColor: "#fff",
     notesTextColor: "#000",
     bodyColor: "#e0e0e0",
-    invertSettingsIcon: "false"
+    invertSettingsIcon: "false",
+    calBorder: "#2D262C"
   };
   
   var themeCool = {
@@ -34,7 +35,8 @@ var themeWarm = {
     notesBGColor: "#fff",
     notesTextColor: "#000",
     bodyColor: "#e0e0e0",
-    invertSettingsIcon: "false"
+    invertSettingsIcon: "false",
+    calBorder: "#0D083B"
   };
   
   var themeGreen = {
@@ -53,7 +55,8 @@ var themeWarm = {
     notesBGColor: "#fff",
     notesTextColor: "#000",
     bodyColor: "#e0e0e0",
-    invertSettingsIcon: "false"
+    invertSettingsIcon: "false",
+    calBorder: "#074600"
   };
   
   var themePink = {
@@ -72,7 +75,8 @@ var themeWarm = {
     notesBGColor: "#fff",
     notesTextColor: "#000",
     bodyColor: "#e0e0e0",
-    invertSettingsIcon: "false"
+    invertSettingsIcon: "false",
+    calBorder: "#6B1F17"
   };
   
   var themeDefault = {
@@ -91,7 +95,8 @@ var themeWarm = {
     notesBGColor: "#fff",
     notesTextColor: "#000",
     bodyColor: "#e0e0e0",
-    invertSettingsIcon: "false"
+    invertSettingsIcon: "false",
+    calBorder: "#a74c00"
   };
   
   var themeTron = {
@@ -110,7 +115,8 @@ var themeWarm = {
     notesBGColor: "#272727",
     notesTextColor: "rgb(0, 255, 234)",
     bodyColor: "#272727",
-    invertSettingsIcon: "true"
+    invertSettingsIcon: "true",
+    calBorder: "rgb(0, 255, 234)"
   };
   
   var themeClu = {
@@ -129,7 +135,8 @@ var themeWarm = {
     notesBGColor: "#272727",
     notesTextColor: "#FFD93F",
     bodyColor: "#272727",
-    invertSettingsIcon: "true"
+    invertSettingsIcon: "true",
+    calBorder: "#FFD93F"
   };
   
   var themes = [
@@ -162,6 +169,7 @@ var themeWarm = {
     d.setProperty("--notesTextColor", themes[themeIndex].notesTextColor);
     d.setProperty("--bodyColor", themes[themeIndex].bodyColor);
     d.setProperty("--invertSettingsIcon", themes[themeIndex].invertSettingsIcon);
+    d.setProperty("--calBorder", themes[themeIndex].calBorder);
     selectedTheme = themeIndex;
   
     if (callback) callback();

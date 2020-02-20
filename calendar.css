@@ -424,9 +424,7 @@ background: var(--buttonhover);
     height: 30px;
     line-height: 30px;
     text-align: center;
-    border: 1px solid var(--buttonbordercolor)
-        /*#e6e6e6*/
-    ;
+    border: 1px solid var(--calBorder);
     cursor: default;
     color: var(--notesTextColor);
 }

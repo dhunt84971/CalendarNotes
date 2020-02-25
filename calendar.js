@@ -29,6 +29,7 @@ var _settings = {
 };
 
 var calChangeDate;
+var blockInterface = false;
 
 // #region THEMES
 var select = document.getElementById("selThemes");
@@ -349,32 +350,37 @@ var CALENDAR = function () {
 // #region NOTES CODE
 // Get the notes from the MySQL database.
 function getNotes(dateForDay, callback) {
-  var connection = mysql.createConnection(_settings);
-  connection.connect();
+  return new Promise(function(resolve, reject){
+  // Block the interface from acting on any input.
+    var connection = mysql.createConnection(_settings);
+    connection.connect();
 
-  var sqlQuery = "SELECT * from Notes where NoteDate = '" + dateForDay + "'";
-  connection.query(sqlQuery, function (err, rows, fields) {
-    if (!err) {
-      if (rows.length > 0) {
-        console.log("getNotes rows returned = " + rows.length);
-        document.getElementById("txtNotes").value = rows[0].NoteText;
+    var sqlQuery = "SELECT * from Notes where NoteDate = '" + dateForDay + "'";
+    connection.query(sqlQuery, function (err, rows, fields) {
+      if (!err) {
+        if (rows.length > 0) {
+          console.log("getNotes rows returned = " + rows.length);
+          document.getElementById("txtNotes").value = rows[0].NoteText;
+        } else {
+          document.getElementById("txtNotes").value = " ";
+        }
+        if (!document.getElementById("btnViewText").classList.contains("btnSelected")) {
+          document.getElementById("txtView").innerHTML = marked(rows[0].NoteText);
+        }
       } else {
-        document.getElementById("txtNotes").value = " ";
+        alert("Error querying database.  Check settings.");
+        console.log("Error while performing Query, " + sqlQuery);
+        console.log(_settings);
+        reject(err);
       }
-      if (!document.getElementById("btnViewText").classList.contains("btnSelected")) {
-        document.getElementById("txtView").innerHTML = marked(rows[0].NoteText);
-      }
-    } else {
-      alert("Error querying database.  Check settings.");
-      console.log("Error while performing Query, " + sqlQuery);
-      console.log(_settings);
+      connection.end();
+      resolve();
+    });
+   
+    if (callback) {
+      callback();
     }
-    connection.end();
   });
-
-  if (callback) {
-    callback();
-  }
 }
 
 function saveNotes(dateForDay, notesText) {
@@ -1355,7 +1361,9 @@ document.getElementById("btnHideLeft").addEventListener("click", function () {
 
 // Callback from each td representing each day in the calendar.
 // OnClick events are html embedded and generated during the createCal function.
-function dateSelected(dayNum) {
+async function dateSelected(dayNum) {
+  if (blockInterface == true) return;
+  blockInterface = true;
   if (dayNum == null) return;
   var strDayNum = dayNum + "";
   var selDate = strDayNum.split("-");
@@ -1383,7 +1391,8 @@ function dateSelected(dayNum) {
     saveNotes(lastDaySelected, document.getElementById("txtNotes").value);
     saveTasks(document.getElementById("txtTasks").value);
   }
-  getNotes(getSelectedDate());
+  await getNotes(getSelectedDate());
+  blockInterface = false;
   getTasks();
   lastDaySelected = getSelectedDate();
   

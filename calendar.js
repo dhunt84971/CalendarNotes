@@ -1061,7 +1061,9 @@ function highlightWords(words, content, markD) {
       "<div><br/></div>"
     );
     // Get rid of ther last <div>.
-    newContent = newContent.slice(0, -5);
+    if (newContent.substring(newContent.length - 5, newContent.length) == "<div>"){
+      newContent = newContent.slice(0, -5);
+    }
   }
 
   return newContent;
@@ -1113,13 +1115,9 @@ String.prototype.replaceAll = function (search, replacement) {
 
 function showSearchPreview(srchDate) {
   getNotePreview(srchDate, function () {
-    var txtSearchPreview = document.getElementById("txtSearchPreview");
-    txtSearchPreview.classList.remove("hide");
-    var txtNotesArea = document.getElementById("txtNotesArea");
-    txtNotesArea.classList.add("hide");
-    console.log(txtNotesArea);
+    document.getElementById("txtNotesArea").classList.add("hide");
     document.getElementById("txtView").classList.add("hide");
-    txtSearchPreview.classList.remove("hide");
+    document.getElementById("txtSearchPreview").classList.remove("hide");
   });
 }
 

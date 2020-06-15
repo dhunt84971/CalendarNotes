@@ -5,6 +5,7 @@ const ipc = require("electron").ipcRenderer;
 const libAppSettings = require("lib-app-settings");
 
 var mysql = require("mysql");
+var sqlite3 = require("sqlite3").verbose();
 var fs = require("fs");
 var marked = require("marked");
 
@@ -13,6 +14,8 @@ var settingsShown = false;
 var calRows = 5;
 
 const settingsFile = "./.settings";
+const dbFile = "./.calendarNotes.db";
+
 var appSettings = new libAppSettings(settingsFile);
 
 var monthDisplayed, daySelected, yearDisplayed;
@@ -54,6 +57,10 @@ marked.setOptions({
   gfm: true,
   breaks: true
 });
+document.getElementById("chkDocuments").checked = false;
+document.getElementById("btnDocs").classList.add("hide");
+document.getElementById("optSqlite").checked = true;
+updateDBSelection("optSqlite");
 
 // #endregion INITIALIZATION CODE
 
@@ -125,16 +132,19 @@ var CALENDAR = function () {
       settings.documents ? null : document.getElementById("btnDocs").classList.add("hide");
       _settings = settings;
       dateSelected(daySelected);
-      loadDocs();
+      //loadDocs();
       document.getElementById("leftSideBar").style.width = settings.leftSideBarWidth;
       document.getElementById("docsSideBar").style.width = settings.docsSideBarWidth;
-      
+      document.getElementById("optSqlite").checked = (settings.dbType == "Sqlite");
+      document.getElementById("optMySql").checked = (settings.dbType == "MySql");     
+      updateDBSelection("opt" + settings.dbType); 
     })
     .catch((err)=>{
         // Assume any error means the settings file does not exist and create it.
         ////alert("No settings found.  Configure your settings.");
-        ShowWarningMessageBox("No settings found.  Configure your settings.");
-        toggleSettingsBox();
+        ShowWarningMessageBox("No settings found.  Assigning defaults.");
+        appSettings.setSettingsInFile(getSettingsfromDialog());
+        createSqliteDB();
     });
     
     console.log("1" + document.querySelector(".curr").innerHTML);
@@ -347,38 +357,242 @@ var CALENDAR = function () {
 };
 // #endregion CALENDAR OBJECT CODE
 
-// #region NOTES CODE
-// Get the notes from the MySQL database.
-function getNotes(dateForDay, callback) {
-  return new Promise(function(resolve, reject){
-  // Block the interface from acting on any input.
-    var connection = mysql.createConnection(_settings);
-    connection.connect();
+// #region DATABASE CODE
+function getRowsMySql(sql, callback){
+  console.log("SQL = " + sql);
+  var connection = mysql.createConnection(_settings);
+  connection.connect();
+  connection.query(sql, function (err, rows, fields) {
+    if (!err) {
+      if (callback){
+        callback(err, rows);
+      }
+    } else {
+      if (callback) {
+        callback(err, null);
+      }
+    }
+  });
+  connection.end();
+}
 
-    var sqlQuery = "SELECT * from Notes where NoteDate = '" + dateForDay + "'";
-    connection.query(sqlQuery, function (err, rows, fields) {
-      if (!err) {
-        if (rows.length > 0) {
-          console.log("getNotes rows returned = " + rows.length);
-          document.getElementById("txtNotes").value = rows[0].NoteText;
+function getRowsSqlite(sql, callback){
+  console.log("SQL = " + sql);
+  let db = new sqlite3.Database(dbFile, (err) => {
+    if (!err) {
+      db.all(sql, [], (err, rows) => {
+        if (!err) {
+          if (callback){
+            callback(err, rows);
+          }
         } else {
-          document.getElementById("txtNotes").value = " ";
+          if (callback) {
+            callback(err, null);
+          }
         }
-        if (!document.getElementById("btnViewText").classList.contains("btnSelected")) {
-          document.getElementById("txtView").innerHTML = marked(rows[0].NoteText);
+      });
+    }
+    db.close();
+  });
+}
+
+
+function getNotesMySQL(dateForDay, callback){
+  var connection = mysql.createConnection(_settings);
+  connection.connect();
+
+  var sqlQuery = "SELECT * from Notes where NoteDate = '" + dateForDay + "'";
+  connection.query(sqlQuery, function (err, rows, fields) {
+    if (!err) {
+      if (rows.length > 0) {
+        if (callback){
+          callback(err, rows[0].NoteText);
         }
       } else {
-        alert("Error querying database.  Check settings.");
-        console.log("Error while performing Query, " + sqlQuery);
-        console.log(_settings);
-        reject(err);
+        if (callback){
+          callback(err, " ");
+        }
+        return;
       }
-      connection.end();
-      resolve();
+    } else {
+      if (callback){ callback(err); }
+      return;
+    }
+    connection.end();
+  });
+}
+
+function getNotesSqlite(dateForDay, callback){
+  let db = new sqlite3.Database(dbFile, (err) => {
+    if (!err) {
+      db.all("SELECT * FROM Notes WHERE NoteDate = '" + formatDateSqlite(dateForDay) + "'", [], (err, rows) => {
+        if (!err) {
+          if (rows.length > 0) {
+            if (callback){
+              callback(err, rows[0].NoteText);
+            }
+          } else {
+            if (callback){
+              callback(err, " ");
+            }
+            return;
+          }
+        } else {
+          if (callback){ callback(err); }
+          return;
+        }
+        db.close();
+      });
+    } else {
+      console.error(err.message);
+      if (callback){ callback(err); }
+      return;
+    }
+  });
+}
+
+function saveNotesMySql(dateForDay, notesText) {
+  //var noteExists = sqlNoteExists(dateForDay);
+  console.log("Saving notes = '" + notesText + "'");
+  if (notesText == "") notesText = " ";
+
+  sqlNoteExistsMySql(dateForDay, function (result) {
+    if (result) {
+      updateNotesMySql(dateForDay, notesText, null);
+    } else {
+      insertNotesMySql(dateForDay, notesText, null);
+    }
+  });
+}
+
+function saveNotesSqlite(dateForDay, notesText) {
+  //var noteExists = sqlNoteExists(dateForDay);
+  console.log("Saving notes = '" + notesText + "'");
+  if (notesText == "") notesText = " ";
+
+  sqlNoteExistsSqlite(dateForDay, function (result) {
+    if (result) {
+      updateNotesSqlite(dateForDay, notesText, null);
+    } else {
+      insertNotesSqlite(dateForDay, notesText, null);
+    }
+  });
+}
+
+function getTasksMySql(callback) {
+  var connection = mysql.createConnection(_settings);
+  connection.connect();
+  connection.query("SELECT * FROM TasksList LIMIT 1",  (err, rows, fields) => {
+    if (!err) {
+      console.log(rows);
+      if (callback) {
+        callback(err, rows[0].TasksList);
+      }
+    } else {
+      console.log("Error while performing Query.");
+      if (callback) {
+        callback(err);
+      }
+    }
+    connection.end();
+  });
+}
+
+function getTasksSqlite(callback) {
+  let db = new sqlite3.Database(dbFile, (err) => {
+    if (!err) {
+      db.all("SELECT * FROM TasksList", [], (err, rows) => {
+        if (!err) {
+          if (rows.length > 0) {
+            if (callback){
+              callback(err, rows[0].TasksList);
+            }
+          } else {
+            if (callback){
+              callback(err, " ");
+            }
+            return;
+          }
+        } else {
+          if (callback){ callback(err); }
+          return;
+        }
+        db.close();
+      });
+    } else {
+      console.error(err.message);
+      if (callback){ callback(err); }
+      return;
+    }
+  });
+}
+
+function createSqliteDB(callback){
+  return new Promise((resolve, reject) => {
+    let db = new sqlite3.Database(dbFile, (err) => {
+      if (err) {
+        console.error(err.message);
+        reject();
+      } else {
+        // Create the tables.
+        var sql = `CREATE TABLE Notes (
+          ID INTEGER PRIMARY KEY,
+          NoteDate TEXT,
+          NoteText TEXT,
+          LastModified TEXT
+        )`;
+        db.run(sql);
+        sql = `CREATE TABLE TasksList (
+          ID INTEGER PRIMARY KEY,
+          TasksList TEXT
+        )`;
+        db.run(sql);
+        db.close();
+        resolve();
+        if (callback) callback();
+      }
+      console.log('Connected to the database.');
     });
-   
-    if (callback) {
-      callback();
+  });
+}
+// #endregion DATABASE CODE
+
+// #region NOTES CODE
+// Get the notes from the MySQL database.
+function loadNotes(notes){
+  document.getElementById("txtNotes").value = notes;
+  if (!document.getElementById("btnViewText").classList.contains("btnSelected")) {
+    document.getElementById("txtView").innerHTML = marked(notes);
+  }
+}
+
+function getNotes(dateForDay, callback) {
+  return new Promise(function(resolve, reject){
+    // Block the interface from acting on any input.
+    if (_settings.dbType == "MySql"){
+      getNotesMySQL(dateForDay, (err, notes) => {
+        if (!err) {
+          loadNotes(notes);
+        } else {
+          alert("Error querying database.  Check settings.");
+          console.log("Error while performing query.");
+          console.log(_settings);
+          reject(err);
+        }
+        resolve();
+      });
+    } else { //if (dbType == "Sqlite")
+      getNotesSqlite(dateForDay, (err, notes) => {
+        if (!err) {
+          loadNotes(notes);
+        } else {
+          alert("Error querying database.  Check settings.");
+          console.log("Error while performing query.");
+          console.log(_settings);
+          reject(err);
+        }
+        resolve();
+      });
     }
   });
 }
@@ -387,18 +601,16 @@ function saveNotes(dateForDay, notesText) {
   //var noteExists = sqlNoteExists(dateForDay);
   console.log("Saving notes = '" + notesText + "'");
   if (notesText == "") notesText = " ";
-
-  sqlNoteExists(dateForDay, function (result) {
-    if (result) {
-      updateNotes(dateForDay, notesText, null);
-    } else {
-      insertNotes(dateForDay, notesText, null);
-    }
-  });
+  if (_settings.dbType == "MySql"){
+    saveNotesMySql(dateForDay, notesText);
+  }
+  else {
+    saveNotesSqlite(dateForDay, notesText);
+  }
   document.getElementById("btnSave").innerHTML = "SAVE";
 }
 
-function updateNotes(dateForDay, notesText, callback) {
+function updateNotesMySql(dateForDay, notesText, callback) {
   var connection = mysql.createConnection(_settings);
   connection.connect(function (err) {
     if (err) throw err;
@@ -414,10 +626,26 @@ function updateNotes(dateForDay, notesText, callback) {
       connection.end();
     });
   });
-
 }
 
-function insertNotes(dateForDay, notesText, callback) {
+function updateNotesSqlite(dateForDay, notesText, callback) {
+  console.log(formatDateSqlite(dateForDay));
+  let db = new sqlite3.Database(dbFile, (err) => {
+    if (err) throw err;
+    var sql = "UPDATE Notes SET NoteText = '" + sqlSafeText(notesText) + "', ";
+    sql += "LastModified = '" + getMySQLNow() + "' ";
+    sql += "WHERE NoteDate = '" + formatDateSqlite(dateForDay) + "'";
+    console.log("Executing SQL query = " + sql);
+
+    db.run(sql, function (err) {
+      if (err) throw err;
+      if (callback) callback(err, "success");
+    });
+    db.close();
+  });
+}
+
+function insertNotesMySql(dateForDay, notesText, callback) {
   var connection = mysql.createConnection(_settings);
   connection.connect(function (err) {
     if (err) throw err;
@@ -433,10 +661,26 @@ function insertNotes(dateForDay, notesText, callback) {
       connection.end();
     });
   });
-
 }
 
-function sqlNoteExists(dateForDay, callback) {
+function insertNotesSqlite(dateForDay, notesText, callback) {
+  let db = new sqlite3.Database(dbFile, (err) => {
+    if (err) throw err;
+    var sql = "INSERT INTO Notes (NoteDate, NoteText, LastModified) VALUES (";
+    sql += "'" + formatDateSqlite(dateForDay) + "', ";
+    sql += "'" + sqlSafeText(notesText) + "', ";
+    sql += "'" + getMySQLNow() + "')";
+    console.log("Executing SQL query = " + sql);
+
+    db.run(sql, (err) => {
+      if (err) throw err;
+      if (callback) callback(err, result);
+    });
+    db.close();
+  });
+}
+
+function sqlNoteExistsMySql(dateForDay, callback) {
   var retValue = false;
   var connection = mysql.createConnection(_settings);
   connection.connect();
@@ -461,6 +705,53 @@ function sqlNoteExists(dateForDay, callback) {
   );
 
   return retValue;
+}
+
+function sqlNoteExistsSqlite(dateForDay, callback) {
+  var retValue = false;
+  let db = new sqlite3.Database(dbFile, (err) => {
+    if (!err) {
+      console.log(
+        "Searching for Note : " +
+        "SELECT * from Notes where NoteDate = '" +
+        dateForDay +
+        "'"
+      );
+      var sql = "SELECT * FROM Notes WHERE NoteDate = '" + formatDateSqlite(dateForDay) + "'";
+      db.all(sql, [], (err, rows) => {
+        if (!err) {
+          console.log("Rows found = " + rows.length);
+          console.log("Returning = " + (rows.length > 0));
+          retValue = rows.length > 0;
+          if (callback) callback(retValue);
+        }
+      });
+      db.close();
+    }
+  });
+  return retValue;
+}
+
+function saveTasksMySql(tasksText) {
+  //var noteExists = sqlNoteExists(dateForDay);
+  sqlTasksExistsMySql(function (result) {
+    if (result) {
+      updateTasksMySql(tasksText, null);
+    } else {
+      insertTasksMySql(tasksText, null);
+    }
+  });
+}
+
+function saveTasksSqlite(tasksText) {
+  //var noteExists = sqlNoteExists(dateForDay);
+  sqlTasksExistsSqlite(function (result) {
+    if (result) {
+      updateTasksSqlite(tasksText, null);
+    } else {
+      insertTasksSqlite(tasksText, null);
+    }
+  });
 }
 
 function showNoteMarkdown() {
@@ -543,39 +834,53 @@ function docsViewUnselected() {
 // #endregion NOTES CODE
 
 // #region TASKS CODE
-// Get the tasks from the MySQL database.
-function getTasks() {
-  var connection = mysql.createConnection(_settings);
-  connection.connect();
+function loadTasks(tasks){
+  document.getElementById("txtTasks").value = tasks;
+}
 
-  connection.query("SELECT * FROM TasksList LIMIT 1", function (
-    err,
-    rows,
-    fields
-  ) {
-    if (!err) {
-      console.log(rows);
-      document.getElementById("txtTasks").value = rows[0].TasksList;
-    } else {
-      console.log("Error while performing Query.");
+// Get the tasks from the database.
+function getTasks() {
+  return new Promise(function(resolve, reject){
+  // Block the interface from acting on any input.
+    if (_settings.dbType == "MySql"){
+      getTasksMySql((err, tasks) => {
+        if (!err) {
+          loadTasks(tasks);
+        } else {
+          alert("Error querying database.  Check settings.");
+          console.log("Error while performing Query.");
+          console.log(_settings);
+          reject(err);
+        }
+        resolve();
+      });
+    } else { //if (dbType == "Sqlite")
+      getTasksSqlite((err, tasks) => {
+        if (!err) {
+          loadTasks(tasks);
+        } else {
+          alert("Error querying database.  Check settings.");
+          console.log("Error while performing Query.");
+          console.log(_settings);
+          reject(err);
+        }
+        resolve();
+      });
     }
-    connection.end();
   });
-  
 }
 
 function saveTasks(tasksText) {
   //var noteExists = sqlNoteExists(dateForDay);
-  sqlTasksExists(function (result) {
-    if (result) {
-      updateTasks(tasksText, null);
-    } else {
-      insertTasks(tasksText, null);
-    }
-  });
+  if (_settings.dbType == "MySql"){
+    saveTasksMySql(tasksText);
+  }
+  else {
+    saveTasksSqlite(tasksText);
+  }
 }
 
-function updateTasks(tasksText, callback) {
+function updateTasksMySql(tasksText, callback) {
   var connection = mysql.createConnection(_settings);
   connection.connect(function (err) {
     if (err) throw err;
@@ -592,7 +897,22 @@ function updateTasks(tasksText, callback) {
   });
 }
 
-function insertTasks(tasksText, callback) {
+function updateTasksSqlite(tasksText, callback) {
+  let db = new sqlite3.Database(dbFile, (err) => {
+    if (err) throw err;
+    var sql =
+      "UPDATE TasksList SET TasksList = '" + sqlSafeText(tasksText) + "'";
+    console.log("Executing SQL query = " + sql);
+
+    db.run(sql, (err) => {
+      if (err) throw err;
+      if (callback) callback(err);
+    });
+    db.close();
+  });
+}
+
+function insertTasksMySql(tasksText, callback) {
   var connection = mysql.createConnection(_settings);
   connection.connect(function (err) {
     if (err) throw err;
@@ -609,7 +929,23 @@ function insertTasks(tasksText, callback) {
 
 }
 
-function sqlTasksExists(callback) {
+function insertTasksSqlite(tasksText, callback) {
+  let db = new sqlite3.Database(dbFile, (err) => {
+    if (err) throw err;
+    var sql = "INSERT INTO TasksList (TasksList) VALUES (";
+    sql += "'" + sqlSafeText(tasksText) + "')";
+    console.log("Executing SQL query = " + sql);
+
+    db.run(sql, function (err) {
+      if (err) throw err;
+      if (callback) callback(err, "success");
+    });
+    db.close();
+  });
+
+}
+
+function sqlTasksExistsMySql(callback) {
   var retValue = false;
   var connection = mysql.createConnection(_settings);
   connection.connect();
@@ -623,6 +959,26 @@ function sqlTasksExists(callback) {
       if (callback) callback(retValue);
     }
     connection.end();
+  });
+
+  return retValue;
+}
+
+function sqlTasksExistsSqlite(callback) {
+  var retValue = false;
+  let db = new sqlite3.Database(dbFile, (err) => {
+    if (err) throw err;
+    var sql = "SELECT * from TasksList";
+
+    db.all(sql, [], (err, rows) => {
+      if (!err) {
+        console.log("Rows found = " + rows.length);
+        console.log("Returning = " + (rows.length > 0));
+        retValue = rows.length > 0;
+        if (callback) callback(retValue);
+      }
+    });
+    db.close();
   });
 
   return retValue;
@@ -868,6 +1224,20 @@ function getPages(docFullName, callback){
 // #endregion DOCS CODE
 
 // #region SQL HELPER FUNCTIONS
+function formatDateSqlite(date) {
+  var d = new Date(date),
+      month = '' + (d.getMonth() + 1),
+      day = '' + d.getDate(),
+      year = d.getFullYear();
+
+  if (month.length < 2) 
+      month = '0' + month;
+  if (day.length < 2) 
+      day = '0' + day;
+
+  return [year, month, day].join('-');
+}
+
 function sqlSafeText(unSafeText) {
   var safe;
   if (unSafeText) {
@@ -937,7 +1307,7 @@ function createSQLTable(_settings, query, callback) {
 // #region SEARCH CODE
 
 function searchNotes(srchText, callback) {
-  var sqlCommand, searchWords, word, where, first, noteDate;
+  var searchWords, word, where, first, noteDate;
 
   // Build the where clause from the individual search words.
   searchWords = srchText.split(" ");
@@ -953,20 +1323,12 @@ function searchNotes(srchText, callback) {
       }
     }
   }
-  sqlCommand =
-    "SELECT DATE_FORMAT(NoteDate, '%m/%d/%Y') as srchDate FROM Notes " +
-    where +
-    " ORDER BY NoteDate DESC";
-  console.log("SQL = " + sqlCommand);
 
-  var connection = mysql.createConnection(_settings);
-  connection.connect();
-
-  //connection.query('SELECT * from TasksList where ID = 1', function(err, rows, fields) {
-  connection.query(sqlCommand, function (err, rows, fields) {
+  var processRows = function (err, rows){
     if (!err) {
       if (rows.length > 0) {
         console.log("Search results found = " + rows.length);
+        console.log(rows);
         for (var irec = 0; irec < rows.length; irec++) {
           addSearchResultItem(rows[irec].srchDate);
         }
@@ -975,12 +1337,24 @@ function searchNotes(srchText, callback) {
       }
     } else {
       console.log("Error while performing Query.");
+      console.log(err);
       alert("Error executing search query.");
     }
-  });
+  }
 
-  connection.end();
-
+  if (_settings.dbType == "MySql"){
+    var sql =
+    "SELECT DATE_FORMAT(NoteDate, '%m/%d/%Y') as srchDate FROM Notes " +
+    where +
+    " ORDER BY NoteDate DESC";
+    getRowsMySql(sql, processRows);
+  } else {
+    var sql = 
+    "SELECT NoteDate, strftime('%m/%d/%Y', NoteDate) as srchDate FROM Notes " +
+    where +
+    " ORDER BY NoteDate DESC";
+    getRowsSqlite(sql, processRows);
+  }
   if (callback) callback();
 }
 
@@ -1071,16 +1445,9 @@ function highlightWords(words, content, markD) {
 
 function getNotePreview(dateForDay, callback) {
   var txtSearchPreview = document.getElementById("txtSearchPreview");
-  var connection = mysql.createConnection(_settings);
   var markD = false;
-  connection.connect();
 
-  var sqlQuery =
-    "SELECT * from Notes where NoteDate = '" +
-    convertMySQLDate(dateForDay) +
-    "'";
-  console.log(sqlQuery);
-  connection.query(sqlQuery, function (err, rows, fields) {
+  var processRows = function (err, rows) {
     if (!err) {
       if (rows.length > 0) {
         console.log("getNotes rows returned = " + rows.length);
@@ -1101,10 +1468,23 @@ function getNotePreview(dateForDay, callback) {
       console.log("Error while performing Query, " + sqlQuery);
       console.log(_settings);
     }
-  });
-
-  connection.end();
-
+  }
+  
+  var sql =
+    "SELECT * from Notes where NoteDate = '" +
+    convertMySQLDate(dateForDay) +
+    "'";
+  var sqlite =
+    "SELECT * from Notes where NoteDate = '" +
+    formatDateSqlite(dateForDay) +
+    "'";
+  console.log(sql);
+  if (_settings.dbType == "MySql"){
+    getRowsMySql(sql, processRows);
+  }
+  else {
+    getRowsSqlite(sqlite, processRows);
+  }
   if (callback) callback();
 }
 
@@ -1154,7 +1534,8 @@ function getSettingsfromDialog() {
     database: document.getElementById("txtDatabase").value,
     port: document.getElementById("txtPort").value,
     themeIndex: el.options[el.selectedIndex].value,
-    documents: document.getElementById("chkDocuments").checked
+    documents: document.getElementById("chkDocuments").checked,
+    dbType: (document.getElementById("optSqlite").checked) ? "Sqlite" : "MySql"
   };
   return settings;
 }
@@ -1230,6 +1611,15 @@ function toggleSettingsBox() {
       document.getElementById("settingsSlider").classList.add("hide");
     });
     settingsShown = false;
+  }
+}
+
+function updateDBSelection(elSelected){
+  (elSelected == "optSqlite") ? document.getElementById("optMySql").checked = false : document.getElementById("optSqlite").checked = false
+  var optSqlite = document.getElementById("optSqlite");
+  var mySqlEls = document.querySelectorAll("tr[db='mysql']");
+  for (var el of mySqlEls){
+    (optSqlite.checked) ? el.classList.add("hide") : el.classList.remove("hide");
   }
 }
 
@@ -1310,7 +1700,7 @@ document.getElementById("btnNow").addEventListener("click", function () {
 document.getElementById("btnSave").addEventListener("click", function () {
   saveNotes(lastDaySelected, document.getElementById("txtNotes").value);
   saveTasks(document.getElementById("txtTasks").value);
-  initWidths();
+  //initWidths();
 });
 
 document.getElementById("btnRevert").addEventListener("click", function () {
@@ -1355,6 +1745,14 @@ document.getElementById("btnHideLeft").addEventListener("click", function () {
     leftSideBar.classList.remove("hide");
     txtNotesTitle.innerText = "NOTES";
   }
+});
+
+document.getElementById("optSqlite").addEventListener("change", (e) =>{
+  updateDBSelection(e.target.id);
+});
+
+document.getElementById("optMySql").addEventListener("change", (e) =>{
+  updateDBSelection(e.target.id);
 });
 
 // Callback from each td representing each day in the calendar.

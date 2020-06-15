@@ -83,6 +83,40 @@ body {
     padding: 5px;
 }
 
+.hboxAuto {
+    display: flex;
+    flex-direction: row;
+    flex: auto;
+    margin: auto;
+    justify-content: center;
+    align-content: center;
+    text-align: center;
+    padding: 5px;
+}
+
+.inputRadio {
+    display: flex;
+    flex-direction: row;
+    flex: auto;
+    margin:auto;
+    margin-left: 0px;
+    justify-content: left;
+    align-content: center;
+    text-align: left;
+    padding: 5px;
+    padding-left: 0px;
+    max-width: 20px;
+}
+
+.labelRadio {
+    display: flex;
+    flex-direction: row;
+    flex: 1 0 auto;
+    padding: 5px;
+    text-align: left;
+    white-space: nowrap;
+}
+
 .hboxFill {
     display: flex;
     flex-direction: row;

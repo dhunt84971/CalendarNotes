@@ -1,21 +1,52 @@
 {
-  "name": "calendar",
+  "name": "calendarNotes",
+  "productname": "Calendar Notes",
   "version": "1.0.0",
   "description": "Calendar Notes",
   "main": "main.js",
-  "scripts": {
-    "start": "electron ."
+  "author": {
+    "name": "Dave Hunt",
+    "email": "dhuntlinux@gmail.com"
   },
-  "author": "Dave Hunt",
+  "homepage": "https://github.com/dhunt84971/CalendarNotes",
+  "repository": "https://github.com/dhunt84971/CalendarNotes",
   "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "postinstall": "electron-builder install-app-deps",
+    "package": "electron-packager . --production",
+    "pack": "build --dir",
+    "dist": "build",
+    "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=assets/icons/mac/icon.icns --prune=true --out=release-builds",
+    "package-win": "electron-packager . CalendarNotes --overwrite --asar=true --platform=win32 --arch=ia32 --icon=assets/icons/win/calendarNotes.ico --prune=true --out=release-builds --version-string.CompanyName=Hunt --version-string.FileDescription=CalendarNotes --version-string.ProductName=\"Calendar Notes\"",
+    "package-linux": "electron-packager . CalendarNotes --overwrite --asar=true --platform=linux --arch=x64 --icon=assets/icons/png/calendarNotes.png --prune=true --out=release-builds"
+  },
   "devDependencies": {
-    "electron": "^8.0.1"
+    "electron": "^8.0.1",
+    "electron-builder": "^22.4.1"
   },
   "dependencies": {
+    "better-sqlite3": "^7.1.0",
     "fs": "0.0.1-security",
     "js-datepicker": "^4.6.6",
-    "lib-app-settings": "^1.0.2",
+    "lib-app-settings": "^1.0.3",
     "marked": "^0.8.0",
-    "mysql": "^2.18.1"
+    "mysql": "^2.18.1",
+    "sqlite3": "^4.2.0"
+  },
+  "postinstall": "electron-builder install-app-deps",
+  "build": {
+    "appId": "CalendarNotes",
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "maintainer": "Dave Hunt"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "build/calendarNotes.ico"
+    }
   }
 }

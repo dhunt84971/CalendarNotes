@@ -2,3 +2,5 @@ node_modules/
 .settings
 *.png~
 *.db
+*.log
+*.ico~

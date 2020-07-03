@@ -451,30 +451,30 @@ function getNotesSqlite(dateForDay, callback){
   });
 }
 
-function saveNotesMySql(dateForDay, notesText) {
+function saveNotesMySql(dateForDay, notesText, callback) {
   //var noteExists = sqlNoteExists(dateForDay);
   console.log("Saving notes = '" + notesText + "'");
   if (notesText == "") notesText = " ";
 
   sqlNoteExistsMySql(dateForDay, function (result) {
     if (result) {
-      updateNotesMySql(dateForDay, notesText, null);
+      updateNotesMySql(dateForDay, notesText, callback);
     } else {
-      insertNotesMySql(dateForDay, notesText, null);
+      insertNotesMySql(dateForDay, notesText, callback);
     }
   });
 }
 
-function saveNotesSqlite(dateForDay, notesText) {
+function saveNotesSqlite(dateForDay, notesText, callback) {
   //var noteExists = sqlNoteExists(dateForDay);
   console.log("Saving notes = '" + notesText + "'");
   if (notesText == "") notesText = " ";
 
   sqlNoteExistsSqlite(dateForDay, function (result) {
     if (result) {
-      updateNotesSqlite(dateForDay, notesText, null);
+      updateNotesSqlite(dateForDay, notesText, callback);
     } else {
-      insertNotesSqlite(dateForDay, notesText, null);
+      insertNotesSqlite(dateForDay, notesText, callback);
     }
   });
 }
@@ -598,16 +598,21 @@ function getNotes(dateForDay, callback) {
 }
 
 function saveNotes(dateForDay, notesText) {
-  //var noteExists = sqlNoteExists(dateForDay);
-  console.log("Saving notes = '" + notesText + "'");
-  if (notesText == "") notesText = " ";
-  if (_settings.dbType == "MySql"){
-    saveNotesMySql(dateForDay, notesText);
-  }
-  else {
-    saveNotesSqlite(dateForDay, notesText);
-  }
-  document.getElementById("btnSave").innerHTML = "SAVE";
+  return new Promise(function(resolve, reject){
+    console.log("Saving notes = '" + notesText + "'");
+    if (notesText == "") notesText = " ";
+    if (_settings.dbType == "MySql"){
+      saveNotesMySql(dateForDay, notesText, () => {
+        resolve();
+      });
+    }
+    else {
+      saveNotesSqlite(dateForDay, notesText, () => {
+        resolve();
+      });
+    }
+    document.getElementById("btnSave").innerHTML = "SAVE";
+  });
 }
 
 function updateNotesMySql(dateForDay, notesText, callback) {
@@ -674,7 +679,7 @@ function insertNotesSqlite(dateForDay, notesText, callback) {
 
     db.run(sql, (err) => {
       if (err) throw err;
-      if (callback) callback(err, result);
+      if (callback) callback(err, "success");
     });
     db.close();
   });
@@ -732,24 +737,24 @@ function sqlNoteExistsSqlite(dateForDay, callback) {
   return retValue;
 }
 
-function saveTasksMySql(tasksText) {
+function saveTasksMySql(tasksText, callback) {
   //var noteExists = sqlNoteExists(dateForDay);
   sqlTasksExistsMySql(function (result) {
     if (result) {
-      updateTasksMySql(tasksText, null);
+      updateTasksMySql(tasksText, callback);
     } else {
-      insertTasksMySql(tasksText, null);
+      insertTasksMySql(tasksText, callback);
     }
   });
 }
 
-function saveTasksSqlite(tasksText) {
+function saveTasksSqlite(tasksText, callback) {
   //var noteExists = sqlNoteExists(dateForDay);
   sqlTasksExistsSqlite(function (result) {
     if (result) {
-      updateTasksSqlite(tasksText, null);
+      updateTasksSqlite(tasksText, callback);
     } else {
-      insertTasksSqlite(tasksText, null);
+      insertTasksSqlite(tasksText, callback);
     }
   });
 }
@@ -871,13 +876,18 @@ function getTasks() {
 }
 
 function saveTasks(tasksText) {
-  //var noteExists = sqlNoteExists(dateForDay);
-  if (_settings.dbType == "MySql"){
-    saveTasksMySql(tasksText);
-  }
-  else {
-    saveTasksSqlite(tasksText);
-  }
+  return new Promise(function(resolve, reject){
+    if (_settings.dbType == "MySql"){
+      saveTasksMySql(tasksText, () => {
+        resolve();
+      });
+    }
+    else {
+      saveTasksSqlite(tasksText, () => {
+        resolve();
+      });
+    }
+  });
 }
 
 function updateTasksMySql(tasksText, callback) {
@@ -1784,8 +1794,8 @@ async function dateSelected(dayNum) {
   // Save the notes for the last selected date.
   if (lastDaySelected != getSelectedDate() && !initialLoad) {
     console.log("Saving notes - " + lastDaySelected);
-    saveNotes(lastDaySelected, document.getElementById("txtNotes").value);
-    saveTasks(document.getElementById("txtTasks").value);
+    await saveNotes(lastDaySelected, document.getElementById("txtNotes").value);
+    await saveTasks(document.getElementById("txtTasks").value);
   }
   await getNotes(getSelectedDate());
   blockInterface = false;

@@ -13,7 +13,7 @@
 	<div class="container">
 		<div class="boxFillHor">
 			<div class="vbox noPadding" id="leftSideBar">
-				<!-- #region CALENDAR -->
+				<!--#region CALENDAR -->
 				<div id="cal">
 					<div class="header">
 						<span class="left button" id="prev"> &lang; </span>
@@ -85,6 +85,8 @@
 					</div>
 				</div>
 				<!-- #endregion CALENDAR -->
+				
+				<!--#region LEFT SIDE PANEL-->
 				<div class="vbox vertDivider"></div>
 				<div class="vboxFill noPadding">
 					<div class="hbox noPadding">
@@ -114,11 +116,12 @@
 						</div>
 					</div>
 				</div>
+				<!--#endregion LEFT SIDE PANEL-->
 			</div>
 			<!--<div class="vbox horizDivider"></div>-->
 			<div class="vsplit" id="vSplitter"></div>
 			<div class="vboxFill noPadding">
-				<!-- #region NOTES AND TASKS BOXES -->
+				<!--#region NOTES AND TASKS BOXES -->
 				<div class="vboxFill notes noPadding">
 
 					<div class="hboxFill notesHeader noPadding">
@@ -155,49 +158,65 @@
 		</div>
 	</div>
 
-	<!-- #region SETTINGS BOX -->
+	<!--#region SETTINGS BOX -->
 	<div class="hide" id="settingsSlider">
 		<table>
 			<tr>
 				<td class="entryLabelTitle">DATABASE -</td>
+			</tr>
 			<tr>
+				<td>
+					<div class="hboxAuto noPadding noMargin">
+						<div class="inputRadio"><input type="radio" id="optSqlite"></div>
+						<div class="labelRadio">SQL Lite (Local DB)</div>
+					</div>
+				</td> 
+			</tr>
 			<tr>
+				<td>
+					<div class="hboxAuto noPadding noMargin">
+						<div class="inputRadio"><input type="radio" id="optMySql"></div>
+						<div class="labelRadio">MySQL DB Server</div>
+					</div>
+				</td> 
+			</tr>
+			<tr db="mysql">
 				<td class="entryLabel">HOST</td>
-			<tr>
-			<tr>
+			</tr>
+			<tr db="mysql">
 				<td><input class="entryField" id="txtHost"></td>
 			</tr>
-			<tr>
+			<tr db="mysql">
 				<td class="entryLabel">PORT</td>
 			</tr>
-			<tr>
+			<tr db="mysql">
 				<td><input class="entryField" id="txtPort"></td>
 			</tr>
-			<tr>
+			<tr db="mysql">
 				<td class="entryLabel">DATABASE</td>
 			</tr>
-			<tr>
+			<tr db="mysql">
 				<td><input class="entryField" id="txtDatabase"></td>
 			</tr>
-			<tr>
+			<tr db="mysql">
 				<td class="entryLabel">USERNAME</td>
 			</tr>
-			<tr>
+			<tr db="mysql">
 				<td><input class="entryField" id="txtUsername"></td>
 			</tr>
-			<tr>
+			<tr db="mysql">
 				<td class="entryLabel">PASSWORD</td>
 			</tr>
-			<tr>
+			<tr db="mysql">
 				<td><input class="entryField" id="txtPassword" type="password"></td>
 			</tr>
-			<tr height="10px"></tr>
-			<tr>
+			<tr height="10px" db="mysql"></tr>
+			<tr db="mysql">
 				<td>
 					<div class="btn" id="btnTestConnection">TEST CONNECTION</div>
 				</td>
 			</tr>
-			<tr>
+			<tr db="mysql">
 				<td>
 					<div class="btn" id="btnCreateTables">CREATE TABLES</div>
 				</td>
@@ -206,36 +225,30 @@
 				<td>
 					<hr />
 				</td>
-				<tr>
-				<tr>
-					<td class="entryLabelTitle">THEMES -</td>
-				<tr>
-				<tr>
+			</tr>
+			<tr>
+				<td class="entryLabelTitle">THEMES -</td>
+			</tr>
+			<tr>
 					<td class="entryList"><select class="entryField" id="selThemes"></select></td>
-				</tr>
-				</tr>
-				</tr>
-				</tr>
 			</tr>
 			<tr>
 				<td>
 					<hr />
 				</td>
-				<tr>
-				<tr>
-					<td class="entryLabelTitle">EXPERIMENTAL -</td>
-				<tr>
-				<tr>
-					<td><div class="hbox"><div class="vbox flexMiddle"><input type='checkbox' id='chkDocuments'></div><div class="vbox">Documents</div></div></td>
-				</tr>
-				</tr>
-				</tr>
-				</tr>
+			</tr>
+			<tr>
+				<td class="entryLabelTitle">EXPERIMENTAL -</td>
+			</tr>
+			<tr>
+				<td><div class="hbox"><div class="vbox flexMiddle"><input type='checkbox' id='chkDocuments'></div><div class="vbox">Documents</div></div></td>
 			</tr>
 			<div class="settingsClose btn" id="btnSettingsClose" title="Changes are saved on close.">APPLY/CLOSE</div>
 		</table>
 	</div>
 	<!-- #endregion SETTINGS BOX -->
+	
+	<!--#region CONTEXT MENUS -->
 	<div class="notesMenu hide">
 		<div class="btnMenu" id="btnInsertTable">INSERT TABLE</div>
 	</div>
@@ -247,6 +260,7 @@
 		<div class="btnMenu" id="btnCutDoc">CUT</div>
 		<div class="btnMenu" id="btnPasteDoc">PASTE</div>
 	</div>
+	<!--#endregion CONTEXT MENUS -->
 
 
 </body>

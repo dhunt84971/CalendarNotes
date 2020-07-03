@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "electron": "^8.0.1",
-    "electron-builder": "^22.4.1"
+    "electron-builder": "20.44.4"
   },
   "dependencies": {
     "better-sqlite3": "^7.1.0",
@@ -42,6 +42,7 @@
         "AppImage",
         "deb"
       ],
+      "category": "Office",
       "maintainer": "Dave Hunt"
     },
     "win": {

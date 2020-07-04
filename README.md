@@ -105,10 +105,10 @@ One of the most powerful features of the Calendar Notes application is the simpl
 
 <img src="./screenshots/search_results.png">
 
-By hovering over a date in the search results a preview of the note will be displayed in the notes area.  The words that were being searched will be highlighted in the previewed notes.  To edit the notes for this day click on the dated button and the calendar will select that date and display the notes.
+By hovering over a date in the search results a preview of the note will be displayed in the notes area.  The words being searched for will be highlighted in the previewed notes.  To edit the notes for this day click on the dated button and the calendar will select that date and display the notes.
 
 ### Markdown
-A markdown renderer has been included to allow the user to enter notes using markdown syntax.  To display the fully rendered markdown click on the **MARKDOWN** button.  It is not possible to edit the notes while the markdown render is enabled.  To disable the markdown mode click on the **EDIT** button.  The markdown mode applies to the search result previews as the currently displayed notes.
+A markdown renderer has been included to allow the user to enter notes using markdown syntax.  To display the fully rendered markdown click on the **MARKDOWN** button.  It is not possible to edit the notes while markdown rendering is enabled.  To disable the markdown mode click on the **EDIT** button.  The markdown mode applies to the search result previews as the currently displayed notes.
 
 <img src="./screenshots/markdown.png">
 

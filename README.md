@@ -5,6 +5,8 @@ This is a port of an application originally written in Gambas.  Much of the code
 javascript tutorial taken from here:
 <br/>https://code.tutsplus.com/tutorials/how-to-build-a-beautiful-calendar-widget--net-12538
 
+<img src="./screenshots/markdown.png">
+
 ## Installation
 To install the latest release, download the install package appropriate for the platform (exe for Windows, appimage/deb for Linux).
 
@@ -65,7 +67,7 @@ Several pre-configured themes are available from the application settings.  Exam
 <img src="./screenshots/theme_pink.png">
 
 **Tron**
-<img src="./screenshots/theme_tron.png">
+<img src="./screenshots/markdown.png">
 
 **Clu**
 <img src="./screenshots/theme_clu.png">
@@ -97,6 +99,8 @@ By hovering over a date in the search results a preview of the note will be disp
 
 ### Markdown
 A markdown renderer has been included to allow the user to enter notes using markdown syntax.  To display the fully rendered markdown click on the **MARKDOWN** button.  It is not possible to edit the notes while the markdown render is enabled.  To disable the markdown mode click on the **EDIT** button.  The markdown mode applies to the search result previews as the currently displayed notes.
+
+<img src="./screenshots/markdown.png">
 
 ### Full Window Notes
 In order to keep the application as functional as possible the left side of the application can be hidden so that only the notes editor area is displayed.  To do this click on the left pointing arrow next to the word **NOTES** at the top of the notes editor area.  To restore the left side, click on the right pointing arrow.

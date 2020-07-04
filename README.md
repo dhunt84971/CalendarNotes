@@ -48,7 +48,7 @@ The Calendar Notes application can be configured to store all notes and tasks in
 
 <img src="./screenshots/mysql_settings.png">
 
-Enter the required information and click on **TEST CONNECTION**.  If the connection is successful then provided the user has the correct privileges simply click on the **CREATE TABLES** button.  This will create the necessary tables for storing the notes and tasks.  If you are connecting to an existing Calendar Notes database that already has the tables, then skip this step.  The main advantage of using a MySQL databse is that the notes become accessible from multiple locations.
+Enter the required information and click on **TEST CONNECTION**.  If the connection is successful then provided the user has the correct privileges simply click on the **CREATE TABLES** button.  This will create the necessary tables for storing the notes and tasks.  If a connection is being made to an existing Calendar Notes database that already has the tables, then skip this step.  The main advantage of using a MySQL databse is that the notes become accessible from multiple locations.  Just install the Calendar Notes application on any number of computers and configure the MySQL connection.  Now notes can be accessed from anywhere.
 
 ### Themes
 Several pre-configured themes are available from the application settings.  Examples of each are displayed below:

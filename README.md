@@ -54,25 +54,32 @@ Enter the required information and click on **TEST CONNECTION**.  If the connect
 Several pre-configured themes are available from the application settings.  Examples of each are displayed below:
 
 **Default**
-<img src="./screenshots/theme_default.png">
+
+<img src="./screenshots/theme_default.png" style="width: 50%; height: 50%">
 
 **Warm**
-<img src="./screenshots/theme_warm.png">
+
+<img src="./screenshots/theme_warm.png" style="width: 50%; height: 50%">
 
 **Cool**
-<img src="./screenshots/theme_cool.png">
+
+<img src="./screenshots/theme_cool.png" style="width: 50%; height: 50%">
 
 **Green**
-<img src="./screenshots/theme_green.png">
+
+<img src="./screenshots/theme_green.png" style="width: 50%; height: 50%">
 
 **Pink**
-<img src="./screenshots/theme_pink.png">
+
+<img src="./screenshots/theme_pink.png" style="width: 50%; height: 50%">
 
 **Tron**
-<img src="./screenshots/markdown.png">
+
+<img src="./screenshots/markdown.png" style="width: 50%; height: 50%">
 
 **Clu**
-<img src="./screenshots/theme_clu.png">
+
+<img src="./screenshots/theme_clu.png" style="width: 50%; height: 50%">
 
 ### Experimental
 The **Experimental** option is for enabling features that are still being tested.

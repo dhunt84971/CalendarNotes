@@ -41,7 +41,7 @@ When the application is first run it will display a warning that no settings fil
 
 <img src="./screenshots/no_settings_warning.png">
 
-After clicking Okay the application is ready to use with the default settings.  This includes using the default theme and a local SQLite database file.
+After clicking OK the application is ready to use with the default settings.  This includes using the default theme and a local SQLite database file.
 
 ### MySQL Configuration
 The Calendar Notes application can be configured to store all notes and tasks in a MySQL database.  Click on the gear icon in the upper right corner to display the settings and tick the MySQL DB Server radio button.  This will display additional settings for making a connection to a MySQL database.  

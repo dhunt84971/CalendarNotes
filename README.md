@@ -89,10 +89,11 @@ Obviously, the main feature of the application is to provide a place to enter an
 
 <img src="./screenshots/not_markdown.png">
 
+### Tasks
 The tasks area provides a single location for any active tasks that need to be always displayed.  The tasks are not associated with any particular day and are not archived meaning if changes are made to the tasks area and the **SAVE** button is pressed whatever changes were made to tasks are permanent.  That is why this area is meant for reminders, such as TO DO lists.  Use the Notes area to record when a task has actually been worked on.
 
 ### Save and Revert
-The **SAVE** button is primarily used to save any changes that are made to the notes or tasks.  To remind the user to press the **SAVE** button astericks (*) are placed on either side of the **SAVE** button to indicate that an edit has been made but not saved.  The only time that edits are automatically saved is when the selected date is changed.  **NOTE: This means unsaved edits will be lost if the application is closed.**
+The **SAVE** button is used to save any changes that are made to the notes or tasks.  To remind the user to press the **SAVE** button astericks (*) are placed on either side of the **SAVE** button to indicate that an edit has been made but not saved.  The only time that edits are automatically saved is when the selected date is changed.  **NOTE: This means unsaved edits will be lost if the application is closed.**
 
 The **REVERT** button is there to remove any unsaved edits.  For example, if the user has inadvertantly mashed on the keyboard and destroyed their notes, clicking on the **REVERT** button will pull the unedited notes from the database and load these back into the notes area.  This also applies to tasks.
 

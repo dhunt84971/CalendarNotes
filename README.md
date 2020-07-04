@@ -9,6 +9,8 @@ javascript tutorial taken from here:
 
 ## Installation
 To install the latest release, download the install package appropriate for the platform (exe for Windows, appimage/deb for Linux).
+<br/>
+https://github.com/dhunt84971/CalendarNotes/releases
 
 ### Windows Installation
 For Windows simply execute the setup.exe file.

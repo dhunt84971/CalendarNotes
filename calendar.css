@@ -810,6 +810,13 @@ background: var(--buttonhover);
     right: 5px;
 }
 
+.version {
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    font: 10px/1.1 "Helvetica Neue", Helvetica, Arial, san-serif;
+}
+
 #settingsSlider {
     box-sizing: border-box;
     position: absolute;

@@ -768,19 +768,24 @@ function showNoteMarkdown() {
   console.log("Loading markdown view.");
   
   // Replace all check marks with their respective images.
-  // ~_~ = <img src="./images/chkmt.png" width="12px">
-  // ~X~ = <img src="./images/chk_x.png" width="12px">
-  customMods = customMods.replace(/\|_\|/g, "<img src='./images/chkmt.png' width='12px'>")
-  customMods = customMods.replace(/\|X\|/g, "<img src='./images/chk_x.png' width='12px'>")
-
+  // |_| = <img src="./images/chkmt.png" width="12px">
+  // |X| = <img src="./images/chk_x.png" width="12px">
+  var checkedSrc = "<img src='./images/chk_x_blk.png' width='12px'>";
+  var uncheckedSrc = "<img src='./images/chkmt_blk.png' width='12px'>";
+  if (_settings.themeIndex == 5){
+      checkedSrc = "<img src='./images/chk_x.png' width='12px'>";
+      uncheckedSrc = "<img src='./images/chkmt.png' width='12px'>"
+  }
+  else if (_settings.themeIndex == 6) {
+    checkedSrc = "<img src='./images/chk_x_clu.png' width='12px'>";
+    uncheckedSrc = "<img src='./images/chkmt_clu.png' width='12px'>"
+  }
+  customMods = customMods.replace(/\|X\|/g, checkedSrc);
+  customMods = customMods.replace(/\|_\|/g, uncheckedSrc);
+  
   var markedNote = marked(customMods);
 
   viewDiv.innerHTML = markedNote;
-  //marked(notesText.value, () => {
-  //viewDiv.classList.remove("hide");
-  //});
-
-
 }
 
 function hideAllViews() {

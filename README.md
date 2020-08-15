@@ -85,7 +85,7 @@ Several pre-configured themes are available from the application settings.  Exam
 The **Experimental** option is for enabling features that are still being tested.
 
 ## Features
-Obviously, the main feature of the application is to provide a place to enter and store notes for a particular day on the calendar.  Click on a day in the calendar and the notes for that day are displayed.  Use the **>>** button to navigate directly to today's notes.
+The main feature of the application is to provide a place to enter and store notes for a particular day on the calendar.  Click on a day in the calendar and the notes for that day are displayed.  Use the **>>** button to navigate directly to today's notes.
 
 <img src="./screenshots/not_markdown.png">
 

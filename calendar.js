@@ -1304,7 +1304,7 @@ function getSelectedDate() {
 }
 
 /// Create SQL table.
-function createSQLTable(_settings, query, callback) {
+function execSqlQuery(_settings, query, callback) {
   var connection = mysql.createConnection(_settings);
   connection.connect(function (err) {
     if (err) throw err;
@@ -1568,6 +1568,22 @@ function testDBConnection() {
   });
 }
 
+function createNotesDB(callback) {
+  return new Promise(function(resolve, reject){
+    var settings = getSettingsfromDialog();
+    var createDBSql = "CREATE SCHEMA `" + settings.database + "` ;";
+    execSqlQuery(settings, createDBSql, function (err) {
+      if (!err){
+        resolve();
+      }
+      else {
+        reject(err);
+      }
+      if (callback) callback(err);
+    });
+  });
+}
+
 /// Create Calendar Notes DB Tables
 function createNotesDBTables(callback) {
   var createNotesTable = "CREATE TABLE `Notes` (";
@@ -1589,8 +1605,8 @@ function createNotesDBTables(callback) {
     ") ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;";
   var settings = getSettingsfromDialog();
 
-  createSQLTable(settings, createNotesTable, function (err) {
-    createSQLTable(settings, createTasksTable, function (err) {
+  execSqlQuery(settings, createNotesTable, function (err) {
+    execSqlQuery(settings, createTasksTable, function (err) {
       if (callback) callback(err);
     });
   });
@@ -1875,6 +1891,18 @@ document
         alert("Tables created.");
       } else {
         alert("Table creation failed.");
+      }
+    });
+  });
+
+document
+  .getElementById("btnCreateDB")
+  .addEventListener("click", function () {
+    createNotesDB(function (err) {
+      if (!err) {
+        alert("Database created.");
+      } else {
+        alert("Database creation failed.");
       }
     });
   });

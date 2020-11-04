@@ -33,7 +33,7 @@ sudo dpkg -i calendarNotes_1.0.1_amd64.deb
 ```
 NOTE: Substitute the example deb file name with the version that was downloaded.
 
-This should result in the Calendar Notes application beoming available from the launcher menu.  This will depend on the distro being used.
+This should result in the Calendar Notes application becoming available from the launcher menu.  This will depend on the distro being used.
 
 
 ## Configuration

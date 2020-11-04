@@ -27,6 +27,10 @@
     user-select: none;
 } 
 
+input, button, textarea, :focus {
+    outline: none; 
+}
+
 #txtView, #txtView::after, #txtView::before {
     -webkit-user-select: auto;
     user-select: auto;
@@ -557,6 +561,7 @@ background: var(--buttonhover);
     box-sizing: border-box;
     background-color: var(--notesBGColor);
     color: var(--notesTextColor);
+    box-shadow: none;
 }
 
 .notes .botButton {

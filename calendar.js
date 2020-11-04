@@ -400,9 +400,10 @@ function getRowsSqlite(sql, callback){
 function getNotesMySQL(dateForDay, callback){
   var connection = mysql.createConnection(_settings);
   connection.connect();
-
   var sqlQuery = "SELECT * from Notes where NoteDate = '" + dateForDay + "'";
+  console.log(sqlQuery);
   connection.query(sqlQuery, function (err, rows, fields) {
+    console.log("Notes received");
     if (!err) {
       if (rows.length > 0) {
         if (callback){
@@ -480,9 +481,12 @@ function saveNotesSqlite(dateForDay, notesText, callback) {
 }
 
 function getTasksMySql(callback) {
+  console.log("a");
   var connection = mysql.createConnection(_settings);
   connection.connect();
+  console.log("b");
   connection.query("SELECT * FROM TasksList LIMIT 1",  (err, rows, fields) => {
+    console.log("c");
     if (!err) {
       console.log(rows);
       if (callback) {
@@ -896,14 +900,18 @@ function saveTasks(tasksText) {
 }
 
 function updateTasksMySql(tasksText, callback) {
+  console.log("1");
   var connection = mysql.createConnection(_settings);
+  console.log("2");
   connection.connect(function (err) {
+    console.log("3");
     if (err) throw err;
     var sql =
       "UPDATE TasksList SET TasksList = '" + sqlSafeText(tasksText) + "'";
     console.log("Executing SQL query = " + sql);
 
     connection.query(sql, function (err, result) {
+      console.log("4");
       if (err) throw err;
       console.log(result.affectedRows + " record(s) updated");
       if (callback) callback(err, result);
@@ -1810,14 +1818,15 @@ async function dateSelected(dayNum) {
       lastDayClicked.classList.remove("dateSelected");
     }
   }
+
   daySelected = dayNum;
   console.log(getSelectedDate());
   // Save the notes for the last selected date.
   if (lastDaySelected != getSelectedDate() && !initialLoad) {
-    console.log("Saving notes - " + lastDaySelected);
     await saveNotes(lastDaySelected, document.getElementById("txtNotes").value);
     await saveTasks(document.getElementById("txtTasks").value);
   }
+  console.log("3 getNotes.");
   await getNotes(getSelectedDate());
   blockInterface = false;
   getTasks();

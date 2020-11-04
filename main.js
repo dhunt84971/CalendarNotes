@@ -8,7 +8,9 @@ function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({ width: 800, height: 650, show: false,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      webviewTag: true,
+      enableRemoteModule: true
     } 
   });
 
@@ -55,6 +57,8 @@ app.on("activate", () => {
     createWindow();
   }
 });
+
+app.allowRendererProcessReuse = false;
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.

@@ -48,7 +48,7 @@ The Calendar Notes application can be configured to store all notes and tasks in
 
 <img src="./screenshots/mysql_settings.png">
 
-Enter the required information and click on **TEST CONNECTION**.  If the connection is successful then provided the user has the correct privileges simply click on the **CREATE TABLES** button.  This will create the necessary tables for storing the notes and tasks.  If a connection is being made to an existing Calendar Notes database that already has the tables, then skip this step.  The main advantage of using a MySQL databse is that the notes become accessible from multiple locations.  Just install the Calendar Notes application on any number of computers and configure the MySQL connection.  Now notes can be accessed from anywhere.
+Enter the required information and click on **TEST CONNECTION**.  If the connection is successful then provided the user has the correct privileges simply click on the **CREATE TABLES** button.  This will create the necessary tables for storing the notes and tasks.  If a connection is being made to an existing Calendar Notes database that already has the tables, then skip this step.  The main advantage of using a MySQL database is that the notes become accessible from multiple locations.  Just install the Calendar Notes application on any number of computers and configure the MySQL connection.  Now notes can be accessed from anywhere.
 
 ### Themes
 Several pre-configured themes are available from the application settings.  Examples of each are displayed below:
@@ -108,7 +108,7 @@ One of the most powerful features of the Calendar Notes application is the simpl
 By hovering over a date in the search results a preview of the note will be displayed in the notes area.  The words being searched for will be highlighted in the previewed notes.  To edit the notes for this day click on the dated button and the calendar will select that date and display the notes.
 
 ### Markdown
-A markdown renderer has been included to allow the user to enter notes using markdown syntax.  To display the fully rendered markdown click on the **MARKDOWN** button.  It is not possible to edit the notes while markdown rendering is enabled.  To disable the markdown mode click on the **EDIT** button.  The markdown mode applies to the search result previews as the currently displayed notes.
+A markdown renderer has been included to allow the user to enter notes using markdown syntax.  To display the fully rendered markdown click on the **MARKDOWN** button.  It is not possible to edit the notes while markdown rendering is enabled.  To disable the markdown mode click on the **EDIT** button.  The markdown mode applies to the search result previews as well as the currently displayed notes.
 
 <img src="./screenshots/markdown.png">
 

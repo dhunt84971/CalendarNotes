@@ -129,7 +129,9 @@ var CALENDAR = function () {
       document.getElementById("txtUsername").value = settings.user;
       document.getElementById("txtPassword").value = settings.password;
       document.getElementById("chkDocuments").checked = settings.documents == true;
-      settings.documents ? null : document.getElementById("btnDocs").classList.add("hide");
+      settings.documents ? document.getElementById("btnDocs").classList.remove("hide") 
+      : document.getElementById("btnDocs").classList.add("hide");
+      
       _settings = settings;
       dateSelected(daySelected);
       //loadDocs();
@@ -549,6 +551,16 @@ function createSqliteDB(callback){
         sql = `CREATE TABLE TasksList (
           ID INTEGER PRIMARY KEY,
           TasksList TEXT
+        )`;
+        db.run(sql);
+        sql = `CREATE TABLE Docs (
+          ID INTEGER PRIMARY KEY,
+          DocName TEXT,
+          DocLocation TEXT,
+          DocColor INTEGER DEFAULT 16777215,
+          DocText TEXT,
+          LastModified TEXT,
+          DocIndentLevel INTEGER DEFAULT 0
         )`;
         db.run(sql);
         db.close();
@@ -1011,30 +1023,30 @@ function sqlTasksExistsSqlite(callback) {
 
 // #region DOCS CODE
 
-var lstDocuments = document.getElementById("lstDocuments");
-var dvDocuments = new div_treeview(lstDocuments, "/");
-var documentSelected = function (text){
-  selectDocument(text);
-}
-dvDocuments.onSelect(documentSelected);
-var onDocContextMenu = function (el, fullPath){
-  docContextMenu(el, fullPath);
-}
-dvDocuments.onRightClick(onDocContextMenu);
+//var lstDocuments = document.getElementById("lstDocuments");
+//var dvDocuments = new div_treeview(lstDocuments, "/");
+//var documentSelected = function (text){
+//   selectDocument(text);
+// }
+// dvDocuments.onSelect(documentSelected);
+// var onDocContextMenu = function (el, fullPath){
+//   docContextMenu(el, fullPath);
+// }
+// dvDocuments.onRightClick(onDocContextMenu);
 
 // :: TODO :: 
 
 // Show Doc context menu
-var contextSelectedDoc;
-function docContextMenu (el, fullPath){
-  contextSelectedDoc = fullPath;
-  console.log(el.clientX);
-  var menu = document.querySelector(".docsMenu");
-  menu.style.left = el.clientX + "px";
-  menu.style.top = el.clientY + "px";
-  menu.classList.remove("hide");
-  console.log(menu);
-}
+//var contextSelectedDoc;
+// function docContextMenu (el, fullPath){
+//   contextSelectedDoc = fullPath;
+//   console.log(el.clientX);
+//   var menu = document.querySelector(".docsMenu");
+//   menu.style.left = el.clientX + "px";
+//   menu.style.top = el.clientY + "px";
+//   menu.classList.remove("hide");
+//   console.log(menu);
+// }
 
 // Select doc
 function selectDocument(docName){
@@ -2003,10 +2015,6 @@ document.querySelector("#txtNotes").addEventListener('keydown', function (e) {
 
 document.getElementById("vSplitter").addEventListener("mousedown", initVDrag, false);
 document.getElementById("vSplitterDoc").addEventListener("mousedown", initVDrag, false);
-
-document.getElementById("btnAddDoc").addEventListener("click", ()=>{
-  addDocLocation("","New Document");
-});
 
 // #region DOC CONTEXT MENU EVENT HANDLERS
 document.getElementById("btnAddSubDoc").addEventListener("click", ()=>{

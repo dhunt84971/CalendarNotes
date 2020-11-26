@@ -5,8 +5,9 @@ var app_documents = {
     //#region GLOBAL DECLARATIONS
     lstDocuments: {},
     dvDocuments: {},
+    txtRename: {},
     contextSelectedDoc: "",
-
+    renameTarget: {},
     //#endregion GLOBAL DECLARATIONS
 
     //#region PAGE RENDER FUNCTIONS
@@ -35,6 +36,18 @@ var app_documents = {
         menu.style.top = el.clientY + "px";
         menu.classList.remove("hide");
         console.log(menu);
+    },
+
+    showtxtRename: function (el) {
+        console.log(el);
+        var rect = el.getBoundingClientRect();
+        console.log(rect);
+        this.txtRename.style.left = rect.left + "px";
+        this.txtRename.style.top = rect.top + "px";
+        this.txtRename.style.width = rect.width + "px";
+        this.txtRename.style.height = rect.height + "px";
+        this.txtRename.value = el.innerText;
+        this.txtRename.classList.remove("hide");
     },
 
     //#endregion PAGE RENDER FUNCTIONS
@@ -300,6 +313,26 @@ var app_documents = {
             });
         });
     },
+
+    updateDocNameSqlite: function (oldName, newName){
+        return new Promise((resolve, reject) => {
+            // Add the document name to the database.
+            let db = new sqlite3.Database(dbFile, (err) => {
+                if (err) throw err;
+                var sql = `
+                    UPDATE Docs 
+                    SET DocLocation = REPLACE(DocLocation, '${oldName}', '${newName}')
+                    WHERE DocLocation LIKE '${oldName}%'
+                `;
+                console.log("Executing SQL query = " + sql);
+                db.run(sql, (err) => {
+                    if (err) reject(err)
+                    else resolve();
+                });
+                db.close();
+            });
+        });
+    },
     //#endregion DATABASE FUNCTIONS
 
     //#region DATA RETRIEVAL FUNCTIONS
@@ -341,12 +374,16 @@ var app_documents = {
     },
 
     loadDocs: function () {
+        emptyDiv("lstDocuments");
         this.getDocs()
         .then((data)=>{
             console.log(data);
             for (var i = 0; i < data.length; i++) {
                 this.dvDocuments.addTVItem(this.lstDocuments, data[i].DocLocation, false);
             }
+            data.length > 0 ? 
+                document.getElementById("btnAddPage").classList.remove("hide") : 
+                document.getElementById("btnAddPage").classList.add("hide");
             // Pick the first location.
             this.dvDocuments.selectFirstItem();
         })
@@ -387,6 +424,10 @@ var app_documents = {
             return docReturnName;
         });
     },
+
+    updateDocName: function (oldDocFullPath, newDocFullPath) {
+        return this.updateDocNameSqlite(oldDocFullPath, newDocFullPath);
+    },
     //#endregion DATA TRANSMITTAL FUNCTIONS
 
     //#region DOCUMENT MANAGEMENT FUNCTIONS
@@ -394,6 +435,44 @@ var app_documents = {
         console.log(`Document ${docName} selected.`);
         this.loadPages(docName);
     },
+
+    renameDoc_Clicked: function (docName) {
+        let el = this.dvDocuments.getSelectedElement();
+        this.showtxtRename(el);
+        this.renameTarget = function (newName) {return this.renameDoc(newName);}
+    },
+
+    renamed: function (){
+        let newName = this.txtRename.value;
+        this.renameTarget(newName)
+        .then(()=>{
+            this.txtRename.classList.add("hide");
+            this.loadDocs();
+        })
+        .catch((err)=>{
+            ShowWarningMessageBox(err);
+        });
+    },
+
+    renameDoc: function(newName){
+        return new Promise ((resolve, reject) => {
+            // Create the new full path.
+            let fullPath = this.dvDocuments.getSelectedFullPath();
+            let oldName = this.dvDocuments.getSelectedElement().innerText;
+            let newFullPath = fullPath.replace(oldName, newName);
+            console.log(newFullPath);
+            // Make sure the new full path does not exist.
+            if (this.docNameExists(newFullPath) == true){
+                ShowWarningMessageBox("Name already exists!");
+                reject("Name already exists!");
+            }
+            else{
+                this.updateDocName(fullPath, newFullPath)
+                .then(()=>{resolve();});
+            }
+        });
+    },
+
     //#endregion DOCUMENT MANAGEMENT FUNCTIONS
 
     //#region HELPER FUNCTIONS
@@ -403,6 +482,7 @@ var app_documents = {
     //#region INITIALIZATION
     init: function () {
         this.lstDocuments = document.getElementById("lstDocuments");
+        this.txtRename = document.getElementById("txtRename");
         this.dvDocuments = new div_treeview(this.lstDocuments, "/");
         this.dvDocuments.onSelect((text)=> {
             this.selectDocument(text);
@@ -426,16 +506,22 @@ document.getElementById("btnAddPage").addEventListener("click", () => {
     app_documents.addPage("", "New Document");
 });
 
+document.getElementById("txtRename").addEventListener("keyup", (e) =>{
+    if (e.key == "Enter"){
+        app_documents.renamed();
+    }
+});
+
 // #region DOC CONTEXT MENU EVENT HANDLERS
 document.getElementById("btnAddSubDoc").addEventListener("click", ()=>{
     app_documents.addDocLocation(app_documents.contextSelectedDoc,"New Document");
 });
   
-document.getElementById("btnRenameDoc").addEventListener("click", ()=>{
-    app_documents.renameDoc(app_documents.contextSelectedDoc);
+document.getElementById("btnRenameDoc").addEventListener("click", (e)=>{
+    app_documents.renameDoc_Clicked(app_documents.contextSelectedDoc);
 });
 
-document.getElementById("btnRemoveDoc").addEventListener("click", ()=>{
+document.getElementById("btnRemoveDoc").addEventListener("click", (e)=>{
     app_documents.removeDoc(app_documents.contextSelectedDoc);
 });
 

@@ -1989,6 +1989,7 @@ document.getElementById("btnInsertTable").addEventListener("click", (e) => {
 document.querySelector("body").addEventListener("click", () => {
   document.querySelector(".notesMenu").classList.add("hide");
   document.querySelector(".docsMenu").classList.add("hide");
+  //document.getElementById("txtRename").classList.add("hide");
 });
 
 // Intercept the tab key while in the txtNotes area.

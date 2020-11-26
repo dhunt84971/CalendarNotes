@@ -71,6 +71,26 @@ function div_treeview(divTVElement, divTVDelimeter) {
         }
     }
 
+    function getSelectedElement(){
+        let divItem = divTVElement;
+        let found = divItem.classList.contains("div_treeview_selected");
+        while (!found){
+            divItem = divItem.children[0];
+            found = divItem.classList.contains("div_treeview_selected");
+        }
+        return found ? divItem : null;
+    }
+
+    function getSelectedFullPath(){
+        let el = getSelectedElement();
+        if (el){
+            return getFullPath(el);
+        }
+        else{
+            return null;
+        }
+    }
+
     function onSelect(callback){
         onSelect_Callback = callback;
         divTVElement.ownerDocument.addEventListener("click", (e)=>{
@@ -250,6 +270,8 @@ function div_treeview(divTVElement, divTVDelimeter) {
     // Expose all public functions/objects here.
     this.loadItems = loadItems;
     this.addTVItem = addTVItem;
+    this.getSelectedElement = getSelectedElement;
+    this.getSelectedFullPath = getSelectedFullPath;
     this.onSelect = onSelect;
     this.onDblClick = onDblClick;
     this.onRightClick = onRightClick;

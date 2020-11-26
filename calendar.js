@@ -119,6 +119,7 @@ var CALENDAR = function () {
     // Load the settings from the file.
     await appSettings.loadSettingsFromFile()
     .then((settings)=>{
+      _settings = settings;
       document.getElementById("selThemes").selectedIndex = settings.themeIndex;
       changeTheme(settings.themeIndex, function () {
         initSettingsIcon();
@@ -129,12 +130,14 @@ var CALENDAR = function () {
       document.getElementById("txtUsername").value = settings.user;
       document.getElementById("txtPassword").value = settings.password;
       document.getElementById("chkDocuments").checked = settings.documents == true;
-      settings.documents ? document.getElementById("btnDocs").classList.remove("hide") 
-      : document.getElementById("btnDocs").classList.add("hide");
-      
-      _settings = settings;
+      if (settings.documents){
+        document.getElementById("btnDocs").classList.remove("hide");
+        app_documents.loadDocs();
+      }
+      else{
+        document.getElementById("btnDocs").classList.add("hide");
+      };
       dateSelected(daySelected);
-      //loadDocs();
       document.getElementById("leftSideBar").style.width = settings.leftSideBarWidth;
       document.getElementById("docsSideBar").style.width = settings.docsSideBarWidth;
       document.getElementById("optSqlite").checked = (settings.dbType == "Sqlite");
@@ -144,6 +147,7 @@ var CALENDAR = function () {
     .catch((err)=>{
         // Assume any error means the settings file does not exist and create it.
         ////alert("No settings found.  Configure your settings.");
+        console.log(err);
         ShowWarningMessageBox("No settings found.  Assigning defaults.");
         appSettings.setSettingsInFile(getSettingsfromDialog());
         createSqliteDB();
@@ -1049,30 +1053,30 @@ function sqlTasksExistsSqlite(callback) {
 // }
 
 // Select doc
-function selectDocument(docName){
-  loadPages(docName);
-}
+// function selectDocument(docName){
+//   loadPages(docName);
+// }
 
 // Load docs
-function loadDocs(){
-  // Load treeview with the documents.
-  var connection = mysql.createConnection(_settings);
-    connection.connect();
-    connection.query(
-      "SELECT DISTINCT DocLocation from Docs", function (err, data) {
-        if (err) throw err;
-        console.log(data);
-        for(var i=0; i<data.length; i++){
+// function loadDocs(){
+//   // Load treeview with the documents.
+//   var connection = mysql.createConnection(_settings);
+//     connection.connect();
+//     connection.query(
+//       "SELECT DISTINCT DocLocation from Docs", function (err, data) {
+//         if (err) throw err;
+//         console.log(data);
+//         for(var i=0; i<data.length; i++){
           
-          dvDocuments.addTVItem(lstDocuments,data[i].DocLocation, false);
-        }
-        // Pick the first location.
-        dvDocuments.selectFirstItem();
+//           dvDocuments.addTVItem(lstDocuments,data[i].DocLocation, false);
+//         }
+//         // Pick the first location.
+//         dvDocuments.selectFirstItem();
       
-        connection.end();
-      }
-    );
-}
+//         connection.end();
+//       }
+//     );
+// }
 
 // Rename doc
 function renameDoc(docFullPath){
@@ -1127,76 +1131,76 @@ function removeDoc(docFullPath){
 // Update docs
 
 // Add doc
-function addDocLocation(parentDoc, docName, callback){
-  var docFullName = parentDoc == "" ? docName : parentDoc + "/" + docName;
-  // Make sure the document name is unique.
-  var docNewName;
-  getUniqueDocName(docFullName, (docNewName)=>{
-    // Add the document name to the database.
-    var connection = mysql.createConnection(_settings);
-    connection.connect(function (err) {
-      if (err) throw err;
-      var sql = "INSERT INTO Docs (DocName, DocLocation, DocColor, DocText, LastModified) VALUES (";
-      sql += "'New Page', ";
-      sql += "'" + docNewName + "', ";
-      sql += "-1, ";
-      sql += "'', ";
-      sql += "'" + getMySQLNow() + "')";
-      console.log("Executing SQL query = " + sql);
+// function addDocLocation(parentDoc, docName, callback){
+//   var docFullName = parentDoc == "" ? docName : parentDoc + "/" + docName;
+//   // Make sure the document name is unique.
+//   var docNewName;
+//   getUniqueDocName(docFullName, (docNewName)=>{
+//     // Add the document name to the database.
+//     var connection = mysql.createConnection(_settings);
+//     connection.connect(function (err) {
+//       if (err) throw err;
+//       var sql = "INSERT INTO Docs (DocName, DocLocation, DocColor, DocText, LastModified) VALUES (";
+//       sql += "'New Page', ";
+//       sql += "'" + docNewName + "', ";
+//       sql += "-1, ";
+//       sql += "'', ";
+//       sql += "'" + getMySQLNow() + "')";
+//       console.log("Executing SQL query = " + sql);
 
-      connection.query(sql, function (err, result) {
-        if (err) throw err;
-        if (callback) callback(err, result);
-        connection.end();
-      });
-      dvDocuments.addTVItem(lstDocuments, docNewName, false);
-      selectDocument(docNewName);
-    });
-  });
-}
+//       connection.query(sql, function (err, result) {
+//         if (err) throw err;
+//         if (callback) callback(err, result);
+//         connection.end();
+//       });
+//       dvDocuments.addTVItem(lstDocuments, docNewName, false);
+//       selectDocument(docNewName);
+//     });
+//   });
+// }
 
-function docNameExists(docFullName, callback){
-  return new Promise(function(resolve, reject){
-    var retValue = docFullName;
-    var connection = mysql.createConnection(_settings);
-    connection.connect();
-    connection.query(
-      "SELECT DocLocation from Docs WHERE DocLocation = '" + docFullName + "'",
-      function (err, rows, fields) {
-        if (err){
-          reject(new Error("DB error occurred!"));
-        }
-        else{
-          console.log("Rows found = " + rows.length);
-          console.log("Returning = " + (rows.length > 0));
-          retValue = rows.length > 0;
-          if (callback) callback(retValue);
-          resolve(retValue);
-        }
-        connection.end();
-      }
-    );
-  });
-}
+// function docNameExists(docFullName, callback){
+//   return new Promise(function(resolve, reject){
+//     var retValue = docFullName;
+//     var connection = mysql.createConnection(_settings);
+//     connection.connect();
+//     connection.query(
+//       "SELECT DocLocation from Docs WHERE DocLocation = '" + docFullName + "'",
+//       function (err, rows, fields) {
+//         if (err){
+//           reject(new Error("DB error occurred!"));
+//         }
+//         else{
+//           console.log("Rows found = " + rows.length);
+//           console.log("Returning = " + (rows.length > 0));
+//           retValue = rows.length > 0;
+//           if (callback) callback(retValue);
+//           resolve(retValue);
+//         }
+//         connection.end();
+//       }
+//     );
+//   });
+// }
 
-async function getUniqueDocName(docFullName, callback){
-  var fileNameIndex = 0;
-  var docReturnName = docFullName;
-  console.log("looking for name " + docFullName);
-  var nameFound = await docNameExists(docFullName);
-  console.log("looping");
-  while (nameFound){
-    console.log("incrementing name");
-    fileNameIndex += 1;
-    docReturnName = docFullName + "(" + fileNameIndex + ")";
-    console.log("searching for " + docReturnName);
-    nameFound = await docNameExists(docReturnName);
-  }
-  if (callback){
-    callback(docReturnName);
-  }
-  return docReturnName;
-}
+// async function getUniqueDocName(docFullName, callback){
+//   var fileNameIndex = 0;
+//   var docReturnName = docFullName;
+//   console.log("looking for name " + docFullName);
+//   var nameFound = await docNameExists(docFullName);
+//   console.log("looping");
+//   while (nameFound){
+//     console.log("incrementing name");
+//     fileNameIndex += 1;
+//     docReturnName = docFullName + "(" + fileNameIndex + ")";
+//     console.log("searching for " + docReturnName);
+//     nameFound = await docNameExists(docReturnName);
+//   }
+//   if (callback){
+//     callback(docReturnName);
+//   }
+//   return docReturnName;
+// }
 
 // Load pages
 function emptyDiv(divById){
@@ -1213,35 +1217,35 @@ function addItemtoDiv(divById, itemInnerText, classAdd){
   document.getElementById(divById).appendChild(newItem);
 }
 
-async function loadPages(docFullName, callback){
-  var data = await getPages(docFullName);
-  emptyDiv("lstDocs");
-  for (var i=0; i<data.length;i++){
-    addItemtoDiv("lstDocs", data[i].DocName, "btn srchResultItem");
-  }
-}
+// async function loadPages(docFullName, callback){
+//   var data = await getPages(docFullName);
+//   emptyDiv("lstDocs");
+//   for (var i=0; i<data.length;i++){
+//     addItemtoDiv("lstDocs", data[i].DocName, "btn srchResultItem");
+//   }
+// }
 
-function getPages(docFullName, callback){
-  return new Promise(function(resolve, reject){
-    var connection = mysql.createConnection(_settings);
-      connection.connect();
-      connection.query(
-        "SELECT DocName from Docs WHERE DocLocation = '" + docFullName + "'",
-        function (err, rows, fields) {
-          if (err){
-            reject(new Error("DB error occurred!"));
-          }
-          else{
+// function getPages(docFullName, callback){
+//   return new Promise(function(resolve, reject){
+//     var connection = mysql.createConnection(_settings);
+//       connection.connect();
+//       connection.query(
+//         "SELECT DocName from Docs WHERE DocLocation = '" + docFullName + "'",
+//         function (err, rows, fields) {
+//           if (err){
+//             reject(new Error("DB error occurred!"));
+//           }
+//           else{
             
-            retValue = rows;
-            if (callback) callback(retValue);
-            resolve(rows);
-          }
-          connection.end();
-        }
-      );
-  });
-}
+//             retValue = rows;
+//             if (callback) callback(retValue);
+//             resolve(rows);
+//           }
+//           connection.end();
+//         }
+//       );
+//   });
+// }
 // Update pages
 
 // Add page
@@ -2015,21 +2019,5 @@ document.querySelector("#txtNotes").addEventListener('keydown', function (e) {
 
 document.getElementById("vSplitter").addEventListener("mousedown", initVDrag, false);
 document.getElementById("vSplitterDoc").addEventListener("mousedown", initVDrag, false);
-
-// #region DOC CONTEXT MENU EVENT HANDLERS
-document.getElementById("btnAddSubDoc").addEventListener("click", ()=>{
-  addDocLocation(contextSelectedDoc,"New Document");
-});
-
-document.getElementById("btnRenameDoc").addEventListener("click", ()=>{
-  renameDoc(contextSelectedDoc);
-});
-
-document.getElementById("btnRemoveDoc").addEventListener("click", ()=>{
-  removeDoc(contextSelectedDoc);
-});
-
-// #endregion DOC CONTEXT MENU EVENT HANDLERS
-
 
 // #endregion DOCUMENT EVENT HANDLERS

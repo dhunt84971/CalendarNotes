@@ -1,6 +1,6 @@
 "use strict";
 
-let app_documents = {
+var app_documents = {
 
     //#region GLOBAL DECLARATIONS
     lstDocuments: {},
@@ -10,12 +10,16 @@ let app_documents = {
     //#endregion GLOBAL DECLARATIONS
 
     //#region PAGE RENDER FUNCTIONS
-    loadPages: function (docFullName, callback) {
+    loadPages: function (docFullName) {
+        console.log(docFullName);
         this.getPages(docFullName)
-            .then((rows) => {
+            .then((data) => {
                 emptyDiv("lstDocs");
-                for (var i = 0; i < data.length; i++) {
-                    addItemtoDiv("lstDocs", data[i].DocName, "btn srchResultItem");
+                console.log(data);
+                if(data){
+                    for (var i = 0; i < data.length; i++) {
+                        addItemtoDiv("lstDocs", data[i].DocName, "btn srchResultItem");
+                    }
                 }
             })
             .catch((err) => {
@@ -24,7 +28,7 @@ let app_documents = {
     },
 
     docContextMenu: function (el, fullPath) {
-        contextSelectedDoc = fullPath;
+        this.contextSelectedDoc = fullPath;
         console.log(el.clientX);
         var menu = document.querySelector(".docsMenu");
         menu.style.left = el.clientX + "px";
@@ -67,7 +71,7 @@ let app_documents = {
                     db.all(sqlQuery, [], (err, rows) => {
                         if (!err) {
                             if (rows.length > 0) {
-                                resolve(rows[0].NoteText);
+                                resolve(rows);
                             } else {
                                 resolve();
                             }
@@ -84,49 +88,10 @@ let app_documents = {
         });
     },
 
-    getUniqueDocNameMySQL: function (docFullName) {
-        return new Promise(async (resolve, reject) => {
-            var fileNameIndex = 0;
-            var docReturnName = docFullName;
-            console.log("looking for name " + docFullName);
-            var nameFound = await docNameExists(docFullName);
-            console.log("looping");
-            while (nameFound) {
-                console.log("incrementing name");
-                fileNameIndex += 1;
-                docReturnName = docFullName + "(" + fileNameIndex + ")";
-                console.log("searching for " + docReturnName);
-                nameFound = await this.docNameExists(docReturnName);
-            }
-            resolve(docReturnName);
-            return docReturnName;
-        });
-    },
-
-    getUniqueDocNameSqlite: function (docFullName) {
-        return new Promise(async (resolve, reject) => {
-            var fileNameIndex = 0;
-            var docReturnName = docFullName;
-            console.log("looking for name " + docFullName);
-            var nameFound = await docNameExists(docFullName);
-            console.log("looping");
-            while (nameFound) {
-                console.log("incrementing name");
-                fileNameIndex += 1;
-                docReturnName = docFullName + "(" + fileNameIndex + ")";
-                console.log("searching for " + docReturnName);
-                nameFound = await this.docNameExists(docReturnName);
-            }
-            resolve(docReturnName);
-            return docReturnName;
-        });
-    },
-
     addDocLocationMySQL: function (parentDoc, docName) {
         return new Promise((resolve, reject) => {
             var docFullName = parentDoc == "" ? docName : parentDoc + "/" + docName;
             // Make sure the document name is unique.
-            var docNewName;
             this.getUniqueDocName(docFullName)
                 .then((docNewName) => {
                     // Add the document name to the database.
@@ -142,8 +107,8 @@ let app_documents = {
                         console.log("Executing SQL query = " + sql);
 
                         connection.query(sql, function (err, result) {
-                            if (err) throw err;
-                            if (callback) callback(err, result);
+                            if (err) reject(err)
+                            else resolve(result);
                             connection.end();
                         });
                         this.dvDocuments.addTVItem(this.lstDocuments, docNewName, false);
@@ -152,36 +117,94 @@ let app_documents = {
                 });
         });
     },
-    //#endregion DATABASE FUNCTIONS
 
-
-    //#region DATA RETRIEVAL FUNCTIONS
-    getPages: function (docFullName) {
-        return (_settings.dbType == "MySql") ?
-            this.getPagesMySQL(docFullName) :
-            this.getPagesSqlite(docFullName);
-    },
-
-    getUniqueDocName: function (docFullName) {
-        return new Promise(async (resolve, reject) => {
-            var fileNameIndex = 0;
-            var docReturnName = docFullName;
-            console.log("looking for name " + docFullName);
-            var nameFound = await docNameExists(docFullName);
-            console.log("looping");
-            while (nameFound) {
-                console.log("incrementing name");
-                fileNameIndex += 1;
-                docReturnName = docFullName + "(" + fileNameIndex + ")";
-                console.log("searching for " + docReturnName);
-                nameFound = await this.docNameExists(docReturnName);
-            }
-            resolve(docReturnName);
-            return docReturnName;
+    addDocLocationSqlite: function (parentDoc, docName) {
+        return new Promise((resolve, reject) => {
+            var docFullName = parentDoc == "" ? docName : parentDoc + "/" + docName;
+            // Make sure the document name is unique.
+            this.getUniqueDocName(docFullName)
+                .then((docNewName) => {
+                    // Add the document name to the database.
+                    let db = new sqlite3.Database(dbFile, (err) => {
+                        if (err) throw err;
+                        var sql = `
+                            INSERT INTO Docs 
+                            (DocName, DocLocation, DocColor, DocText, LastModified) 
+                            VALUES ('New Page', '${docNewName}',
+                            -1, '','${getMySQLNow()}')
+                        `;
+                        console.log("Executing SQL query = " + sql);
+                        db.run(sql, (err) => {
+                            if (err) reject(err)
+                            else resolve();
+                        });
+                        db.close();
+                        this.dvDocuments.addTVItem(this.lstDocuments, docNewName, false);
+                        this.selectDocument(docNewName);
+                    });
+                });
         });
     },
 
-    docNameExists: function (docFullName) {
+    addPageMySQL: function (parentDoc, docName) {
+        return new Promise((resolve, reject) => {
+            var docFullName = parentDoc == "" ? docName : parentDoc + "/" + docName;
+            // Make sure the document name is unique.
+            this.getUniqueDocName(docFullName)
+                .then((docNewName) => {
+                    // Add the document name to the database.
+                    var connection = mysql.createConnection(_settings);
+                    connection.connect(function (err) {
+                        if (err) throw err;
+                        var sql = "INSERT INTO Docs (DocName, DocLocation, DocColor, DocText, LastModified) VALUES (";
+                        sql += "'New Page', ";
+                        sql += "'" + docNewName + "', ";
+                        sql += "-1, ";
+                        sql += "'', ";
+                        sql += "'" + getMySQLNow() + "')";
+                        console.log("Executing SQL query = " + sql);
+
+                        connection.query(sql, function (err, result) {
+                            if (err) reject(err)
+                            else resolve(result);
+                            connection.end();
+                        });
+                        this.dvDocuments.addTVItem(this.lstDocuments, docNewName, false);
+                        this.selectDocument(docNewName);
+                    });
+                });
+        });
+    },
+
+    addPageSqlite: function (docName) {
+        return new Promise((resolve, reject) => {
+            var docFullName = parentDoc == "" ? docName : parentDoc + "/" + docName;
+            // Make sure the document name is unique.
+            this.getUniqueDocName(docFullName)
+                .then((docNewName) => {
+                    // Add the document name to the database.
+                    let db = new sqlite3.Database(dbFile, (err) => {
+                        if (err) throw err;
+                        var sql = `
+                            INSERT INTO Docs 
+                            (DocName, DocLocation, DocColor, DocText, LastModified) 
+                            VALUES ('New Page', '${docNewName}',
+                            -1, '','${getMySQLNow()}')
+                        `;
+                        console.log("Executing SQL query = " + sql);
+                        db.run(sql, (err) => {
+                            if (err) reject(err)
+                            else resolve();
+                        });
+                        db.close();
+                        this.dvDocuments.addTVItem(this.lstDocuments, docNewName, false);
+                        this.selectDocument(docNewName);
+                    });
+                });
+        });
+    },
+
+    docNameExistsMySQL: function (docFullName) {
         return new Promise(function (resolve, reject) {
             var retValue = docFullName;
             var connection = mysql.createConnection(_settings);
@@ -203,36 +226,87 @@ let app_documents = {
             );
         });
     },
-    //#endregion DATA RETRIEVAL FUNCTIONS
 
-    //#region DATA TRANSMITTAL FUNCTIONS
-    addDocLocation: function (parentDoc, docName, callback) {
-        var docFullName = parentDoc == "" ? docName : parentDoc + "/" + docName;
-        // Make sure the document name is unique.
-        var docNewName;
-        this.getUniqueDocName(docFullName)
-            .then((docNewName) => {
-                // Add the document name to the database.
-                var connection = mysql.createConnection(_settings);
-                connection.connect(function (err) {
-                    if (err) throw err;
-                    var sql = "INSERT INTO Docs (DocName, DocLocation, DocColor, DocText, LastModified) VALUES (";
-                    sql += "'New Page', ";
-                    sql += "'" + docNewName + "', ";
-                    sql += "-1, ";
-                    sql += "'', ";
-                    sql += "'" + getMySQLNow() + "')";
-                    console.log("Executing SQL query = " + sql);
-
-                    connection.query(sql, function (err, result) {
-                        if (err) throw err;
-                        if (callback) callback(err, result);
-                        connection.end();
+    docNameExistsSqlite: function (docFullName) {
+        return new Promise(function (resolve, reject) {
+            var retValue = docFullName;
+            let db = new sqlite3.Database(dbFile, (err) => {
+                if (!err) {
+                    let sql = `
+                        SELECT DocLocation 
+                        FROM Docs 
+                        WHERE DocLocation = '${docFullName}'
+                    `;
+                    db.all(sql, [], (err, rows) => {
+                        if (!err){
+                            retValue = rows.length > 0;
+                            resolve(retValue);
+                        }
+                        else{
+                            reject(err);
+                        }
                     });
-                    this.dvDocuments.addTVItem(this.lstDocuments, docNewName, false);
-                    this.selectDocument(docNewName);
-                });
+                }
+                else{
+                    reject(err);
+                }
+                db.close();
+                return;
             });
+        });
+    },
+
+    getDocsMySQL: function () {
+        return new Promise((resolve, reject)=>{
+            var connection = mysql.createConnection(_settings);
+            connection.connect();
+            let sql = `
+                SELECT DISTINCT DocLocation
+                FROM Docs
+            `;
+            connection.query( sql, (err, data) => {
+                if (err) reject(err);
+                console.log(data);
+                resolve(data);
+                connection.end();
+            });
+        }); 
+    },
+
+    getDocsSqlite: function () {
+        // Load treeview with the documents.
+        return new Promise((resolve, reject)=>{
+            let db = new sqlite3.Database(dbFile, (err) => {
+                if (!err) {
+                    let sql = `
+                        SELECT DISTINCT DocLocation 
+                        FROM Docs
+                    `;
+                    db.all(sql, [], (err, rows) => {
+                        if (!err){
+                            console.log(rows);
+                            resolve(rows);
+                        }
+                        else{
+                            reject(err);
+                        }
+                    });
+                }
+                else{
+                    reject(err);
+                }
+                db.close();
+                return;
+            });
+        });
+    },
+    //#endregion DATABASE FUNCTIONS
+
+    //#region DATA RETRIEVAL FUNCTIONS
+    getPages: function (docFullName) {
+        return (_settings.dbType == "MySql") ?
+            this.getPagesMySQL(docFullName) :
+            this.getPagesSqlite(docFullName);
     },
 
     getUniqueDocName: function (docFullName) {
@@ -240,7 +314,7 @@ let app_documents = {
             var fileNameIndex = 0;
             var docReturnName = docFullName;
             console.log("looking for name " + docFullName);
-            var nameFound = await docNameExists(docFullName);
+            var nameFound = await this.docNameExists(docFullName);
             console.log("looping");
             while (nameFound) {
                 console.log("incrementing name");
@@ -254,28 +328,70 @@ let app_documents = {
         });
     },
 
+    docNameExists: function (docFullName) {
+        return (_settings.dbType == "MySql") ?
+            this.docNameExistsMySQL(docFullName) :
+            this.docNameExistsSqlite(docFullName);
+    },
+
+    getDocs: function (){
+        return (_settings.dbType == "MySql") ?
+            this.getDocsMySQL() :
+            this.getDocsSqlite();
+    },
+
     loadDocs: function () {
-        // Load treeview with the documents.
-        var connection = mysql.createConnection(_settings);
-        connection.connect();
-        connection.query(
-            "SELECT DISTINCT DocLocation from Docs",
-            function (err, data) {
-                if (err) throw err;
-                console.log(data);
-                for (var i = 0; i < data.length; i++) {
-                    this.dvDocuments.addTVItem(this.lstDocuments, data[i].DocLocation, false);
-                }
-                // Pick the first location.
-                this.dvDocuments.selectFirstItem();
-                connection.end();
+        this.getDocs()
+        .then((data)=>{
+            console.log(data);
+            for (var i = 0; i < data.length; i++) {
+                this.dvDocuments.addTVItem(this.lstDocuments, data[i].DocLocation, false);
             }
-        );
+            // Pick the first location.
+            this.dvDocuments.selectFirstItem();
+        })
+        .catch((err)=>{
+            console.log(err);
+        });
+    },
+    //#endregion DATA RETRIEVAL FUNCTIONS
+
+    //#region DATA TRANSMITTAL FUNCTIONS
+    addDocLocation: function (parentDoc, docName) {
+        return (_settings.dbType == "MySql") ?
+            this.addDocLocationMySQL(parentDoc, docName) :
+            this.addDocLocationSqlite(parentDoc, docName);
+    },
+
+    addPage: function (docName) {
+        return (_settings.dbType == "MySql") ?
+            this.addPageMySQL(parentDoc, docName) :
+            this.addPageSqlite(parentDoc, docName);
+    },
+
+    getUniqueDocName: function (docFullName) {
+        return new Promise(async (resolve, reject) => {
+            var fileNameIndex = 0;
+            var docReturnName = docFullName;
+            console.log("looking for name " + docFullName);
+            var nameFound = await this.docNameExists(docFullName);
+            console.log("looping");
+            while (nameFound) {
+                console.log("incrementing name");
+                fileNameIndex += 1;
+                docReturnName = docFullName + "(" + fileNameIndex + ")";
+                console.log("searching for " + docReturnName);
+                nameFound = await this.docNameExists(docReturnName);
+            }
+            resolve(docReturnName);
+            return docReturnName;
+        });
     },
     //#endregion DATA TRANSMITTAL FUNCTIONS
 
     //#region DOCUMENT MANAGEMENT FUNCTIONS
     selectDocument: function (docName) {
+        console.log(`Document ${docName} selected.`);
         this.loadPages(docName);
     },
     //#endregion DOCUMENT MANAGEMENT FUNCTIONS
@@ -287,9 +403,13 @@ let app_documents = {
     //#region INITIALIZATION
     init: function () {
         this.lstDocuments = document.getElementById("lstDocuments");
-        this.dvDocuments = new div_treeview(lstDocuments, "/");
-        this.dvDocuments.onSelect(this.selectDocument);
-        this.dvDocuments.onRightClick(this.docContextMenu);
+        this.dvDocuments = new div_treeview(this.lstDocuments, "/");
+        this.dvDocuments.onSelect((text)=> {
+            this.selectDocument(text);
+        });
+        this.dvDocuments.onRightClick((el, fullPath)=>{
+            this.docContextMenu(el, fullPath)
+        });
     },
     //#endregion INITIALIZATION
 
@@ -302,4 +422,24 @@ document.getElementById("btnAddDoc").addEventListener("click", () => {
     app_documents.addDocLocation("", "New Document");
 });
 
-//#endregion DON EVENT HANDLERS
+document.getElementById("btnAddPage").addEventListener("click", () => {
+    app_documents.addPage("", "New Document");
+});
+
+// #region DOC CONTEXT MENU EVENT HANDLERS
+document.getElementById("btnAddSubDoc").addEventListener("click", ()=>{
+    app_documents.addDocLocation(app_documents.contextSelectedDoc,"New Document");
+});
+  
+document.getElementById("btnRenameDoc").addEventListener("click", ()=>{
+    app_documents.renameDoc(app_documents.contextSelectedDoc);
+});
+
+document.getElementById("btnRemoveDoc").addEventListener("click", ()=>{
+    app_documents.removeDoc(app_documents.contextSelectedDoc);
+});
+
+// #endregion DOC CONTEXT MENU EVENT HANDLERS
+  
+
+//#endregion DOM EVENT HANDLERS

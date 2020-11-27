@@ -1575,6 +1575,10 @@ function addItemtoDiv(divById, itemInnerText, classAdd, customData){
   return newItem;
 }
 
+function getDocChanged(){
+  return document.getElementById("btnSave").innerHTML == "*SAVE*";
+}
+
 // #endregion HELPER FUNCTIONS
 
 // #region DOCUMENT EVENT HANDLERS

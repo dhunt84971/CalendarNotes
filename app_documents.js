@@ -48,6 +48,8 @@ var app_documents = {
         this.txtRename.style.height = rect.height + "px";
         this.txtRename.value = el.innerText;
         this.txtRename.classList.remove("hide");
+        this.txtRename.focus();
+        this.txtRename.select();
     },
 
     //#endregion PAGE RENDER FUNCTIONS
@@ -288,13 +290,48 @@ var app_documents = {
 
     getDocsSqlite: function () {
         // Load treeview with the documents.
+        let sql = `
+            SELECT DISTINCT DocLocation 
+            FROM Docs
+        `;
+        return this.execQuerySqlite(sql);
+    },
+
+    updateDocNameSqlite: function (oldName, newName){
+        var sql1 = `
+            UPDATE Docs 
+            SET DocLocation = REPLACE(DocLocation, '${oldName}', '${newName}')
+            WHERE DocLocation LIKE '${oldName}';
+        `;
+        var sql2= `
+            UPDATE Docs 
+            SET DocLocation = '${newName}' || SUBSTR(DocLocation, LENGTH('${oldName}/'))
+            WHERE INSTR(DocLocation, '${oldName}/') = 1;
+        `;
+        return Promise.all([this.execCommandSqlite(sql1), this.execCommandSqlite(sql2)])
+        .catch((err)=>{
+            console.log(err);
+            ShowWarningMessageBox("Database command failure!");
+        });
+    },
+
+    deleteDocSqlite: function (fullPath){
+        var sql = `
+            DELETE Docs 
+            WHERE INSTR(DocLocation, '${fullPath}') = 1;
+        `;
+        return this.execCommandSqlite(sql)
+        .catch((err)=>{
+            console.log(err);
+            ShowWarningMessageBox("Database command failure!");
+        });
+    },
+
+    execQuerySqlite: function (sql) {
+        // Load treeview with the documents.
         return new Promise((resolve, reject)=>{
             let db = new sqlite3.Database(dbFile, (err) => {
                 if (!err) {
-                    let sql = `
-                        SELECT DISTINCT DocLocation 
-                        FROM Docs
-                    `;
                     db.all(sql, [], (err, rows) => {
                         if (!err){
                             console.log(rows);
@@ -314,17 +351,12 @@ var app_documents = {
         });
     },
 
-    updateDocNameSqlite: function (oldName, newName){
+    execCommandSqlite: function (sql){
         return new Promise((resolve, reject) => {
             // Add the document name to the database.
             let db = new sqlite3.Database(dbFile, (err) => {
                 if (err) throw err;
-                var sql = `
-                    UPDATE Docs 
-                    SET DocLocation = REPLACE(DocLocation, '${oldName}', '${newName}')
-                    WHERE DocLocation LIKE '${oldName}%'
-                `;
-                console.log("Executing SQL query = " + sql);
+                console.log("Executing SQL command = " + sql);
                 db.run(sql, (err) => {
                     if (err) reject(err)
                     else resolve();
@@ -333,6 +365,7 @@ var app_documents = {
             });
         });
     },
+
     //#endregion DATABASE FUNCTIONS
 
     //#region DATA RETRIEVAL FUNCTIONS
@@ -374,21 +407,25 @@ var app_documents = {
     },
 
     loadDocs: function () {
-        emptyDiv("lstDocuments");
-        this.getDocs()
-        .then((data)=>{
-            console.log(data);
-            for (var i = 0; i < data.length; i++) {
-                this.dvDocuments.addTVItem(this.lstDocuments, data[i].DocLocation, false);
-            }
-            data.length > 0 ? 
-                document.getElementById("btnAddPage").classList.remove("hide") : 
-                document.getElementById("btnAddPage").classList.add("hide");
-            // Pick the first location.
-            this.dvDocuments.selectFirstItem();
-        })
-        .catch((err)=>{
-            console.log(err);
+        return new Promise((resolve, reject)=>{
+            emptyDiv("lstDocuments");
+            this.getDocs()
+            .then((data)=>{
+                console.log(data);
+                for (var i = 0; i < data.length; i++) {
+                    this.dvDocuments.addTVItem(this.lstDocuments, data[i].DocLocation, false);
+                }
+                data.length > 0 ? 
+                    document.getElementById("btnAddPage").classList.remove("hide") : 
+                    document.getElementById("btnAddPage").classList.add("hide");
+                // Pick the first location.
+                this.dvDocuments.selectFirstItem();
+                resolve();
+            })
+            .catch((err)=>{
+                console.log(err);
+                reject(err);
+            });
         });
     },
     //#endregion DATA RETRIEVAL FUNCTIONS
@@ -428,6 +465,10 @@ var app_documents = {
     updateDocName: function (oldDocFullPath, newDocFullPath) {
         return this.updateDocNameSqlite(oldDocFullPath, newDocFullPath);
     },
+
+    deleteDoc: function (fullPath){
+        return this.deleteDocSqlite(fullPath);
+    },
     //#endregion DATA TRANSMITTAL FUNCTIONS
 
     //#region DOCUMENT MANAGEMENT FUNCTIONS
@@ -439,38 +480,52 @@ var app_documents = {
     renameDoc_Clicked: function (docName) {
         let el = this.dvDocuments.getSelectedElement();
         this.showtxtRename(el);
-        this.renameTarget = function (newName) {return this.renameDoc(newName);}
+        this.renameTarget = "document";
     },
 
-    renamed: function (){
+    renamed: async function (){
         let newName = this.txtRename.value;
-        this.renameTarget(newName)
-        .then(()=>{
-            this.txtRename.classList.add("hide");
-            this.loadDocs();
-        })
-        .catch((err)=>{
-            ShowWarningMessageBox(err);
+        let newFullPath = "";
+        if (this.renameTarget == "document"){
+            newFullPath = await this.renameDoc(newName);
+        }
+        this.txtRename.classList.add("hide");
+        this.loadDocs()
+        .then (()=>{
+            this.dvDocuments.setSelectedPath(newFullPath);
         });
     },
 
     renameDoc: function(newName){
-        return new Promise ((resolve, reject) => {
+        return new Promise (async (resolve, reject) => {
             // Create the new full path.
             let fullPath = this.dvDocuments.getSelectedFullPath();
             let oldName = this.dvDocuments.getSelectedElement().innerText;
             let newFullPath = fullPath.replace(oldName, newName);
             console.log(newFullPath);
             // Make sure the new full path does not exist.
-            if (this.docNameExists(newFullPath) == true){
+
+            let exists = await this.docNameExists(newFullPath);
+            if (exists == true){
                 ShowWarningMessageBox("Name already exists!");
                 reject("Name already exists!");
             }
             else{
-                this.updateDocName(fullPath, newFullPath)
-                .then(()=>{resolve();});
+                await this.updateDocName(fullPath, newFullPath)
+                .catch((err)=>{reject(err);});
+                resolve(newFullPath);
+                return newFullPath;
             }
         });
+    },
+
+    removeDoc_Clicked: function (docName) {
+        if (showConfirmationBox("Are you sure?\nNote: Deleting this document deletes all children.")){
+            this.deleteDoc(docName)
+            .then(()=>{
+                this.loadDocs();
+            });
+        }
     },
 
     //#endregion DOCUMENT MANAGEMENT FUNCTIONS
@@ -512,6 +567,10 @@ document.getElementById("txtRename").addEventListener("keyup", (e) =>{
     }
 });
 
+document.getElementById("txtRename").addEventListener("click", (e) =>{
+    e.stopPropagation();
+});
+
 // #region DOC CONTEXT MENU EVENT HANDLERS
 document.getElementById("btnAddSubDoc").addEventListener("click", ()=>{
     app_documents.addDocLocation(app_documents.contextSelectedDoc,"New Document");
@@ -519,10 +578,12 @@ document.getElementById("btnAddSubDoc").addEventListener("click", ()=>{
   
 document.getElementById("btnRenameDoc").addEventListener("click", (e)=>{
     app_documents.renameDoc_Clicked(app_documents.contextSelectedDoc);
+    e.stopPropagation();
+    document.querySelector(".docsMenu").classList.add("hide");
 });
 
 document.getElementById("btnRemoveDoc").addEventListener("click", (e)=>{
-    app_documents.removeDoc(app_documents.contextSelectedDoc);
+    app_documents.removeDoc_Clicked(app_documents.contextSelectedDoc);
 });
 
 // #endregion DOC CONTEXT MENU EVENT HANDLERS

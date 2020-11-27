@@ -1,3 +1,6 @@
+"use strict";
+
+//#region GLOBAL REFERENCES
 const { dialog } = require("electron").remote;
 const electron = require("electron");
 const { remote } = require("electron");
@@ -8,7 +11,9 @@ var mysql = require("mysql");
 var sqlite3 = require("sqlite3").verbose();
 var fs = require("fs");
 var marked = require("marked");
+//#endregion GLOBAL REFERENCES
 
+//#region GLOBAL VARIABLES
 var initialLoad = true;
 var settingsShown = false;
 var calRows = 5;
@@ -33,6 +38,7 @@ var _settings = {
 
 var calChangeDate;
 var blockInterface = false;
+//#endregion GLOBAL VARIABLES
 
 // #region THEMES
 var select = document.getElementById("selThemes");
@@ -1025,243 +1031,6 @@ function sqlTasksExistsSqlite(callback) {
 
 // #endregion TASKS CODE
 
-// #region DOCS CODE
-
-//var lstDocuments = document.getElementById("lstDocuments");
-//var dvDocuments = new div_treeview(lstDocuments, "/");
-//var documentSelected = function (text){
-//   selectDocument(text);
-// }
-// dvDocuments.onSelect(documentSelected);
-// var onDocContextMenu = function (el, fullPath){
-//   docContextMenu(el, fullPath);
-// }
-// dvDocuments.onRightClick(onDocContextMenu);
-
-// :: TODO :: 
-
-// Show Doc context menu
-//var contextSelectedDoc;
-// function docContextMenu (el, fullPath){
-//   contextSelectedDoc = fullPath;
-//   console.log(el.clientX);
-//   var menu = document.querySelector(".docsMenu");
-//   menu.style.left = el.clientX + "px";
-//   menu.style.top = el.clientY + "px";
-//   menu.classList.remove("hide");
-//   console.log(menu);
-// }
-
-// Select doc
-// function selectDocument(docName){
-//   loadPages(docName);
-// }
-
-// Load docs
-// function loadDocs(){
-//   // Load treeview with the documents.
-//   var connection = mysql.createConnection(_settings);
-//     connection.connect();
-//     connection.query(
-//       "SELECT DISTINCT DocLocation from Docs", function (err, data) {
-//         if (err) throw err;
-//         console.log(data);
-//         for(var i=0; i<data.length; i++){
-          
-//           dvDocuments.addTVItem(lstDocuments,data[i].DocLocation, false);
-//         }
-//         // Pick the first location.
-//         dvDocuments.selectFirstItem();
-      
-//         connection.end();
-//       }
-//     );
-// }
-
-// Rename doc
-function renameDoc(docFullPath){
-  // Display dialog box for data entry.
-  var docs = docFullPath.split("/");
-  showRenameWindow(docs[docs.length-1]);
-}
-
-function showRenameWindow(oldName) {
-
-  // Get the current window size and position.
-  const pos = remote.getCurrentWindow().getPosition();
-  const size = remote.getCurrentWindow().getSize();
-  var xPos = pos[0] + (size[0] / 2) - 170;
-  var yPos = pos[1] + (size[1] / 2) - 200;
-
-  let win = new remote.BrowserWindow({
-      parent: remote.getCurrentWindow(),
-      ////frame: false,
-      modal: true,
-      width: 340,
-      height:150,
-      resizable: false,
-      x: xPos,
-      y: yPos,
-      show: false
-  });
-
-  var theUrl = 'file://' + __dirname + '/rename.html'
-  console.log('url', theUrl);
-
-  win.loadURL(theUrl);
-  win.webContents.openDevTools();
-  win.setMenuBarVisibility(false);
-
-  win.webContents.on('did-finish-load', () => {
-      win.webContents.send('data', oldName);
-  });
-  
-  win.once('ready-to-show', () => {
-      win.show();
-  });
-
-};
-
-
-// Remove doc
-function removeDoc(docFullPath){
-  // Display warning confirmation dialog to remove doc.
-}
-
-// Update docs
-
-// Add doc
-// function addDocLocation(parentDoc, docName, callback){
-//   var docFullName = parentDoc == "" ? docName : parentDoc + "/" + docName;
-//   // Make sure the document name is unique.
-//   var docNewName;
-//   getUniqueDocName(docFullName, (docNewName)=>{
-//     // Add the document name to the database.
-//     var connection = mysql.createConnection(_settings);
-//     connection.connect(function (err) {
-//       if (err) throw err;
-//       var sql = "INSERT INTO Docs (DocName, DocLocation, DocColor, DocText, LastModified) VALUES (";
-//       sql += "'New Page', ";
-//       sql += "'" + docNewName + "', ";
-//       sql += "-1, ";
-//       sql += "'', ";
-//       sql += "'" + getMySQLNow() + "')";
-//       console.log("Executing SQL query = " + sql);
-
-//       connection.query(sql, function (err, result) {
-//         if (err) throw err;
-//         if (callback) callback(err, result);
-//         connection.end();
-//       });
-//       dvDocuments.addTVItem(lstDocuments, docNewName, false);
-//       selectDocument(docNewName);
-//     });
-//   });
-// }
-
-// function docNameExists(docFullName, callback){
-//   return new Promise(function(resolve, reject){
-//     var retValue = docFullName;
-//     var connection = mysql.createConnection(_settings);
-//     connection.connect();
-//     connection.query(
-//       "SELECT DocLocation from Docs WHERE DocLocation = '" + docFullName + "'",
-//       function (err, rows, fields) {
-//         if (err){
-//           reject(new Error("DB error occurred!"));
-//         }
-//         else{
-//           console.log("Rows found = " + rows.length);
-//           console.log("Returning = " + (rows.length > 0));
-//           retValue = rows.length > 0;
-//           if (callback) callback(retValue);
-//           resolve(retValue);
-//         }
-//         connection.end();
-//       }
-//     );
-//   });
-// }
-
-// async function getUniqueDocName(docFullName, callback){
-//   var fileNameIndex = 0;
-//   var docReturnName = docFullName;
-//   console.log("looking for name " + docFullName);
-//   var nameFound = await docNameExists(docFullName);
-//   console.log("looping");
-//   while (nameFound){
-//     console.log("incrementing name");
-//     fileNameIndex += 1;
-//     docReturnName = docFullName + "(" + fileNameIndex + ")";
-//     console.log("searching for " + docReturnName);
-//     nameFound = await docNameExists(docReturnName);
-//   }
-//   if (callback){
-//     callback(docReturnName);
-//   }
-//   return docReturnName;
-// }
-
-// Load pages
-function emptyDiv(divById){
-  document.getElementById(divById).innerHTML = "";
-}
-
-function addItemtoDiv(divById, itemInnerText, classAdd){
-  var newItem = document.createElement("div");
-  newItem.innerText = itemInnerText;
-  var classes = classAdd.split(" ");
-  for (var i=0; i<classes.length;i++){
-    newItem.classList.add(classes[i]);
-  }
-  document.getElementById(divById).appendChild(newItem);
-}
-
-// async function loadPages(docFullName, callback){
-//   var data = await getPages(docFullName);
-//   emptyDiv("lstDocs");
-//   for (var i=0; i<data.length;i++){
-//     addItemtoDiv("lstDocs", data[i].DocName, "btn srchResultItem");
-//   }
-// }
-
-// function getPages(docFullName, callback){
-//   return new Promise(function(resolve, reject){
-//     var connection = mysql.createConnection(_settings);
-//       connection.connect();
-//       connection.query(
-//         "SELECT DocName from Docs WHERE DocLocation = '" + docFullName + "'",
-//         function (err, rows, fields) {
-//           if (err){
-//             reject(new Error("DB error occurred!"));
-//           }
-//           else{
-            
-//             retValue = rows;
-//             if (callback) callback(retValue);
-//             resolve(rows);
-//           }
-//           connection.end();
-//         }
-//       );
-//   });
-// }
-// Update pages
-
-// Add page
-
-
-
-// Delete page
-
-// Rename page
-
-// Cut page
-
-// Paste page
-
-// #endregion DOCS CODE
-
 // #region SQL HELPER FUNCTIONS
 function formatDateSqlite(date) {
   var d = new Date(date),
@@ -1745,6 +1514,33 @@ function ShowWarningMessageBox(message) {
   dialog.showMessageBox(null, options);
 }
 
+function showConfirmationBox (message) {
+  const options = {
+      type: "info",
+      title: "Confirm",
+      buttons: ["Yes", "No", "Cancel"],
+      message: message,
+  };
+
+  let response = dialog.showMessageBoxSync(null, options);
+
+  return response == 0;
+}
+
+function emptyDiv(divById){
+  document.getElementById(divById).innerHTML = "";
+}
+
+function addItemtoDiv(divById, itemInnerText, classAdd){
+  var newItem = document.createElement("div");
+  newItem.innerText = itemInnerText;
+  var classes = classAdd.split(" ");
+  for (var i=0; i<classes.length;i++){
+    newItem.classList.add(classes[i]);
+  }
+  document.getElementById(divById).appendChild(newItem);
+}
+
 // #endregion HELPER FUNCTIONS
 
 // #region DOCUMENT EVENT HANDLERS
@@ -1989,7 +1785,7 @@ document.getElementById("btnInsertTable").addEventListener("click", (e) => {
 document.querySelector("body").addEventListener("click", () => {
   document.querySelector(".notesMenu").classList.add("hide");
   document.querySelector(".docsMenu").classList.add("hide");
-  //document.getElementById("txtRename").classList.add("hide");
+  document.getElementById("txtRename").classList.add("hide");
 });
 
 // Intercept the tab key while in the txtNotes area.

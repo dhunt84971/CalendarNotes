@@ -10,6 +10,7 @@ var app_documents = {
     contextSelectedDoc: "",
     contextSelectedPage: "",
     renameTarget: {},
+    lastFullPath: "",
     //#endregion GLOBAL DECLARATIONS
 
     //#region PAGE RENDER FUNCTIONS
@@ -582,10 +583,20 @@ var app_documents = {
     },
 
     savePage: function(){
-        let path = this.dvDocuments.getSelectedFullPath();
-        let pageName = this.getSelectedPageName();
-        let docText = this.txtDoc.value;
-        this.updatePage(path, pageName, docText);
+        return new Promise((resolve, reject)=>{
+            let path = this.lastFullPath;
+            let pageName = this.getSelectedPageName();
+            let docText = this.txtDoc.value;
+            this.updatePage(path, pageName, docText)
+            .then(()=>{
+                document.getElementById("btnSave").innerHTML = "SAVE";
+                resolve();
+            })
+            .catch((err)=>{
+                console.catch(err);
+                reject(err);
+            });
+        });
     },
 
     getUniqueDocName: function (docFullName) {
@@ -640,8 +651,11 @@ var app_documents = {
     //#endregion DATA TRANSMITTAL FUNCTIONS
 
     //#region DOCUMENT MANAGEMENT FUNCTIONS
-    selectDocument: function (docName) {
+    selectDocument: async function (docName) {
         console.log(`Document ${docName} selected.`);
+        if (getDocChanged()){
+            await this.savePage();
+        }
         this.loadPages(docName);
     },
 
@@ -736,13 +750,17 @@ var app_documents = {
         }
     },
 
-    selectPage: function(el){
+    selectPage: async function(el){
+        if (getDocChanged()) {
+            await this.savePage();
+        }
         this.selectPageButton(el);
         let fullPath = this.dvDocuments.getSelectedFullPath();
         let pageName = el.innerHTML;
         this.getPageNote(fullPath, pageName)
         .then((data)=>{
             this.showPageData(data[0].DocText);
+            this.lastFullPath = fullPath;
         })
         .catch((err)=>{
             console.log(err);
@@ -765,6 +783,7 @@ var app_documents = {
     },
 
     btnPage_RtClicked: function (e) {
+        this.selectPage(e.target);
         this.pageContextMenu(e);
     },
 

@@ -661,6 +661,11 @@ background: var(--buttonhover);
     color: var(--buttonhovertext);
 }
 
+.selected {
+    background-color: var(--buttonhover) !important;
+    color: var(--buttonhovertext) !important;
+}
+
 .tasksButton {
     min-width: 70px;
 }
@@ -865,6 +870,14 @@ background: var(--buttonhover);
 }
 
 .docsMenu {
+    background-color: var(--notesMenuBGColor);
+    position: fixed;
+    width: 200px;
+    padding: 5px 5px 5px 5px;
+    margin: 5px 5px 5px 2px;
+}
+
+.pagesMenu {
     background-color: var(--notesMenuBGColor);
     position: fixed;
     width: 200px;

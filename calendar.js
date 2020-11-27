@@ -814,6 +814,32 @@ function showNoteMarkdown() {
   viewDiv.innerHTML = markedNote;
 }
 
+function showPageMarkdown() {
+  var viewDiv = document.getElementById("txtDocView");
+  var notesText = document.getElementById("txtDoc");
+  var customMods = notesText.value;
+  
+  // Replace all check marks with their respective images.
+  // |_| = <img src="./images/chkmt.png" width="12px">
+  // |X| = <img src="./images/chk_x.png" width="12px">
+  var checkedSrc = "<img src='./images/chk_x_blk.png' width='12px'>";
+  var uncheckedSrc = "<img src='./images/chkmt_blk.png' width='12px'>";
+  if (_settings.themeIndex == 5){
+      checkedSrc = "<img src='./images/chk_x.png' width='12px'>";
+      uncheckedSrc = "<img src='./images/chkmt.png' width='12px'>"
+  }
+  else if (_settings.themeIndex == 6) {
+    checkedSrc = "<img src='./images/chk_x_clu.png' width='12px'>";
+    uncheckedSrc = "<img src='./images/chkmt_clu.png' width='12px'>"
+  }
+  customMods = customMods.replace(/\|X\|/g, checkedSrc);
+  customMods = customMods.replace(/\|_\|/g, uncheckedSrc);
+  
+  var markedNote = marked(customMods);
+
+  viewDiv.innerHTML = markedNote;
+}
+
 function hideAllViews() {
   document.getElementById("txtNotesArea").classList.add("hide");
   document.getElementById("txtView").classList.add("hide");
@@ -827,11 +853,12 @@ function notesViewSelected() {
   document.getElementById("btnViewText").classList.add("btnSelected");
   document.getElementById("btnViewMD").classList.remove("btnSelected");
   if (document.getElementById("btnDocs").classList.contains("tabSelected")) {
+    document.getElementById("divDocsView").classList.remove("hide");
     document.getElementById("txtDocArea").classList.remove("hide");
+    document.getElementById("txtDocView").classList.add("hide");
   } else {
     document.getElementById("txtNotesArea").classList.remove("hide");
   }
-
 }
 
 function mdViewSelected() {
@@ -839,11 +866,14 @@ function mdViewSelected() {
   document.getElementById("btnViewText").classList.remove("btnSelected");
   document.getElementById("btnViewMD").classList.add("btnSelected");
   if (document.getElementById("btnDocs").classList.contains("tabSelected")) {
+    document.getElementById("divDocsView").classList.remove("hide");
     document.getElementById("txtDocView").classList.remove("hide");
+    document.getElementById("txtDocArea").classList.add("hide");
   } else {
     document.getElementById("txtView").classList.remove("hide");
   }
   showNoteMarkdown();
+  showPageMarkdown();
 }
 
 function docsViewSelected() {
@@ -1531,14 +1561,18 @@ function emptyDiv(divById){
   document.getElementById(divById).innerHTML = "";
 }
 
-function addItemtoDiv(divById, itemInnerText, classAdd){
+function addItemtoDiv(divById, itemInnerText, classAdd, customData){
   var newItem = document.createElement("div");
   newItem.innerText = itemInnerText;
   var classes = classAdd.split(" ");
   for (var i=0; i<classes.length;i++){
     newItem.classList.add(classes[i]);
   }
+  if (customData){
+    newItem.setAttribute(customData.split("=")[0], customData.split("=")[1])
+  }
   document.getElementById(divById).appendChild(newItem);
+  return newItem;
 }
 
 // #endregion HELPER FUNCTIONS
@@ -1549,7 +1583,12 @@ document.getElementById("btnNow").addEventListener("click", function () {
 });
 
 document.getElementById("btnSave").addEventListener("click", function () {
-  saveNotes(lastDaySelected, document.getElementById("txtNotes").value);
+  if (document.getElementById("btnDocs").classList.contains("tabSelected")) {
+    app_documents.savePage();
+  }
+  else{
+    saveNotes(lastDaySelected, document.getElementById("txtNotes").value);
+  }
   saveTasks(document.getElementById("txtTasks").value);
   //initWidths();
 });
@@ -1785,6 +1824,7 @@ document.getElementById("btnInsertTable").addEventListener("click", (e) => {
 document.querySelector("body").addEventListener("click", () => {
   document.querySelector(".notesMenu").classList.add("hide");
   document.querySelector(".docsMenu").classList.add("hide");
+  document.querySelector(".pagesMenu").classList.add("hide");
   document.getElementById("txtRename").classList.add("hide");
 });
 

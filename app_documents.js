@@ -22,18 +22,26 @@ var app_documents = {
                 emptyDiv("lstDocs");
                 console.log(data);
                 if(data){
-                    let firstPage = {};
-                    for (var i = 0; i < data.length; i++) {
-                        let pageBtnEl = addItemtoDiv("lstDocs", data[i].DocName, "btn srchResultItem", "data-grp=page");
-                        pageBtnEl.addEventListener("click", (e)=>{
-                            this.btnPage_Clicked(e.target);
-                        });
-                        pageBtnEl.addEventListener("contextmenu", (e)=>{
-                            this.btnPage_RtClicked(e);
-                        });
-                        if (i == 0) firstPage = pageBtnEl;
+                    if (data.length > 0){
+                        let firstPage = {};
+                        for (var i = 0; i < data.length; i++) {
+                            let pageBtnEl = addItemtoDiv("lstDocs", data[i].DocName, "btn pageItem", "data-grp=page");
+                            pageBtnEl.addEventListener("click", (e)=>{
+                                this.btnPage_Clicked(e.target);
+                            });
+                            pageBtnEl.addEventListener("contextmenu", (e)=>{
+                                this.btnPage_RtClicked(e);
+                            });
+                            if (i == 0) firstPage = pageBtnEl;
+                        }
+                        this.selectPage(firstPage);
+                        resolve();
                     }
-                    this.selectPage(firstPage);
+                    else{
+                        resolve();
+                    }
+                }
+                else{
                     resolve();
                 }
             })
@@ -594,7 +602,7 @@ var app_documents = {
             this.getDocsSqlite();
     },
 
-    loadDocs: function () {
+    loadDocs: function (selectFirst) {
         return new Promise((resolve, reject)=>{
             emptyDiv("lstDocuments");
             this.getDocs()
@@ -607,7 +615,7 @@ var app_documents = {
                     document.getElementById("btnAddPage").classList.remove("hide") : 
                     document.getElementById("btnAddPage").classList.add("hide");
                 // Pick the first location.
-                this.dvDocuments.selectFirstItem();
+                if (selectFirst) this.dvDocuments.selectFirstItem();
                 resolve();
             })
             .catch((err)=>{
@@ -620,13 +628,15 @@ var app_documents = {
 
     //#region DATA TRANSMITTAL FUNCTIONS
     addDocLocation: async function (parentDoc, docName) {
+        let path = this.dvDocuments.getSelectedFullPath();
         if (_settings.dbType == "MySql"){
             await this.addDocLocationMySQL(parentDoc, docName);
         }
         else{
             await this.addDocLocationSqlite(parentDoc, docName);
         }
-        this.loadDocs();
+        await this.loadDocs();
+        this.dvDocuments.setSelectedPath(path);
     },
 
     addPage: function (path) {
@@ -637,10 +647,14 @@ var app_documents = {
 
     addPage_Clicked: function(){
         let path = this.dvDocuments.getSelectedFullPath();
+        let page = this.getSelectedPageName();
         console.log(path);
         this.addPage(path)
         .then(()=>{
             this.loadPages(path);
+        })
+        .then(()=>{
+            this.selectPageByName(page);
         });
     },
 
@@ -751,10 +765,8 @@ var app_documents = {
         let newName = this.txtRename.value;
         if (this.renameTarget == "document"){
             let newFullPath = await this.renameDoc(newName);
-            this.loadDocs()
-            .then (()=>{
-                this.dvDocuments.setSelectedPath(newFullPath);
-            });
+            await this.loadDocs();
+            this.dvDocuments.setSelectedPath(newFullPath);
         }
         else{
             let fullPath = this.dvDocuments.getSelectedFullPath();
@@ -813,7 +825,7 @@ var app_documents = {
         if (showConfirmationBox("Are you sure?\nNote: Deleting this document deletes all children.")){
             this.deleteDoc(docName)
             .then(()=>{
-                this.loadDocs();
+                this.loadDocs(true);
             });
         }
     },
@@ -829,6 +841,7 @@ var app_documents = {
     },
 
     selectPage: async function(el){
+        if (!el) return;
         if (getDocChanged()) {
             await this.savePage();
         }

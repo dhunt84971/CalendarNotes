@@ -71,6 +71,44 @@ function div_treeview(divTVElement, divTVDelimeter) {
         }
     }
 
+    function getSelectedElement(){
+        return document.querySelector(".div_treeview_selected");
+    }
+
+    function getSelectedFullPath(){
+        let el = getSelectedElement();
+        if (el){
+            return getFullPath(el);
+        }
+        else{
+            return null;
+        }
+    }
+
+    function setSelectedPath(fullPath) {
+        if (divTVElement.innerHTML != ""){
+            removeAllSelected(divTVElement);
+            let paths = document.querySelectorAll(".div_treeview_item");
+            console.log(paths);
+            for (let item of paths){
+                console.log(getFullPath(item));
+                if (getFullPath(item) == fullPath){
+                    item.classList.add("div_treeview_selected");
+                }
+            }
+            expandToSelected();
+        }
+    }
+
+    function expandToSelected(){
+        let selected = getSelectedElement();
+        let prevItem = selected.parentNode;
+        while (prevItem != divTVElement){
+            expand(prevItem);
+            prevItem = prevItem.parentNode;
+        }
+    }
+
     function onSelect(callback){
         onSelect_Callback = callback;
         divTVElement.ownerDocument.addEventListener("click", (e)=>{
@@ -117,6 +155,10 @@ function div_treeview(divTVElement, divTVDelimeter) {
     function onRightClick(callback){
         divTVElement.ownerDocument.addEventListener("contextmenu", (e)=>{
             if (e.target.classList.contains("div_treeview_item")){
+                if (!e.target.classList.contains("div_treeview_selected")){
+                    removeAllSelected(divTVElement);
+                    e.target.classList.add("div_treeview_selected");
+                } 
                 if (onSelect_Callback){
                     onSelect_Callback(getFullPath(e.target));
                 }
@@ -203,16 +245,18 @@ function div_treeview(divTVElement, divTVDelimeter) {
     }
 
     function expand(divItem){
-        console.log("expanding:");
-        console.log(divItem);
-        divItem.classList.remove("div_treeview_children_hidden");
-        var marker = divItem.children[0];
-        marker.classList.add(_expandedStyle);
-        marker.classList.remove(_collapsedStyle);
-        var divParent = divItem.parentNode;
-        var children = divParent.children;
-        for (var i=0; i<children.length; i++){
-            children[i].classList.remove("div_treeview_collapsed");
+        if (divItem.classList.contains("div_treeview_item")){
+            console.log("expanding:");
+            console.log(divItem);
+            divItem.classList.remove("div_treeview_children_hidden");
+            var marker = divItem.children[0];
+            marker.classList.add(_expandedStyle);
+            marker.classList.remove(_collapsedStyle);
+            var divParent = divItem.parentNode;
+            var children = divParent.children;
+            for (var i=0; i<children.length; i++){
+                children[i].classList.remove("div_treeview_collapsed");
+            }
         }
     }
 
@@ -250,6 +294,9 @@ function div_treeview(divTVElement, divTVDelimeter) {
     // Expose all public functions/objects here.
     this.loadItems = loadItems;
     this.addTVItem = addTVItem;
+    this.getSelectedElement = getSelectedElement;
+    this.getSelectedFullPath = getSelectedFullPath;
+    this.setSelectedPath = setSelectedPath;
     this.onSelect = onSelect;
     this.onDblClick = onDblClick;
     this.onRightClick = onRightClick;

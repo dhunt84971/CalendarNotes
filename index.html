@@ -110,7 +110,7 @@
 					<div class="vboxFill noPadding hide" id="divDocs">
 						<div class="tabFooter"></div>
 						<div class="vboxFill border">
-							<div class="btn" id="btnAddDoc">+ ADD DOC...</div>
+							<div class="btn" id="btnAddDoc">+ ADD DOC</div>
 							<div class="vbox vertDivider"></div>
 							<div id="lstDocuments"></div>
 						</div>
@@ -130,16 +130,24 @@
 						<div class="hboxFill"></div>
 						<img id="btnSettings" src="settingsIconWht.png" width="23px" height="23px">
 					</div>
-					<div class="vboxFill noPadding" id="txtNotesArea"><textarea id="txtNotes" spellcheck="false"></textarea></div>
+					<div class="vboxFill noPadding" id="txtNotesArea">
+						<textarea id="txtNotes" spellcheck="false"></textarea>
+					</div>
 					<div class="vboxFill searchPreview hide markd" id="txtView"></div>
 					<div class="vboxFill searchPreview hide markd" id="txtSearchPreview"></div>
 					<div class="vboxFill noPadding hide" id="divDocsView">
 						<div class="boxFillHor noPadding noMargin">
-							<div class="vboxFill noPadding hide" id="txtDocArea"><textarea id="txtDoc"></textarea></div>
+							<div class="vboxFill noPadding hide" id="txtDocArea">
+								<textarea id="txtDoc" spellcheck="false"></textarea>
+							</div>
 							<div class="vboxFill searchPreview hide markd" id="txtDocView"></div>
 							<div class="vsplit" id="vSplitterDoc"></div>
 							<div class="vbox noPadding" id="docsSideBar">
-								<div class="vboxFill docsList" id="lstDocs"></div>
+								<div class="vboxFill docsList">
+									<div class="btn hide" id="btnAddPage">+ ADD PAGE</div>
+									<div class="vbox vertDivider"></div>
+									<div id="lstDocs"></div>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -263,16 +271,28 @@
 		<div class="btnMenu" id="btnAddSubDoc">ADD DOC</div>
 		<div class="btnMenu" id="btnRenameDoc">RENAME</div>
 		<div class="btnMenu" id="btnRemoveDoc">REMOVE</div>
-		<div class="btnMenu" id="btnCutDoc">CUT</div>
-		<div class="btnMenu" id="btnPasteDoc">PASTE</div>
+		<!-- <div class="btnMenu" id="btnCutDoc">CUT</div>
+		<div class="btnMenu" id="btnPasteDoc">PASTE</div> -->
+	</div>
+	<div class="pagesMenu hide">
+		<div class="btnMenu" id="btnPageRenameDoc">RENAME</div>
+		<div class="btnMenu" id="btnPageRemoveDoc">REMOVE</div>
+		<!-- <div class="btnMenu" id="btnCutDoc">CUT</div>
+		<div class="btnMenu" id="btnPasteDoc">PASTE</div> -->
 	</div>
 	<!--#endregion CONTEXT MENUS -->
+
+	<!--#region RENAME INPUT BOX -->
+		<input class="hide" id="txtRename">
+
+	<!--#endregion RENAME INPUT BOX -->
 
 
 </body>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script src="div_treeview.js"></script>
 <script src="theme.js"></script>
+<script src="app_documents.js"></script>
 <script src="calendar.js"></script>
 <script>
 	var cal = CALENDAR();

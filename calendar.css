@@ -661,6 +661,11 @@ background: var(--buttonhover);
     color: var(--buttonhovertext);
 }
 
+.selected {
+    background-color: var(--buttonhover) !important;
+    color: var(--buttonhovertext) !important;
+}
+
 .tasksButton {
     min-width: 70px;
 }
@@ -872,6 +877,14 @@ background: var(--buttonhover);
     margin: 5px 5px 5px 2px;
 }
 
+.pagesMenu {
+    background-color: var(--notesMenuBGColor);
+    position: fixed;
+    width: 200px;
+    padding: 5px 5px 5px 5px;
+    margin: 5px 5px 5px 2px;
+}
+
 .btnMenu {
     background-color: var(--buttonface);
     color: var(--buttontext);
@@ -897,3 +910,22 @@ background: var(--buttonhover);
     color: var(--buttonhovertext);
 }
 /* #endregion CONTEXT MENU */
+
+/* #region DOCUMENTS */
+
+#txtRename {
+    position: fixed;
+    border: 1px;
+    background-color: var(--notesBGColor);
+    color: var(--notesTextColor);
+    border-style: solid;
+    border-color: lightgray;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    padding-left: 5px;
+}
+
+
+/* #endregion DOCUMENTS */

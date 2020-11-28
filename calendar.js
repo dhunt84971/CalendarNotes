@@ -1,3 +1,6 @@
+"use strict";
+
+//#region GLOBAL REFERENCES
 const { dialog } = require("electron").remote;
 const electron = require("electron");
 const { remote } = require("electron");
@@ -8,7 +11,9 @@ var mysql = require("mysql");
 var sqlite3 = require("sqlite3").verbose();
 var fs = require("fs");
 var marked = require("marked");
+//#endregion GLOBAL REFERENCES
 
+//#region GLOBAL VARIABLES
 var initialLoad = true;
 var settingsShown = false;
 var calRows = 5;
@@ -33,6 +38,7 @@ var _settings = {
 
 var calChangeDate;
 var blockInterface = false;
+//#endregion GLOBAL VARIABLES
 
 // #region THEMES
 var select = document.getElementById("selThemes");
@@ -119,6 +125,7 @@ var CALENDAR = function () {
     // Load the settings from the file.
     await appSettings.loadSettingsFromFile()
     .then((settings)=>{
+      _settings = settings;
       document.getElementById("selThemes").selectedIndex = settings.themeIndex;
       changeTheme(settings.themeIndex, function () {
         initSettingsIcon();
@@ -129,10 +136,14 @@ var CALENDAR = function () {
       document.getElementById("txtUsername").value = settings.user;
       document.getElementById("txtPassword").value = settings.password;
       document.getElementById("chkDocuments").checked = settings.documents == true;
-      settings.documents ? null : document.getElementById("btnDocs").classList.add("hide");
-      _settings = settings;
+      if (settings.documents){
+        document.getElementById("btnDocs").classList.remove("hide");
+        app_documents.loadDocs();
+      }
+      else{
+        document.getElementById("btnDocs").classList.add("hide");
+      };
       dateSelected(daySelected);
-      //loadDocs();
       document.getElementById("leftSideBar").style.width = settings.leftSideBarWidth;
       document.getElementById("docsSideBar").style.width = settings.docsSideBarWidth;
       document.getElementById("optSqlite").checked = (settings.dbType == "Sqlite");
@@ -142,6 +153,7 @@ var CALENDAR = function () {
     .catch((err)=>{
         // Assume any error means the settings file does not exist and create it.
         ////alert("No settings found.  Configure your settings.");
+        console.log(err);
         ShowWarningMessageBox("No settings found.  Assigning defaults.");
         appSettings.setSettingsInFile(getSettingsfromDialog());
         createSqliteDB();
@@ -551,6 +563,16 @@ function createSqliteDB(callback){
           TasksList TEXT
         )`;
         db.run(sql);
+        sql = `CREATE TABLE Docs (
+          ID INTEGER PRIMARY KEY,
+          DocName TEXT,
+          DocLocation TEXT,
+          DocColor INTEGER DEFAULT 16777215,
+          DocText TEXT,
+          LastModified TEXT,
+          DocIndentLevel INTEGER DEFAULT 0
+        )`;
+        db.run(sql);
         db.close();
         resolve();
         if (callback) callback();
@@ -792,6 +814,32 @@ function showNoteMarkdown() {
   viewDiv.innerHTML = markedNote;
 }
 
+function showPageMarkdown() {
+  var viewDiv = document.getElementById("txtDocView");
+  var notesText = document.getElementById("txtDoc");
+  var customMods = notesText.value;
+  
+  // Replace all check marks with their respective images.
+  // |_| = <img src="./images/chkmt.png" width="12px">
+  // |X| = <img src="./images/chk_x.png" width="12px">
+  var checkedSrc = "<img src='./images/chk_x_blk.png' width='12px'>";
+  var uncheckedSrc = "<img src='./images/chkmt_blk.png' width='12px'>";
+  if (_settings.themeIndex == 5){
+      checkedSrc = "<img src='./images/chk_x.png' width='12px'>";
+      uncheckedSrc = "<img src='./images/chkmt.png' width='12px'>"
+  }
+  else if (_settings.themeIndex == 6) {
+    checkedSrc = "<img src='./images/chk_x_clu.png' width='12px'>";
+    uncheckedSrc = "<img src='./images/chkmt_clu.png' width='12px'>"
+  }
+  customMods = customMods.replace(/\|X\|/g, checkedSrc);
+  customMods = customMods.replace(/\|_\|/g, uncheckedSrc);
+  
+  var markedNote = marked(customMods);
+
+  viewDiv.innerHTML = markedNote;
+}
+
 function hideAllViews() {
   document.getElementById("txtNotesArea").classList.add("hide");
   document.getElementById("txtView").classList.add("hide");
@@ -805,11 +853,12 @@ function notesViewSelected() {
   document.getElementById("btnViewText").classList.add("btnSelected");
   document.getElementById("btnViewMD").classList.remove("btnSelected");
   if (document.getElementById("btnDocs").classList.contains("tabSelected")) {
+    document.getElementById("divDocsView").classList.remove("hide");
     document.getElementById("txtDocArea").classList.remove("hide");
+    document.getElementById("txtDocView").classList.add("hide");
   } else {
     document.getElementById("txtNotesArea").classList.remove("hide");
   }
-
 }
 
 function mdViewSelected() {
@@ -817,11 +866,14 @@ function mdViewSelected() {
   document.getElementById("btnViewText").classList.remove("btnSelected");
   document.getElementById("btnViewMD").classList.add("btnSelected");
   if (document.getElementById("btnDocs").classList.contains("tabSelected")) {
+    document.getElementById("divDocsView").classList.remove("hide");
     document.getElementById("txtDocView").classList.remove("hide");
+    document.getElementById("txtDocArea").classList.add("hide");
   } else {
     document.getElementById("txtView").classList.remove("hide");
   }
   showNoteMarkdown();
+  showPageMarkdown();
 }
 
 function docsViewSelected() {
@@ -1008,243 +1060,6 @@ function sqlTasksExistsSqlite(callback) {
 }
 
 // #endregion TASKS CODE
-
-// #region DOCS CODE
-
-var lstDocuments = document.getElementById("lstDocuments");
-var dvDocuments = new div_treeview(lstDocuments, "/");
-var documentSelected = function (text){
-  selectDocument(text);
-}
-dvDocuments.onSelect(documentSelected);
-var onDocContextMenu = function (el, fullPath){
-  docContextMenu(el, fullPath);
-}
-dvDocuments.onRightClick(onDocContextMenu);
-
-// :: TODO :: 
-
-// Show Doc context menu
-var contextSelectedDoc;
-function docContextMenu (el, fullPath){
-  contextSelectedDoc = fullPath;
-  console.log(el.clientX);
-  var menu = document.querySelector(".docsMenu");
-  menu.style.left = el.clientX + "px";
-  menu.style.top = el.clientY + "px";
-  menu.classList.remove("hide");
-  console.log(menu);
-}
-
-// Select doc
-function selectDocument(docName){
-  loadPages(docName);
-}
-
-// Load docs
-function loadDocs(){
-  // Load treeview with the documents.
-  var connection = mysql.createConnection(_settings);
-    connection.connect();
-    connection.query(
-      "SELECT DISTINCT DocLocation from Docs", function (err, data) {
-        if (err) throw err;
-        console.log(data);
-        for(var i=0; i<data.length; i++){
-          
-          dvDocuments.addTVItem(lstDocuments,data[i].DocLocation, false);
-        }
-        // Pick the first location.
-        dvDocuments.selectFirstItem();
-      
-        connection.end();
-      }
-    );
-}
-
-// Rename doc
-function renameDoc(docFullPath){
-  // Display dialog box for data entry.
-  var docs = docFullPath.split("/");
-  showRenameWindow(docs[docs.length-1]);
-}
-
-function showRenameWindow(oldName) {
-
-  // Get the current window size and position.
-  const pos = remote.getCurrentWindow().getPosition();
-  const size = remote.getCurrentWindow().getSize();
-  var xPos = pos[0] + (size[0] / 2) - 170;
-  var yPos = pos[1] + (size[1] / 2) - 200;
-
-  let win = new remote.BrowserWindow({
-      parent: remote.getCurrentWindow(),
-      ////frame: false,
-      modal: true,
-      width: 340,
-      height:150,
-      resizable: false,
-      x: xPos,
-      y: yPos,
-      show: false
-  });
-
-  var theUrl = 'file://' + __dirname + '/rename.html'
-  console.log('url', theUrl);
-
-  win.loadURL(theUrl);
-  win.webContents.openDevTools();
-  win.setMenuBarVisibility(false);
-
-  win.webContents.on('did-finish-load', () => {
-      win.webContents.send('data', oldName);
-  });
-  
-  win.once('ready-to-show', () => {
-      win.show();
-  });
-
-};
-
-
-// Remove doc
-function removeDoc(docFullPath){
-  // Display warning confirmation dialog to remove doc.
-}
-
-// Update docs
-
-// Add doc
-function addDocLocation(parentDoc, docName, callback){
-  var docFullName = parentDoc == "" ? docName : parentDoc + "/" + docName;
-  // Make sure the document name is unique.
-  var docNewName;
-  getUniqueDocName(docFullName, (docNewName)=>{
-    // Add the document name to the database.
-    var connection = mysql.createConnection(_settings);
-    connection.connect(function (err) {
-      if (err) throw err;
-      var sql = "INSERT INTO Docs (DocName, DocLocation, DocColor, DocText, LastModified) VALUES (";
-      sql += "'New Page', ";
-      sql += "'" + docNewName + "', ";
-      sql += "-1, ";
-      sql += "'', ";
-      sql += "'" + getMySQLNow() + "')";
-      console.log("Executing SQL query = " + sql);
-
-      connection.query(sql, function (err, result) {
-        if (err) throw err;
-        if (callback) callback(err, result);
-        connection.end();
-      });
-      dvDocuments.addTVItem(lstDocuments, docNewName, false);
-      selectDocument(docNewName);
-    });
-  });
-}
-
-function docNameExists(docFullName, callback){
-  return new Promise(function(resolve, reject){
-    var retValue = docFullName;
-    var connection = mysql.createConnection(_settings);
-    connection.connect();
-    connection.query(
-      "SELECT DocLocation from Docs WHERE DocLocation = '" + docFullName + "'",
-      function (err, rows, fields) {
-        if (err){
-          reject(new Error("DB error occurred!"));
-        }
-        else{
-          console.log("Rows found = " + rows.length);
-          console.log("Returning = " + (rows.length > 0));
-          retValue = rows.length > 0;
-          if (callback) callback(retValue);
-          resolve(retValue);
-        }
-        connection.end();
-      }
-    );
-  });
-}
-
-async function getUniqueDocName(docFullName, callback){
-  var fileNameIndex = 0;
-  var docReturnName = docFullName;
-  console.log("looking for name " + docFullName);
-  var nameFound = await docNameExists(docFullName);
-  console.log("looping");
-  while (nameFound){
-    console.log("incrementing name");
-    fileNameIndex += 1;
-    docReturnName = docFullName + "(" + fileNameIndex + ")";
-    console.log("searching for " + docReturnName);
-    nameFound = await docNameExists(docReturnName);
-  }
-  if (callback){
-    callback(docReturnName);
-  }
-  return docReturnName;
-}
-
-// Load pages
-function emptyDiv(divById){
-  document.getElementById(divById).innerHTML = "";
-}
-
-function addItemtoDiv(divById, itemInnerText, classAdd){
-  var newItem = document.createElement("div");
-  newItem.innerText = itemInnerText;
-  var classes = classAdd.split(" ");
-  for (var i=0; i<classes.length;i++){
-    newItem.classList.add(classes[i]);
-  }
-  document.getElementById(divById).appendChild(newItem);
-}
-
-async function loadPages(docFullName, callback){
-  var data = await getPages(docFullName);
-  emptyDiv("lstDocs");
-  for (var i=0; i<data.length;i++){
-    addItemtoDiv("lstDocs", data[i].DocName, "btn srchResultItem");
-  }
-}
-
-function getPages(docFullName, callback){
-  return new Promise(function(resolve, reject){
-    var connection = mysql.createConnection(_settings);
-      connection.connect();
-      connection.query(
-        "SELECT DocName from Docs WHERE DocLocation = '" + docFullName + "'",
-        function (err, rows, fields) {
-          if (err){
-            reject(new Error("DB error occurred!"));
-          }
-          else{
-            
-            retValue = rows;
-            if (callback) callback(retValue);
-            resolve(rows);
-          }
-          connection.end();
-        }
-      );
-  });
-}
-// Update pages
-
-// Add page
-
-
-
-// Delete page
-
-// Rename page
-
-// Cut page
-
-// Paste page
-
-// #endregion DOCS CODE
 
 // #region SQL HELPER FUNCTIONS
 function formatDateSqlite(date) {
@@ -1729,6 +1544,41 @@ function ShowWarningMessageBox(message) {
   dialog.showMessageBox(null, options);
 }
 
+function showConfirmationBox (message) {
+  const options = {
+      type: "info",
+      title: "Confirm",
+      buttons: ["Yes", "No", "Cancel"],
+      message: message,
+  };
+
+  let response = dialog.showMessageBoxSync(null, options);
+
+  return response == 0;
+}
+
+function emptyDiv(divById){
+  document.getElementById(divById).innerHTML = "";
+}
+
+function addItemtoDiv(divById, itemInnerText, classAdd, customData){
+  var newItem = document.createElement("div");
+  newItem.innerText = itemInnerText;
+  var classes = classAdd.split(" ");
+  for (var i=0; i<classes.length;i++){
+    newItem.classList.add(classes[i]);
+  }
+  if (customData){
+    newItem.setAttribute(customData.split("=")[0], customData.split("=")[1])
+  }
+  document.getElementById(divById).appendChild(newItem);
+  return newItem;
+}
+
+function getDocChanged(){
+  return document.getElementById("btnSave").innerHTML == "*SAVE*";
+}
+
 // #endregion HELPER FUNCTIONS
 
 // #region DOCUMENT EVENT HANDLERS
@@ -1737,7 +1587,12 @@ document.getElementById("btnNow").addEventListener("click", function () {
 });
 
 document.getElementById("btnSave").addEventListener("click", function () {
-  saveNotes(lastDaySelected, document.getElementById("txtNotes").value);
+  if (document.getElementById("btnDocs").classList.contains("tabSelected")) {
+    app_documents.savePage();
+  }
+  else{
+    saveNotes(lastDaySelected, document.getElementById("txtNotes").value);
+  }
   saveTasks(document.getElementById("txtTasks").value);
   //initWidths();
 });
@@ -1973,6 +1828,17 @@ document.getElementById("btnInsertTable").addEventListener("click", (e) => {
 document.querySelector("body").addEventListener("click", () => {
   document.querySelector(".notesMenu").classList.add("hide");
   document.querySelector(".docsMenu").classList.add("hide");
+  document.querySelector(".pagesMenu").classList.add("hide");
+  document.getElementById("txtRename").classList.add("hide");
+});
+
+document.addEventListener("keyup", (e)=>{
+  if (e.key == "Escape"){
+    document.querySelector(".notesMenu").classList.add("hide");
+    document.querySelector(".docsMenu").classList.add("hide");
+    document.querySelector(".pagesMenu").classList.add("hide");
+    document.getElementById("txtRename").classList.add("hide");
+  }
 });
 
 // Intercept the tab key while in the txtNotes area.
@@ -2003,25 +1869,5 @@ document.querySelector("#txtNotes").addEventListener('keydown', function (e) {
 
 document.getElementById("vSplitter").addEventListener("mousedown", initVDrag, false);
 document.getElementById("vSplitterDoc").addEventListener("mousedown", initVDrag, false);
-
-document.getElementById("btnAddDoc").addEventListener("click", ()=>{
-  addDocLocation("","New Document");
-});
-
-// #region DOC CONTEXT MENU EVENT HANDLERS
-document.getElementById("btnAddSubDoc").addEventListener("click", ()=>{
-  addDocLocation(contextSelectedDoc,"New Document");
-});
-
-document.getElementById("btnRenameDoc").addEventListener("click", ()=>{
-  renameDoc(contextSelectedDoc);
-});
-
-document.getElementById("btnRemoveDoc").addEventListener("click", ()=>{
-  removeDoc(contextSelectedDoc);
-});
-
-// #endregion DOC CONTEXT MENU EVENT HANDLERS
-
 
 // #endregion DOCUMENT EVENT HANDLERS

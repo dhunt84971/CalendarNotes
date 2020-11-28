@@ -60,7 +60,7 @@ var app_documents = {
         this.contextSelectedPage = el.innerHTML;
         console.log(e.clientX);
         var menu = document.querySelector(".pagesMenu");
-        menu.style.left = e.clientX + "px";
+        menu.style.left = e.clientX - 200 + "px";
         menu.style.top = e.clientY + "px";
         menu.classList.remove("hide");
         console.log(menu);
@@ -100,51 +100,21 @@ var app_documents = {
 
     //#region DATABASE FUNCTIONS
     getPagesMySQL: function (docFullName) {
-        return new Promise(function (resolve, reject) {
-            var connection = mysql.createConnection(_settings);
-            connection.connect();
-            connection.query(
-                "SELECT DocName from Docs WHERE DocLocation = '" + docFullName + "'",
-                function (err, rows, fields) {
-                    if (err) {
-                        reject(new Error("DB error occurred!"));
-                    } else {
-                        retValue = rows;
-                        resolve(rows);
-                    }
-                    connection.end();
-                }
-            );
-        });
+        let sql = `
+            SELECT DocName 
+            FROM Docs 
+            WHERE DocLocation = '${docFullName}'
+        `;
+        return this.execQueryMySQL(sql);
     },
 
     getPagesSqlite: function (docFullName) {
-        return new Promise(function (resolve, reject) {
-            let db = new sqlite3.Database(dbFile, (err) => {
-                if (!err) {
-                    let sqlQuery = `
-                        SELECT DocName 
-                        FROM Docs 
-                        WHERE DocLocation = '${docFullName}'
-                    `;
-                    db.all(sqlQuery, [], (err, rows) => {
-                        if (!err) {
-                            if (rows.length > 0) {
-                                resolve(rows);
-                            } else {
-                                resolve();
-                            }
-                        } else {
-                            reject(err);
-                        }
-                        db.close();
-                    });
-                } else {
-                    reject(err);
-                    return;
-                }
-            });
-        });
+        let sql = `
+            SELECT DocName 
+            FROM Docs 
+            WHERE DocLocation = '${docFullName}'
+        `;
+        return this.execQuerySqlite(sql);
     },
 
     addDocLocationMySQL: function (parentDoc, docName) {
@@ -170,8 +140,6 @@ var app_documents = {
                             else resolve(result);
                             connection.end();
                         });
-                        this.dvDocuments.addTVItem(this.lstDocuments, docNewName, false);
-                        this.selectDocument(docNewName);
                     });
                 });
         });
@@ -198,41 +166,22 @@ var app_documents = {
                             else resolve();
                         });
                         db.close();
-                        this.dvDocuments.addTVItem(this.lstDocuments, docNewName, false);
-                        this.selectDocument(docNewName);
                     });
                 });
         });
     },
 
-    addPageMySQL: function (parentDoc, docName) {
-        return new Promise((resolve, reject) => {
-            var docFullName = parentDoc == "" ? docName : parentDoc + "/" + docName;
-            // Make sure the document name is unique.
-            this.getUniqueDocName(docFullName)
-                .then((docNewName) => {
-                    // Add the document name to the database.
-                    var connection = mysql.createConnection(_settings);
-                    connection.connect(function (err) {
-                        if (err) throw err;
-                        var sql = "INSERT INTO Docs (DocName, DocLocation, DocColor, DocText, LastModified) VALUES (";
-                        sql += "'New Page', ";
-                        sql += "'" + docNewName + "', ";
-                        sql += "-1, ";
-                        sql += "'', ";
-                        sql += "'" + getMySQLNow() + "')";
-                        console.log("Executing SQL query = " + sql);
-
-                        connection.query(sql, function (err, result) {
-                            if (err) reject(err)
-                            else resolve(result);
-                            connection.end();
-                        });
-                        this.dvDocuments.addTVItem(this.lstDocuments, docNewName, false);
-                        this.selectDocument(docNewName);
-                    });
-                });
-        });
+    addPageMySQL: function (path) {
+        // Get a unique page name.
+        let newPageName = this.getUniquePageName("New Page");
+        // Add the document to the database.
+        var sql = `
+            INSERT INTO Docs 
+            (DocName, DocLocation, DocColor, DocText, LastModified) 
+            VALUES ('${newPageName}', '${path}',
+            -1, '','${getMySQLNow()}')
+        `;
+        return this.execCommandMySQL(sql);
     },
 
     addPageSqlite: function (path) {
@@ -301,7 +250,23 @@ var app_documents = {
     },
 
     docPageExistsMySQL: function(fullPath, pageName){
-        // ::TODO::
+        return new Promise(function (resolve, reject) {
+            let sql = `
+                SELECT DocName
+                FROM Docs 
+                WHERE DocLocation = '${fullPath}'
+                AND DocName =  '${pageName}';
+            `;
+            app_documents.execQueryMySQL(sql)
+            .then((data)=>{
+                let retValue = data.length > 0;
+                resolve(retValue);
+            })
+            .catch((err)=>{
+                console.log(err);
+                reject(err);
+            });
+        });
     },
 
     docPageExistsSqlite: function(fullPath, pageName){
@@ -350,11 +315,29 @@ var app_documents = {
         return this.execQuerySqlite(sql);
     },
 
+    updateDocNameMySQL: function (oldName, newName){
+        var sql1 = `
+            UPDATE Docs 
+            SET DocLocation = REPLACE(DocLocation, '${oldName}', '${newName}')
+            WHERE DocLocation = '${oldName}';
+        `;
+        var sql2= `
+            UPDATE Docs 
+            SET DocLocation = CONCAT('${newName}', SUBSTR(DocLocation, LENGTH('${oldName}/')))
+            WHERE INSTR(DocLocation, '${oldName}/') = 1;
+        `;
+        return Promise.all([this.execCommandMySQL(sql1), this.execCommandMySQL(sql2)])
+        .catch((err)=>{
+            console.log(err);
+            ShowWarningMessageBox("Database command failure!");
+        });
+    },
+
     updateDocNameSqlite: function (oldName, newName){
         var sql1 = `
             UPDATE Docs 
             SET DocLocation = REPLACE(DocLocation, '${oldName}', '${newName}')
-            WHERE DocLocation LIKE '${oldName}';
+            WHERE DocLocation = '${oldName}';
         `;
         var sql2= `
             UPDATE Docs 
@@ -368,14 +351,40 @@ var app_documents = {
         });
     },
 
+    updatePageNameMySQL: function (fullPath, oldName, newName){
+        var sql = `
+            UPDATE Docs
+            SET DocName = '${newName}'
+            WHERE DocLocation = '${fullPath}' 
+            AND DocName = '${oldName}';
+        `;
+        return this.execCommandMySQL(sql);
+    },
+
     updatePageNameSqlite: function (fullPath, oldName, newName){
         var sql = `
-            UPDATE DOCS
+            UPDATE Docs
             SET DocName = '${newName}'
             WHERE DocLocation = '${fullPath}' 
             AND DocName = '${oldName}';
         `;
         return this.execCommandSqlite(sql);
+    },
+
+    deleteDocMySQL: function (fullPath){
+        var sql1 = `
+            DELETE FROM Docs 
+            WHERE DocLocation = '${fullPath}';
+        `;
+        var sql2 = `
+            DELETE FROM Docs 
+            WHERE INSTR(DocLocation, '${fullPath}/') = 1;
+        `;
+        return Promise.all([this.execCommandMySQL(sql1), this.execCommandMySQL(sql2)])
+        .catch((err)=>{
+            console.log(err);
+            ShowWarningMessageBox("Database command failure!");
+        });
     },
 
     deleteDocSqlite: function (fullPath){
@@ -395,7 +404,16 @@ var app_documents = {
     },
 
     deletePageMySQL: function(fullPath, pageName){
-        // ::TODO::
+        var sql = `
+            DELETE FROM Docs 
+            WHERE DocLocation = '${fullPath}'
+            AND DocName = '${pageName}';
+        `;
+        return this.execCommandMySQL(sql)
+        .catch((err)=>{
+            console.log(err);
+            ShowWarningMessageBox("Database command failure!");
+        });
     },
 
     deletePageSqlite: function(fullPath, pageName){
@@ -412,12 +430,17 @@ var app_documents = {
     },
 
     getPageNoteMySQL: function (fullPath, pageName){
-        // ::TODO::
+        let sql = `
+            SELECT DocText FROM Docs
+            WHERE DocLocation = '${fullPath}'
+            AND DocName = '${pageName}';
+        `;
+        return this.execQueryMySQL(sql);
     },
 
     getPageNoteSqlite: function (fullPath, pageName){
         let sql = `
-            SELECT DocText FROM DOCS
+            SELECT DocText FROM Docs
             WHERE DocLocation = '${fullPath}'
             AND DocName = '${pageName}';
         `;
@@ -425,18 +448,58 @@ var app_documents = {
     },
 
     updatePageMySQL: function(fullPath, pageName, docText){
-
+        let sql = `
+            UPDATE Docs
+                SET DocText = '${sqlSafeText(docText)}',
+                LastModified = '${getMySQLNow()}' 
+            WHERE DocLocation = '${fullPath}'
+            AND DocName = '${pageName}';
+        `;
+        return this.execCommandMySQL(sql);
     },
 
     updatePageSqlite: function(fullPath, pageName, docText){
         let sql = `
-            UPDATE DOCS
+            UPDATE Docs
                 SET DocText = '${sqlSafeText(docText)}',
                 LastModified = '${getMySQLNow()}' 
             WHERE DocLocation = '${fullPath}'
             AND DocName = '${pageName}';
         `;
         return this.execCommandSqlite(sql);
+    },
+
+    execQueryMySQL: function (sql) {
+        return new Promise(function (resolve, reject) {
+            console.log("Executing SQL query = " + sql);
+            var connection = mysql.createConnection(_settings);
+            connection.connect();
+            connection.query(sql,
+                function (err, rows, fields) {
+                    if (err) {
+                        reject(new Error("DB error occurred!"));
+                    } else {
+                        resolve(rows);
+                    }
+                    connection.end();
+                }
+            );
+        });
+    },
+
+    execCommandMySQL: function (sql){
+        return new Promise((resolve, reject) => {
+            var connection = mysql.createConnection(_settings);
+            connection.connect(function (err) {
+                if (err) reject(err);
+                console.log("Executing SQL query = " + sql);
+                connection.query(sql, function (err, result) {
+                    if (err) reject(err)
+                    else resolve(result);
+                    connection.end();
+                });
+            });
+        });
     },
 
     execQuerySqlite: function (sql) {
@@ -555,10 +618,14 @@ var app_documents = {
     //#endregion DATA RETRIEVAL FUNCTIONS
 
     //#region DATA TRANSMITTAL FUNCTIONS
-    addDocLocation: function (parentDoc, docName) {
-        return (_settings.dbType == "MySql") ?
-            this.addDocLocationMySQL(parentDoc, docName) :
-            this.addDocLocationSqlite(parentDoc, docName);
+    addDocLocation: async function (parentDoc, docName) {
+        if (_settings.dbType == "MySql"){
+            await this.addDocLocationMySQL(parentDoc, docName);
+        }
+        else{
+            await this.addDocLocationSqlite(parentDoc, docName);
+        }
+        this.loadDocs();
     },
 
     addPage: function (path) {
@@ -633,19 +700,27 @@ var app_documents = {
     },
 
     updateDocName: function (oldDocFullPath, newDocFullPath) {
-        return this.updateDocNameSqlite(oldDocFullPath, newDocFullPath);
+        return (_settings.dbType == "MySql") ?
+            this.updateDocNameMySQL(oldDocFullPath, newDocFullPath) :
+            this.updateDocNameSqlite(oldDocFullPath, newDocFullPath);
     },
 
     updatePageName: function (fullPath, oldName, newName) {
-        return this.updatePageNameSqlite(fullPath, oldName, newName);
+        return (_settings.dbType == "MySql") ?
+            this.updatePageNameMySQL(fullPath, oldName, newName) :
+            this.updatePageNameSqlite(fullPath, oldName, newName);
     },
 
     deleteDoc: function (fullPath){
-        return this.deleteDocSqlite(fullPath);
+        return (_settings.dbType == "MySql") ?
+            this.deleteDocMySQL(fullPath) :
+            this.deleteDocSqlite(fullPath);
     },
 
     deletePage: function (fullPath, pageName){
-        return this.deletePageSqlite(fullPath, pageName);
+        return (_settings.dbType == "MySql") ?
+            this.deletePageMySQL(fullPath, pageName) :
+            this.deletePageSqlite(fullPath, pageName);
     },
 
     //#endregion DATA TRANSMITTAL FUNCTIONS
@@ -697,7 +772,9 @@ var app_documents = {
             // Create the new full path.
             let fullPath = this.dvDocuments.getSelectedFullPath();
             let oldName = this.dvDocuments.getSelectedElement().innerText;
-            let newFullPath = fullPath.replace(oldName, newName);
+            let paths = fullPath.split("/");
+            paths[paths.length-1] = newName;
+            let newFullPath = paths.join("/");
             console.log(newFullPath);
             // Make sure the new full path does not exist.
 
@@ -759,8 +836,10 @@ var app_documents = {
         let pageName = el.innerHTML;
         this.getPageNote(fullPath, pageName)
         .then((data)=>{
-            this.showPageData(data[0].DocText);
-            this.lastFullPath = fullPath;
+            if (data){
+                this.showPageData(data[0].DocText);
+                this.lastFullPath = fullPath;
+            }
         })
         .catch((err)=>{
             console.log(err);

@@ -1832,6 +1832,15 @@ document.querySelector("body").addEventListener("click", () => {
   document.getElementById("txtRename").classList.add("hide");
 });
 
+document.addEventListener("keyup", (e)=>{
+  if (e.key == "Escape"){
+    document.querySelector(".notesMenu").classList.add("hide");
+    document.querySelector(".docsMenu").classList.add("hide");
+    document.querySelector(".pagesMenu").classList.add("hide");
+    document.getElementById("txtRename").classList.add("hide");
+  }
+});
+
 // Intercept the tab key while in the txtNotes area.
 document.querySelector("#txtNotes").addEventListener('keydown', function (e) {
   if (e.keyCode === 9) { // tab was pressed

@@ -94,6 +94,7 @@ var app_documents = {
 
     showPageData: function (data) {
         this.txtDoc.value = (data) ? data : " ";
+        showPageMarkdown();
     },
 
     //#endregion PAGE RENDER FUNCTIONS

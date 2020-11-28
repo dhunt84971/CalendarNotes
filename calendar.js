@@ -1,7 +1,11 @@
 //#region GLOBAL REFERENCES
-const { dialog } = require("electron").remote;
+const {
+  dialog
+} = require("electron").remote;
 const electron = require("electron");
-const { remote } = require("electron");
+const {
+  remote
+} = require("electron");
 const ipc = require("electron").ipcRenderer;
 const libAppSettings = require("lib-app-settings");
 
@@ -92,18 +96,16 @@ var CALENDAR = function () {
     label = wrap.find("#label");
 
     wrap.find("#prev").bind("click.calender", function (ev) {
-      if (ev.ctrlKey){
+      if (ev.ctrlKey) {
         switchYear(false);
-      }
-      else{
+      } else {
         switchMonth(false);
       }
     });
     wrap.find("#next").bind("click.calender", function (ev) {
-      if (ev.ctrlKey){
+      if (ev.ctrlKey) {
         switchYear(true);
-      }
-      else{
+      } else {
         switchMonth(true);
       }
     });
@@ -122,41 +124,40 @@ var CALENDAR = function () {
 
     // Load the settings from the file.
     await appSettings.loadSettingsFromFile()
-    .then((settings)=>{
-      _settings = settings;
-      document.getElementById("selThemes").selectedIndex = settings.themeIndex;
-      changeTheme(settings.themeIndex, function () {
-        initSettingsIcon();
-      });
-      document.getElementById("txtHost").value = settings.host;
-      document.getElementById("txtPort").value = settings.port;
-      document.getElementById("txtDatabase").value = settings.database;
-      document.getElementById("txtUsername").value = settings.user;
-      document.getElementById("txtPassword").value = settings.password;
-      document.getElementById("chkDocuments").checked = settings.documents == true;
-      if (settings.documents){
-        document.getElementById("btnDocs").classList.remove("hide");
-        app_documents.loadDocs();
-      }
-      else{
-        document.getElementById("btnDocs").classList.add("hide");
-      };
-      dateSelected(daySelected);
-      document.getElementById("leftSideBar").style.width = settings.leftSideBarWidth;
-      document.getElementById("docsSideBar").style.width = settings.docsSideBarWidth;
-      document.getElementById("optSqlite").checked = (settings.dbType == "Sqlite");
-      document.getElementById("optMySql").checked = (settings.dbType == "MySql");     
-      updateDBSelection("opt" + settings.dbType); 
-    })
-    .catch((err)=>{
+      .then((settings) => {
+        _settings = settings;
+        document.getElementById("selThemes").selectedIndex = settings.themeIndex;
+        changeTheme(settings.themeIndex, function () {
+          initSettingsIcon();
+        });
+        document.getElementById("txtHost").value = settings.host;
+        document.getElementById("txtPort").value = settings.port;
+        document.getElementById("txtDatabase").value = settings.database;
+        document.getElementById("txtUsername").value = settings.user;
+        document.getElementById("txtPassword").value = settings.password;
+        document.getElementById("chkDocuments").checked = settings.documents == true;
+        if (settings.documents) {
+          document.getElementById("btnDocs").classList.remove("hide");
+          app_documents.loadDocs(true);
+        } else {
+          document.getElementById("btnDocs").classList.add("hide");
+        };
+        dateSelected(daySelected);
+        document.getElementById("leftSideBar").style.width = settings.leftSideBarWidth;
+        document.getElementById("docsSideBar").style.width = settings.docsSideBarWidth;
+        document.getElementById("optSqlite").checked = (settings.dbType == "Sqlite");
+        document.getElementById("optMySql").checked = (settings.dbType == "MySql");
+        updateDBSelection("opt" + settings.dbType);
+      })
+      .catch((err) => {
         // Assume any error means the settings file does not exist and create it.
         ////alert("No settings found.  Configure your settings.");
         console.log(err);
         ShowWarningMessageBox("No settings found.  Assigning defaults.");
         appSettings.setSettingsInFile(getSettingsfromDialog());
         createSqliteDB();
-    });
-    
+      });
+
     console.log("1" + document.querySelector(".curr").innerHTML);
   }
 
@@ -172,7 +173,7 @@ var CALENDAR = function () {
       year =
         year || (next ? tempYear + 1 : tempYear - 1);
     }
-    
+
     switchMonth(null, months.indexOf(curr[0]), year);
   }
 
@@ -368,13 +369,13 @@ var CALENDAR = function () {
 // #endregion CALENDAR OBJECT CODE
 
 // #region DATABASE CODE
-function getRowsMySql(sql, callback){
+function getRowsMySql(sql, callback) {
   console.log("SQL = " + sql);
   var connection = mysql.createConnection(_settings);
   connection.connect();
   connection.query(sql, function (err, rows, fields) {
     if (!err) {
-      if (callback){
+      if (callback) {
         callback(err, rows);
       }
     } else {
@@ -386,13 +387,13 @@ function getRowsMySql(sql, callback){
   connection.end();
 }
 
-function getRowsSqlite(sql, callback){
+function getRowsSqlite(sql, callback) {
   console.log("SQL = " + sql);
   let db = new sqlite3.Database(dbFile, (err) => {
     if (!err) {
       db.all(sql, [], (err, rows) => {
         if (!err) {
-          if (callback){
+          if (callback) {
             callback(err, rows);
           }
         } else {
@@ -407,7 +408,7 @@ function getRowsSqlite(sql, callback){
 }
 
 
-function getNotesMySQL(dateForDay, callback){
+function getNotesMySQL(dateForDay, callback) {
   var connection = mysql.createConnection(_settings);
   connection.connect();
   var sqlQuery = "SELECT * from Notes where NoteDate = '" + dateForDay + "'";
@@ -416,47 +417,53 @@ function getNotesMySQL(dateForDay, callback){
     console.log("Notes received");
     if (!err) {
       if (rows.length > 0) {
-        if (callback){
+        if (callback) {
           callback(err, rows[0].NoteText);
         }
       } else {
-        if (callback){
+        if (callback) {
           callback(err, " ");
         }
         return;
       }
     } else {
-      if (callback){ callback(err); }
+      if (callback) {
+        callback(err);
+      }
       return;
     }
     connection.end();
   });
 }
 
-function getNotesSqlite(dateForDay, callback){
+function getNotesSqlite(dateForDay, callback) {
   let db = new sqlite3.Database(dbFile, (err) => {
     if (!err) {
       db.all("SELECT * FROM Notes WHERE NoteDate = '" + formatDateSqlite(dateForDay) + "'", [], (err, rows) => {
         if (!err) {
           if (rows.length > 0) {
-            if (callback){
+            if (callback) {
               callback(err, rows[0].NoteText);
             }
           } else {
-            if (callback){
+            if (callback) {
               callback(err, " ");
             }
             return;
           }
         } else {
-          if (callback){ callback(err); }
+          if (callback) {
+            callback(err);
+          }
           return;
         }
         db.close();
       });
     } else {
       console.error(err.message);
-      if (callback){ callback(err); }
+      if (callback) {
+        callback(err);
+      }
       return;
     }
   });
@@ -495,7 +502,7 @@ function getTasksMySql(callback) {
   var connection = mysql.createConnection(_settings);
   connection.connect();
   console.log("b");
-  connection.query("SELECT * FROM TasksList LIMIT 1",  (err, rows, fields) => {
+  connection.query("SELECT * FROM TasksList LIMIT 1", (err, rows, fields) => {
     console.log("c");
     if (!err) {
       console.log(rows);
@@ -518,30 +525,34 @@ function getTasksSqlite(callback) {
       db.all("SELECT * FROM TasksList", [], (err, rows) => {
         if (!err) {
           if (rows.length > 0) {
-            if (callback){
+            if (callback) {
               callback(err, rows[0].TasksList);
             }
           } else {
-            if (callback){
+            if (callback) {
               callback(err, " ");
             }
             return;
           }
         } else {
-          if (callback){ callback(err); }
+          if (callback) {
+            callback(err);
+          }
           return;
         }
         db.close();
       });
     } else {
       console.error(err.message);
-      if (callback){ callback(err); }
+      if (callback) {
+        callback(err);
+      }
       return;
     }
   });
 }
 
-function createSqliteDB(callback){
+function createSqliteDB(callback) {
   return new Promise((resolve, reject) => {
     let db = new sqlite3.Database(dbFile, (err) => {
       if (err) {
@@ -583,7 +594,7 @@ function createSqliteDB(callback){
 
 // #region NOTES CODE
 // Get the notes from the MySQL database.
-function loadNotes(notes){
+function loadNotes(notes) {
   document.getElementById("txtNotes").value = notes;
   if (!document.getElementById("btnViewText").classList.contains("btnSelected")) {
     document.getElementById("txtView").innerHTML = marked(notes);
@@ -591,9 +602,9 @@ function loadNotes(notes){
 }
 
 function getNotes(dateForDay, callback) {
-  return new Promise(function(resolve, reject){
+  return new Promise(function (resolve, reject) {
     // Block the interface from acting on any input.
-    if (_settings.dbType == "MySql"){
+    if (_settings.dbType == "MySql") {
       getNotesMySQL(dateForDay, (err, notes) => {
         if (!err) {
           loadNotes(notes);
@@ -622,15 +633,14 @@ function getNotes(dateForDay, callback) {
 }
 
 function saveNotes(dateForDay, notesText) {
-  return new Promise(function(resolve, reject){
+  return new Promise(function (resolve, reject) {
     console.log("Saving notes = '" + notesText + "'");
     if (notesText == "") notesText = " ";
-    if (_settings.dbType == "MySql"){
+    if (_settings.dbType == "MySql") {
       saveNotesMySql(dateForDay, notesText, () => {
         resolve();
       });
-    }
-    else {
+    } else {
       saveNotesSqlite(dateForDay, notesText, () => {
         resolve();
       });
@@ -790,23 +800,22 @@ function showNoteMarkdown() {
   console.log("show notesText = " + notesText.value);
   var customMods = notesText.value;
   console.log("Loading markdown view.");
-  
+
   // Replace all check marks with their respective images.
   // |_| = <img src="./images/chkmt.png" width="12px">
   // |X| = <img src="./images/chk_x.png" width="12px">
   var checkedSrc = "<img src='./images/chk_x_blk.png' width='12px'>";
   var uncheckedSrc = "<img src='./images/chkmt_blk.png' width='12px'>";
-  if (_settings.themeIndex == 5){
-      checkedSrc = "<img src='./images/chk_x.png' width='12px'>";
-      uncheckedSrc = "<img src='./images/chkmt.png' width='12px'>"
-  }
-  else if (_settings.themeIndex == 6) {
+  if (_settings.themeIndex == 5) {
+    checkedSrc = "<img src='./images/chk_x.png' width='12px'>";
+    uncheckedSrc = "<img src='./images/chkmt.png' width='12px'>"
+  } else if (_settings.themeIndex == 6) {
     checkedSrc = "<img src='./images/chk_x_clu.png' width='12px'>";
     uncheckedSrc = "<img src='./images/chkmt_clu.png' width='12px'>"
   }
   customMods = customMods.replace(/\|X\|/g, checkedSrc);
   customMods = customMods.replace(/\|_\|/g, uncheckedSrc);
-  
+
   var markedNote = marked(customMods);
 
   viewDiv.innerHTML = markedNote;
@@ -816,23 +825,22 @@ function showPageMarkdown() {
   var viewDiv = document.getElementById("txtDocView");
   var notesText = document.getElementById("txtDoc");
   var customMods = notesText.value;
-  
+
   // Replace all check marks with their respective images.
   // |_| = <img src="./images/chkmt.png" width="12px">
   // |X| = <img src="./images/chk_x.png" width="12px">
   var checkedSrc = "<img src='./images/chk_x_blk.png' width='12px'>";
   var uncheckedSrc = "<img src='./images/chkmt_blk.png' width='12px'>";
-  if (_settings.themeIndex == 5){
-      checkedSrc = "<img src='./images/chk_x.png' width='12px'>";
-      uncheckedSrc = "<img src='./images/chkmt.png' width='12px'>"
-  }
-  else if (_settings.themeIndex == 6) {
+  if (_settings.themeIndex == 5) {
+    checkedSrc = "<img src='./images/chk_x.png' width='12px'>";
+    uncheckedSrc = "<img src='./images/chkmt.png' width='12px'>"
+  } else if (_settings.themeIndex == 6) {
     checkedSrc = "<img src='./images/chk_x_clu.png' width='12px'>";
     uncheckedSrc = "<img src='./images/chkmt_clu.png' width='12px'>"
   }
   customMods = customMods.replace(/\|X\|/g, checkedSrc);
   customMods = customMods.replace(/\|_\|/g, uncheckedSrc);
-  
+
   var markedNote = marked(customMods);
 
   viewDiv.innerHTML = markedNote;
@@ -898,15 +906,15 @@ function docsViewUnselected() {
 // #endregion NOTES CODE
 
 // #region TASKS CODE
-function loadTasks(tasks){
+function loadTasks(tasks) {
   document.getElementById("txtTasks").value = tasks;
 }
 
 // Get the tasks from the database.
 function getTasks() {
-  return new Promise(function(resolve, reject){
-  // Block the interface from acting on any input.
-    if (_settings.dbType == "MySql"){
+  return new Promise(function (resolve, reject) {
+    // Block the interface from acting on any input.
+    if (_settings.dbType == "MySql") {
       getTasksMySql((err, tasks) => {
         if (!err) {
           loadTasks(tasks);
@@ -935,13 +943,12 @@ function getTasks() {
 }
 
 function saveTasks(tasksText) {
-  return new Promise(function(resolve, reject){
-    if (_settings.dbType == "MySql"){
+  return new Promise(function (resolve, reject) {
+    if (_settings.dbType == "MySql") {
       saveTasksMySql(tasksText, () => {
         resolve();
       });
-    }
-    else {
+    } else {
       saveTasksSqlite(tasksText, () => {
         resolve();
       });
@@ -1062,14 +1069,14 @@ function sqlTasksExistsSqlite(callback) {
 // #region SQL HELPER FUNCTIONS
 function formatDateSqlite(date) {
   var d = new Date(date),
-      month = '' + (d.getMonth() + 1),
-      day = '' + d.getDate(),
-      year = d.getFullYear();
+    month = '' + (d.getMonth() + 1),
+    day = '' + d.getDate(),
+    year = d.getFullYear();
 
-  if (month.length < 2) 
-      month = '0' + month;
-  if (day.length < 2) 
-      day = '0' + day;
+  if (month.length < 2)
+    month = '0' + month;
+  if (day.length < 2)
+    day = '0' + day;
 
   return [year, month, day].join('-');
 }
@@ -1160,7 +1167,7 @@ function searchNotes(srchText, callback) {
     }
   }
 
-  var processRows = function (err, rows){
+  var processRows = function (err, rows) {
     if (!err) {
       if (rows.length > 0) {
         console.log("Search results found = " + rows.length);
@@ -1178,17 +1185,17 @@ function searchNotes(srchText, callback) {
     }
   }
 
-  if (_settings.dbType == "MySql"){
+  if (_settings.dbType == "MySql") {
     var sql =
-    "SELECT DATE_FORMAT(NoteDate, '%m/%d/%Y') as srchDate FROM Notes " +
-    where +
-    " ORDER BY NoteDate DESC";
+      "SELECT DATE_FORMAT(NoteDate, '%m/%d/%Y') as srchDate FROM Notes " +
+      where +
+      " ORDER BY NoteDate DESC";
     getRowsMySql(sql, processRows);
   } else {
-    var sql = 
-    "SELECT NoteDate, strftime('%m/%d/%Y', NoteDate) as srchDate FROM Notes " +
-    where +
-    " ORDER BY NoteDate DESC";
+    var sql =
+      "SELECT NoteDate, strftime('%m/%d/%Y', NoteDate) as srchDate FROM Notes " +
+      where +
+      " ORDER BY NoteDate DESC";
     getRowsSqlite(sql, processRows);
   }
   if (callback) callback();
@@ -1271,7 +1278,7 @@ function highlightWords(words, content, markD) {
       "<div><br/></div>"
     );
     // Get rid of ther last <div>.
-    if (newContent.substring(newContent.length - 5, newContent.length) == "<div>"){
+    if (newContent.substring(newContent.length - 5, newContent.length) == "<div>") {
       newContent = newContent.slice(0, -5);
     }
   }
@@ -1305,7 +1312,7 @@ function getNotePreview(dateForDay, callback) {
       console.log(_settings);
     }
   }
-  
+
   var sql =
     "SELECT * from Notes where NoteDate = '" +
     convertMySQLDate(dateForDay) +
@@ -1315,10 +1322,9 @@ function getNotePreview(dateForDay, callback) {
     formatDateSqlite(dateForDay) +
     "'";
   console.log(sql);
-  if (_settings.dbType == "MySql"){
+  if (_settings.dbType == "MySql") {
     getRowsMySql(sql, processRows);
-  }
-  else {
+  } else {
     getRowsSqlite(sqlite, processRows);
   }
   if (callback) callback();
@@ -1390,14 +1396,13 @@ function testDBConnection() {
 }
 
 function createNotesDB(callback) {
-  return new Promise(function(resolve, reject){
+  return new Promise(function (resolve, reject) {
     var settings = getSettingsfromDialog();
     var createDBSql = "CREATE SCHEMA `" + settings.database + "` ;";
     execSqlQuery(settings, createDBSql, function (err) {
-      if (!err){
+      if (!err) {
         resolve();
-      }
-      else {
+      } else {
         reject(err);
       }
       if (callback) callback(err);
@@ -1466,12 +1471,12 @@ function toggleSettingsBox() {
   }
 }
 
-function updateDBSelection(elSelected){
-  (elSelected == "optSqlite") ? document.getElementById("optMySql").checked = false : document.getElementById("optSqlite").checked = false
+function updateDBSelection(elSelected) {
+  (elSelected == "optSqlite") ? document.getElementById("optMySql").checked = false: document.getElementById("optSqlite").checked = false
   var optSqlite = document.getElementById("optSqlite");
   var mySqlEls = document.querySelectorAll("tr[db='mysql']");
-  for (var el of mySqlEls){
-    (optSqlite.checked) ? el.classList.add("hide") : el.classList.remove("hide");
+  for (var el of mySqlEls) {
+    (optSqlite.checked) ? el.classList.add("hide"): el.classList.remove("hide");
   }
 }
 
@@ -1508,12 +1513,16 @@ function stopVDrag(e) {
   saveWidths();
 }
 
-function saveWidths(){
+function saveWidths() {
   if (dragTargetDiv === leftDiv) {
     appSettings.setSettingInFile("leftSideBarWidth", leftDiv.style.width);
   } else {
     appSettings.setSettingInFile("docsSideBarWidth", rightDiv.style.width);
   }
+}
+
+function loadWidths() {
+  rightDiv.style.width = appSettings.getSettingsInFile("docsSideBarWidth");
 }
 
 // #endregion RESIZE SIDE BARS
@@ -1542,12 +1551,12 @@ function ShowWarningMessageBox(message) {
   dialog.showMessageBox(null, options);
 }
 
-function showConfirmationBox (message) {
+function showConfirmationBox(message) {
   const options = {
-      type: "info",
-      title: "Confirm",
-      buttons: ["Yes", "No", "Cancel"],
-      message: message,
+    type: "info",
+    title: "Confirm",
+    buttons: ["Yes", "No", "Cancel"],
+    message: message,
   };
 
   let response = dialog.showMessageBoxSync(null, options);
@@ -1555,25 +1564,25 @@ function showConfirmationBox (message) {
   return response == 0;
 }
 
-function emptyDiv(divById){
+function emptyDiv(divById) {
   document.getElementById(divById).innerHTML = "";
 }
 
-function addItemtoDiv(divById, itemInnerText, classAdd, customData){
+function addItemtoDiv(divById, itemInnerText, classAdd, customData) {
   var newItem = document.createElement("div");
   newItem.innerText = itemInnerText;
   var classes = classAdd.split(" ");
-  for (var i=0; i<classes.length;i++){
+  for (var i = 0; i < classes.length; i++) {
     newItem.classList.add(classes[i]);
   }
-  if (customData){
+  if (customData) {
     newItem.setAttribute(customData.split("=")[0], customData.split("=")[1])
   }
   document.getElementById(divById).appendChild(newItem);
   return newItem;
 }
 
-function getDocChanged(){
+function getDocChanged() {
   return document.getElementById("btnSave").innerHTML == "*SAVE*";
 }
 
@@ -1587,12 +1596,10 @@ document.getElementById("btnNow").addEventListener("click", function () {
 document.getElementById("btnSave").addEventListener("click", function () {
   if (document.getElementById("btnDocs").classList.contains("tabSelected")) {
     app_documents.savePage();
-  }
-  else{
+  } else {
     saveNotes(lastDaySelected, document.getElementById("txtNotes").value);
   }
   saveTasks(document.getElementById("txtTasks").value);
-  //initWidths();
 });
 
 document.getElementById("btnRevert").addEventListener("click", function () {
@@ -1616,7 +1623,6 @@ document.getElementById("btnDocs").addEventListener("click", function () {
 });
 
 document.getElementById("btnGo").addEventListener("click", function () {
-  //addSearchResultItem("Test");
   var searchText = document.getElementById("txtSearch").value;
   console.log("Searching for " + searchText);
   clearSearchResults(searchNotes(searchText));
@@ -1639,11 +1645,11 @@ document.getElementById("btnHideLeft").addEventListener("click", function () {
   }
 });
 
-document.getElementById("optSqlite").addEventListener("change", (e) =>{
+document.getElementById("optSqlite").addEventListener("change", (e) => {
   updateDBSelection(e.target.id);
 });
 
-document.getElementById("optMySql").addEventListener("change", (e) =>{
+document.getElementById("optMySql").addEventListener("change", (e) => {
   updateDBSelection(e.target.id);
 });
 
@@ -1667,7 +1673,7 @@ async function dateSelected(dayNum) {
   if (daySelected != dayNum) {
     //} && (!initialLoad)){
     var lastDayClicked = document.getElementById("day" + daySelected);
-    if (lastDayClicked){
+    if (lastDayClicked) {
       lastDayClicked.classList.remove("dateSelected");
     }
   }
@@ -1684,7 +1690,7 @@ async function dateSelected(dayNum) {
   blockInterface = false;
   getTasks();
   lastDaySelected = getSelectedDate();
-  
+
   initialLoad = false;
 }
 
@@ -1720,13 +1726,12 @@ document
   .getElementById("btnSettingsClose")
   .addEventListener("click", function () {
     _settings = getSettingsfromDialog();
-    _settings.documents ? document.getElementById("btnDocs").classList.remove("hide") 
-      : document.getElementById("btnDocs").classList.add("hide");
+    _settings.documents ? document.getElementById("btnDocs").classList.remove("hide") :
+      document.getElementById("btnDocs").classList.add("hide");
     appSettings.setSettingsInFile(_settings, (err) => {
       if (!err) {
         dateSelected(lastDaySelected);
-      }
-      else{
+      } else {
         console.log("Error saving settings file.");
       }
     });
@@ -1735,7 +1740,7 @@ document
       right: "-200px"
     });
     document.getElementById("settingsSlider").classList.add("hide");
-    
+
     settingsShown = false;
   });
 
@@ -1830,8 +1835,8 @@ document.querySelector("body").addEventListener("click", () => {
   document.getElementById("txtRename").classList.add("hide");
 });
 
-document.addEventListener("keyup", (e)=>{
-  if (e.key == "Escape"){
+document.addEventListener("keyup", (e) => {
+  if (e.key == "Escape") {
     document.querySelector(".notesMenu").classList.add("hide");
     document.querySelector(".docsMenu").classList.add("hide");
     document.querySelector(".pagesMenu").classList.add("hide");
@@ -1865,7 +1870,13 @@ document.querySelector("#txtNotes").addEventListener('keydown', function (e) {
   }
 }, false);
 
+//#region RESIZABLE SPLITTERS
 document.getElementById("vSplitter").addEventListener("mousedown", initVDrag, false);
-document.getElementById("vSplitterDoc").addEventListener("mousedown", initVDrag, false);
+
+document.getElementById("vSplitterDoc").addEventListener("mousedown", (e) => {
+  initVDrag(e);
+}, false);
+
+//#endregion RESIZABLE SPLITTERS
 
 // #endregion DOCUMENT EVENT HANDLERS

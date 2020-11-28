@@ -10,7 +10,8 @@ function div_treeview(divTVElement, divTVDelimeter) {
         //newItem.innerText = text;
         newItem.classList.add("div_treeview_item");
         newItem.classList.add("div_treeview_hbox");
-        newItem.innerHTML = "<div class='" + _mkStyle + " " + _expandedStyle + "'></div>" + text;
+        newItem.innerHTML = "<div class='" + _mkStyle + " " + _expandedStyle + "'></div>";
+        newItem.innerHTML += "<div class='div_treeview_text'>" + text + "</div>";
         parent.appendChild(newItem);
     }
 
@@ -94,6 +95,7 @@ function div_treeview(divTVElement, divTVDelimeter) {
                 console.log(getFullPath(item));
                 if (getFullPath(item) == fullPath){
                     item.classList.add("div_treeview_selected");
+                    if (onSelect_Callback) onSelect_Callback(getFullPath(item));
                 }
             }
             expandToSelected();
@@ -112,18 +114,22 @@ function div_treeview(divTVElement, divTVDelimeter) {
     function onSelect(callback){
         onSelect_Callback = callback;
         divTVElement.ownerDocument.addEventListener("click", (e)=>{
-            console.log(e.target);
-            if (e.target.classList.contains("div_treeview_item")){
-                removeAllSelected(divTVElement);
-                e.target.classList.add("div_treeview_selected");
-                callback(getFullPath(e.target));  
+            let el = e.target;
+            console.log(el);
+            if (el.classList.contains("div_treeview_text")){
+                el = el.parentNode;
             }
-            else if (e.target.classList.contains(_mkStyle)){
-                if (e.target.classList.contains(_collapsedStyle)){
-                    expand(e.target.parentNode);
+            if (el.classList.contains("div_treeview_item")){
+                removeAllSelected(divTVElement);
+                el.classList.add("div_treeview_selected");
+                callback(getFullPath(el));  
+            }
+            else if (el.classList.contains(_mkStyle)){
+                if (el.classList.contains(_collapsedStyle)){
+                    expand(el.parentNode);
                 }
                 else{
-                    collapse(e.target.parentNode);
+                    collapse(el.parentNode);
                 }
             }
         });
@@ -140,29 +146,37 @@ function div_treeview(divTVElement, divTVDelimeter) {
 
     function onDblClick(callback){
         divTVElement.ownerDocument.addEventListener("dblclick", (e)=>{
-            if (e.target.classList.contains("div_treeview_item")){
-                if (e.target.classList.contains("div_treeview_children_hidden")){
-                    expand(e.target);
+            let el = e.target;
+            if (el.classList.contains("div_treeview_text")){
+                el = el.parentNode;
+            }
+            if (el.classList.contains("div_treeview_item")){
+                if (el.classList.contains("div_treeview_children_hidden")){
+                    expand(el);
                 }
                 else{
-                    collapse(e.target);
+                    collapse(el);
                 }
-                callback(getFullPath(e.target));
+                callback(getFullPath(el));
             }
         });
     }
 
     function onRightClick(callback){
         divTVElement.ownerDocument.addEventListener("contextmenu", (e)=>{
-            if (e.target.classList.contains("div_treeview_item")){
-                if (!e.target.classList.contains("div_treeview_selected")){
+            let el = e.target;
+            if (el.classList.contains("div_treeview_text")){
+                el = el.parentNode;
+            }
+            if (el.classList.contains("div_treeview_item")){
+                if (!el.classList.contains("div_treeview_selected")){
                     removeAllSelected(divTVElement);
-                    e.target.classList.add("div_treeview_selected");
+                    el.classList.add("div_treeview_selected");
                 } 
                 if (onSelect_Callback){
-                    onSelect_Callback(getFullPath(e.target));
+                    onSelect_Callback(getFullPath(el));
                 }
-                callback(e, getFullPath(e.target));
+                callback(e, getFullPath(el));
             }
         });
     }

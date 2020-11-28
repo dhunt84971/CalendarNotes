@@ -1,5 +1,3 @@
-"use strict";
-
 //#region GLOBAL REFERENCES
 const { dialog } = require("electron").remote;
 const electron = require("electron");

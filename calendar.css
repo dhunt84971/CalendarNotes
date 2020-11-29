@@ -945,3 +945,29 @@ background: var(--buttonhover);
 
 
 /* #endregion DOCUMENTS */
+
+/* #region WAIT IMAGE */
+/* The wait image is displayed in the center of the displaying window.*/
+#imgWaitImage {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width:100px;
+    height:100px;
+    -webkit-animation: 2s ease 0s normal forwards 1 fadein;
+    animation: 2s ease 0s normal forwards 1 fadein;
+  }
+  
+  @keyframes fadein{
+    0% { opacity:0; }
+    90% { opacity:0; }
+    100% { opacity:1; }
+  }
+  
+  @-webkit-keyframes fadein{
+    0% { opacity:0; }
+    90% { opacity:0; }
+    100% { opacity:1; }
+  }
+/* #endregion WAIT IMAGE */

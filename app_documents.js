@@ -11,7 +11,7 @@ var app_documents = {
     contextSelectedPage: "",
     renameTarget: {},
     lastFullPath: "",
-    indentChange: 5,
+    indentChange: 10,
     //#endregion GLOBAL DECLARATIONS
 
     //#region PAGE RENDER FUNCTIONS
@@ -136,6 +136,7 @@ var app_documents = {
             this.getUniqueDocName(docFullName)
                 .then((docNewName) => {
                     // Add the document name to the database.
+                    showWaitImage();
                     var connection = mysql.createConnection(_settings);
                     connection.connect(function (err) {
                         if (err) throw err;
@@ -146,6 +147,7 @@ var app_documents = {
                         `;
                         console.log("Executing SQL query = " + sql);
                         connection.query(sql, function (err, result) {
+                            hideWaitImage();
                             if (err) reject(err)
                             else resolve(result);
                             connection.end();
@@ -210,11 +212,13 @@ var app_documents = {
     docNameExistsMySQL: function (docFullName) {
         return new Promise(function (resolve, reject) {
             var retValue = docFullName;
+            showWaitImage();
             var connection = mysql.createConnection(_settings);
             connection.connect();
             connection.query(
                 "SELECT DocLocation from Docs WHERE DocLocation = '" + docFullName + "'",
                 function (err, rows, fields) {
+                    hideWaitImage();
                     if (err) {
                         reject(new Error("DB error occurred!"));
                     } else {
@@ -301,6 +305,7 @@ var app_documents = {
 
     getDocsMySQL: function () {
         return new Promise((resolve, reject)=>{
+            showWaitImage();
             var connection = mysql.createConnection(_settings);
             connection.connect();
             let sql = `
@@ -308,6 +313,7 @@ var app_documents = {
                 FROM Docs
             `;
             connection.query( sql, (err, data) => {
+                hideWaitImage();
                 if (err) reject(err);
                 console.log(data);
                 resolve(data);
@@ -502,10 +508,12 @@ var app_documents = {
     execQueryMySQL: function (sql) {
         return new Promise(function (resolve, reject) {
             console.log("Executing SQL query = " + sql);
+            showWaitImage();
             var connection = mysql.createConnection(_settings);
             connection.connect();
             connection.query(sql,
                 function (err, rows, fields) {
+                    hideWaitImage();
                     if (err) {
                         reject(new Error("DB error occurred!"));
                     } else {
@@ -519,11 +527,13 @@ var app_documents = {
 
     execCommandMySQL: function (sql){
         return new Promise((resolve, reject) => {
+            showWaitImage();
             var connection = mysql.createConnection(_settings);
             connection.connect(function (err) {
                 if (err) reject(err);
                 console.log("Executing SQL query = " + sql);
                 connection.query(sql, function (err, result) {
+                    hideWaitImage();
                     if (err) reject(err)
                     else resolve(result);
                     connection.end();
@@ -874,7 +884,8 @@ var app_documents = {
         if (marginL < 30){
             let fullPath = this.dvDocuments.getSelectedFullPath();
             let newMarginL = marginL + this.indentChange;
-            this.updatePageIndent(fullPath, pageName, newMarginL);
+            let indent = newMarginL / this.indentChange;
+            this.updatePageIndent(fullPath, pageName, indent);
             pageEl.style.marginLeft = `${newMarginL}px`;
         }
     },
@@ -886,7 +897,8 @@ var app_documents = {
         if (marginL >= this.indentChange){
             let fullPath = this.dvDocuments.getSelectedFullPath();
             let newMarginL = marginL - this.indentChange;
-            this.updatePageIndent(fullPath, pageName, newMarginL);
+            let indent = newMarginL / this.indentChange;
+            this.updatePageIndent(fullPath, pageName, indent);
             pageEl.style.marginLeft = `${newMarginL}px`;
         }
     },

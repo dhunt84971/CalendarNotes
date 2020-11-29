@@ -28,6 +28,9 @@ var appSettings = new libAppSettings(settingsFile);
 var monthDisplayed, daySelected, yearDisplayed;
 var lastDaySelected;
 
+const APPDIR = electron.remote.app.getAppPath();
+var numWaiting = 0;
+
 // These are placeholders that will be written over when the settings
 // are read from the settings file.
 var _settings = {
@@ -371,9 +374,11 @@ var CALENDAR = function () {
 // #region DATABASE CODE
 function getRowsMySql(sql, callback) {
   console.log("SQL = " + sql);
+  showWaitImage();
   var connection = mysql.createConnection(_settings);
   connection.connect();
   connection.query(sql, function (err, rows, fields) {
+    hideWaitImage();
     if (!err) {
       if (callback) {
         callback(err, rows);
@@ -409,11 +414,13 @@ function getRowsSqlite(sql, callback) {
 
 
 function getNotesMySQL(dateForDay, callback) {
+  showWaitImage();
   var connection = mysql.createConnection(_settings);
   connection.connect();
   var sqlQuery = "SELECT * from Notes where NoteDate = '" + dateForDay + "'";
   console.log(sqlQuery);
   connection.query(sqlQuery, function (err, rows, fields) {
+    hideWaitImage();
     console.log("Notes received");
     if (!err) {
       if (rows.length > 0) {
@@ -498,12 +505,11 @@ function saveNotesSqlite(dateForDay, notesText, callback) {
 }
 
 function getTasksMySql(callback) {
-  console.log("a");
+  showWaitImage();
   var connection = mysql.createConnection(_settings);
   connection.connect();
-  console.log("b");
   connection.query("SELECT * FROM TasksList LIMIT 1", (err, rows, fields) => {
-    console.log("c");
+    hideWaitImage();
     if (!err) {
       console.log(rows);
       if (callback) {
@@ -650,6 +656,7 @@ function saveNotes(dateForDay, notesText) {
 }
 
 function updateNotesMySql(dateForDay, notesText, callback) {
+  showWaitImage();
   var connection = mysql.createConnection(_settings);
   connection.connect(function (err) {
     if (err) throw err;
@@ -659,6 +666,7 @@ function updateNotesMySql(dateForDay, notesText, callback) {
     console.log("Executing SQL query = " + sql);
 
     connection.query(sql, function (err, result) {
+      hideWaitImage();
       if (err) throw err;
       console.log(result.affectedRows + " record(s) updated");
       if (callback) callback(err, result);
@@ -685,6 +693,7 @@ function updateNotesSqlite(dateForDay, notesText, callback) {
 }
 
 function insertNotesMySql(dateForDay, notesText, callback) {
+  showWaitImage();
   var connection = mysql.createConnection(_settings);
   connection.connect(function (err) {
     if (err) throw err;
@@ -695,6 +704,7 @@ function insertNotesMySql(dateForDay, notesText, callback) {
     console.log("Executing SQL query = " + sql);
 
     connection.query(sql, function (err, result) {
+      hideWaitImage();
       if (err) throw err;
       if (callback) callback(err, result);
       connection.end();
@@ -721,6 +731,7 @@ function insertNotesSqlite(dateForDay, notesText, callback) {
 
 function sqlNoteExistsMySql(dateForDay, callback) {
   var retValue = false;
+  showWaitImage();
   var connection = mysql.createConnection(_settings);
   connection.connect();
   console.log(
@@ -733,6 +744,7 @@ function sqlNoteExistsMySql(dateForDay, callback) {
   connection.query(
     "SELECT * from Notes where NoteDate = '" + dateForDay + "'",
     function (err, rows, fields) {
+      hideWaitImage();
       if (!err) {
         console.log("Rows found = " + rows.length);
         console.log("Returning = " + (rows.length > 0));
@@ -957,17 +969,15 @@ function saveTasks(tasksText) {
 }
 
 function updateTasksMySql(tasksText, callback) {
-  console.log("1");
+  showWaitImage();
   var connection = mysql.createConnection(_settings);
-  console.log("2");
   connection.connect(function (err) {
-    console.log("3");
     if (err) throw err;
     var sql =
       "UPDATE TasksList SET TasksList = '" + sqlSafeText(tasksText) + "'";
     console.log("Executing SQL query = " + sql);
-
     connection.query(sql, function (err, result) {
+      hideWaitImage();
       console.log("4");
       if (err) throw err;
       console.log(result.affectedRows + " record(s) updated");
@@ -993,6 +1003,7 @@ function updateTasksSqlite(tasksText, callback) {
 }
 
 function insertTasksMySql(tasksText, callback) {
+  showWaitImage();
   var connection = mysql.createConnection(_settings);
   connection.connect(function (err) {
     if (err) throw err;
@@ -1001,6 +1012,7 @@ function insertTasksMySql(tasksText, callback) {
     console.log("Executing SQL query = " + sql);
 
     connection.query(sql, function (err, result) {
+      hideWaitImage();
       if (err) throw err;
       if (callback) callback(err, result);
       connection.end();
@@ -1027,11 +1039,13 @@ function insertTasksSqlite(tasksText, callback) {
 
 function sqlTasksExistsMySql(callback) {
   var retValue = false;
+  showWaitImage();
   var connection = mysql.createConnection(_settings);
   connection.connect();
   console.log("Searching for Tasks : " + "SELECT * from TasksList");
 
   connection.query("SELECT * from TasksList", function (err, rows, fields) {
+    hideWaitImage();
     if (!err) {
       console.log("Rows found = " + rows.length);
       console.log("Returning = " + (rows.length > 0));
@@ -1134,11 +1148,13 @@ function getSelectedDate() {
 /// Create SQL table.
 function execSqlQuery(_settings, query, callback) {
   return new Promise ((resolve, reject)=>{
+    showWaitImage();
     var connection = mysql.createConnection(_settings);
     connection.connect(function (err) {
       if (err) reject(err);
       console.log("Executing SQL query = " + query);
       connection.query(query, function (err, result) {
+        hideWaitImage();
         if (err) reject(err);
         resolve(result);
         if (callback) callback(result);
@@ -1393,8 +1409,10 @@ function testDBConnection() {
     password: settings.password,
     port: settings.port
   }
+  showWaitImage();
   var connection = mysql.createConnection(dbSettings);
   connection.connect(function (err) {
+    hideWaitImage();
     if (err) {
       alert("Database connection failed.");
     } else {
@@ -1613,6 +1631,34 @@ function getDocChanged() {
 
 // #endregion HELPER FUNCTIONS
 
+// #region WAIT IMAGE FUNCTIONS
+function showWaitImage () {
+  // This will display the wait image in the center of the calling window.
+  numWaiting += 1;
+  console.log("waiting = " + numWaiting );
+  if (!!document.getElementById("imgWaitImage")) {
+      return; //The image is already being displayed.
+  }
+  var waitImagePath = 'file://' + APPDIR + '/images/sunWait.gif';
+  var waitImg = document.createElement("img");
+  waitImg.id = "imgWaitImage";
+  waitImg.src = waitImagePath;
+  document.body.appendChild(waitImg);
+  console.log("Added wait image.");
+};
+
+function hideWaitImage() {
+  // This will hide the wait image.
+  numWaiting -= 1;
+  if (numWaiting <= 0) {
+      var waitImg = document.getElementById("imgWaitImage");
+      if (!!waitImg) document.body.removeChild(waitImg);
+      numWaiting = 0;
+  }
+  console.log("Waiting = " + numWaiting);
+};
+// #endregion WAIT IMAGE FUNCTIONS
+
 // #region DOCUMENT EVENT HANDLERS
 document.getElementById("btnNow").addEventListener("click", function () {
   gotoDate(getNow());
@@ -1707,8 +1753,14 @@ async function dateSelected(dayNum) {
   console.log(getSelectedDate());
   // Save the notes for the last selected date.
   if (lastDaySelected != getSelectedDate() && !initialLoad) {
-    await saveNotes(lastDaySelected, document.getElementById("txtNotes").value);
-    await saveTasks(document.getElementById("txtTasks").value);
+    if (getDocChanged){
+      let notes = document.getElementById("txtNotes").value;
+      let tasks = document.getElementById("txtTasks").value;
+      await Promise.all([
+        saveNotes(lastDaySelected, notes),
+        saveTasks(tasks)
+      ]);
+    }
   }
   console.log("3 getNotes.");
   await getNotes(getSelectedDate());

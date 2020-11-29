@@ -1133,14 +1133,16 @@ function getSelectedDate() {
 
 /// Create SQL table.
 function execSqlQuery(_settings, query, callback) {
-  var connection = mysql.createConnection(_settings);
-  connection.connect(function (err) {
-    if (err) throw err;
-    console.log("Executing SQL query = " + query);
-
-    connection.query(query, function (err, result) {
-      if (err) throw err;
-      if (callback) callback(err);
+  return new Promise ((resolve, reject)=>{
+    var connection = mysql.createConnection(_settings);
+    connection.connect(function (err) {
+      if (err) reject(err);
+      console.log("Executing SQL query = " + query);
+      connection.query(query, function (err, result) {
+        if (err) reject(err);
+        resolve(result);
+        if (callback) callback(result);
+      });
     });
   });
 }
@@ -1385,7 +1387,13 @@ function getSettingsfromDialog() {
 /// Test the connection to the database using the settings entered into the dialog box.
 function testDBConnection() {
   var settings = getSettingsfromDialog();
-  var connection = mysql.createConnection(settings);
+  var dbSettings = {
+    host: settings.host,
+    user: settings.user,
+    password: settings.password,
+    port: settings.port
+  }
+  var connection = mysql.createConnection(dbSettings);
   connection.connect(function (err) {
     if (err) {
       alert("Database connection failed.");
@@ -1395,23 +1403,20 @@ function testDBConnection() {
   });
 }
 
-function createNotesDB(callback) {
-  return new Promise(function (resolve, reject) {
-    var settings = getSettingsfromDialog();
-    var createDBSql = "CREATE SCHEMA `" + settings.database + "` ;";
-    execSqlQuery(settings, createDBSql, function (err) {
-      if (!err) {
-        resolve();
-      } else {
-        reject(err);
-      }
-      if (callback) callback(err);
-    });
-  });
+function createNotesDB() {
+  var settings = getSettingsfromDialog();
+  var dbSettings = {
+    host: settings.host,
+    user: settings.user,
+    password: settings.password,
+    port: settings.port
+  }
+  var createDBSql = "CREATE SCHEMA `" + settings.database + "` ;";
+  return execSqlQuery(dbSettings, createDBSql);
 }
 
 /// Create Calendar Notes DB Tables
-function createNotesDBTables(callback) {
+async function createNotesDBTables(callback) {
   var createNotesTable = "CREATE TABLE `Notes` (";
   createNotesTable += "`ID` int(10) unsigned NOT NULL AUTO_INCREMENT,";
   createNotesTable += "`NoteDate` date NOT NULL,";
@@ -1429,13 +1434,29 @@ function createNotesDBTables(callback) {
   createTasksTable += "UNIQUE KEY `ID_UNIQUE` (`ID`)";
   createTasksTable +=
     ") ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;";
+  var createDocsTable = "CREATE TABLE `Docs` (";
+  createDocsTable += "`ID` int(10) unsigned NOT NULL AUTO_INCREMENT,";
+  createDocsTable += "`DocName` varchar(200) DEFAULT NULL,";
+  createDocsTable += "`DocLocation` varchar(1000) DEFAULT NULL,";
+  createDocsTable += "`DocColor` int(11) DEFAULT '16777215',";
+  createDocsTable += "`DocText` varchar(20000) DEFAULT NULL,";
+  createDocsTable += "`LastModified` datetime NOT NULL,";
+  createDocsTable += "`DocIndentLevel` int(11) NOT NULL DEFAULT '0',";
+  createDocsTable += "PRIMARY KEY (`ID`),";
+  createDocsTable += "UNIQUE KEY `ID_UNIQUE` (`ID`)";
+  createDocsTable += 
+    ") ENGINE=InnoDB AUTO_INCREMENT=1048 DEFAULT CHARSET=latin1;";
   var settings = getSettingsfromDialog();
-
-  execSqlQuery(settings, createNotesTable, function (err) {
-    execSqlQuery(settings, createTasksTable, function (err) {
-      if (callback) callback(err);
-    });
-  });
+  var err;
+  try {
+    await execSqlQuery(settings, createNotesTable);
+    await execSqlQuery(settings, createTasksTable);
+    await execSqlQuery(settings, createDocsTable);
+  }
+  catch(e){
+    err = e;
+  }
+  if (callback) callback(err);
 }
 
 function initSettingsIcon() {
@@ -1500,9 +1521,13 @@ function initVDrag(e) {
 
 function doVDrag(e) {
   if (dragTargetDiv === leftDiv) {
-    leftDiv.style.width = (startWidth + e.clientX - startX) + 'px';
+    let newWidth = startWidth + e.clientX - startX;
+    if (newWidth < 230) newWidth = 230;
+    leftDiv.style.width = `${newWidth}px`;
   } else {
-    rightDiv.style.width = (startWidth + startX - e.clientX) + 'px';
+    let newWidth = startWidth + startX - e.clientX;
+    if (newWidth < 150) newWidth = 150;
+    rightDiv.style.width = `${newWidth}px`;
   }
 }
 
@@ -1765,12 +1790,12 @@ document
 document
   .getElementById("btnCreateDB")
   .addEventListener("click", function () {
-    createNotesDB(function (err) {
-      if (!err) {
-        alert("Database created.");
-      } else {
-        alert("Database creation failed.");
-      }
+    createNotesDB()
+    .then(()=>{
+      alert("Database created.");
+    })
+    .catch((err)=>{
+      alert("Database creation failed.");
     });
   });
 

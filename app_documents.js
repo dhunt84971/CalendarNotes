@@ -11,6 +11,7 @@ var app_documents = {
     contextSelectedPage: "",
     renameTarget: {},
     lastFullPath: "",
+    indentChange: 5,
     //#endregion GLOBAL DECLARATIONS
 
     //#region PAGE RENDER FUNCTIONS
@@ -26,6 +27,8 @@ var app_documents = {
                         let firstPage = {};
                         for (var i = 0; i < data.length; i++) {
                             let pageBtnEl = addItemtoDiv("lstDocs", data[i].DocName, "btn pageItem", "data-grp=page");
+                            let marginL = data[i].DocIndentLevel * 5;
+                            pageBtnEl.style.marginLeft = `${marginL}px`;
                             pageBtnEl.addEventListener("click", (e)=>{
                                 this.btnPage_Clicked(e.target);
                             });
@@ -110,7 +113,7 @@ var app_documents = {
     //#region DATABASE FUNCTIONS
     getPagesMySQL: function (docFullName) {
         let sql = `
-            SELECT DocName 
+            SELECT DocName, DocIndentLevel
             FROM Docs 
             WHERE DocLocation = '${docFullName}'
         `;
@@ -119,7 +122,7 @@ var app_documents = {
 
     getPagesSqlite: function (docFullName) {
         let sql = `
-            SELECT DocName 
+            SELECT DocName, DocIndentLevel
             FROM Docs 
             WHERE DocLocation = '${docFullName}'
         `;
@@ -136,14 +139,12 @@ var app_documents = {
                     var connection = mysql.createConnection(_settings);
                     connection.connect(function (err) {
                         if (err) throw err;
-                        var sql = "INSERT INTO Docs (DocName, DocLocation, DocColor, DocText, LastModified) VALUES (";
-                        sql += "'New Page', ";
-                        sql += "'" + docNewName + "', ";
-                        sql += "-1, ";
-                        sql += "'', ";
-                        sql += "'" + getMySQLNow() + "')";
+                        var sql = `
+                            INSERT INTO Docs 
+                                (DocName, DocLocation, DocColor, DocText, LastModified) 
+                                VALUES ('New Page', '${docNewName}',-1, '', '${getMySQLNow()}')
+                        `;
                         console.log("Executing SQL query = " + sql);
-
                         connection.query(sql, function (err, result) {
                             if (err) reject(err)
                             else resolve(result);
@@ -478,6 +479,26 @@ var app_documents = {
         return this.execCommandSqlite(sql);
     },
 
+    updatePageIndentMySQL: function(fullPath, pageName, indent){
+        let sql = `
+            UPDATE Docs
+                SET DocIndentLevel = ${indent}
+            WHERE DocLocation = '${fullPath}'
+            AND DocName = '${pageName}';
+        `;
+        return this.execCommandMySQL(sql);
+    },
+
+    updatePageIndentSqlite: function(fullPath, pageName, indent){
+        let sql = `
+            UPDATE Docs
+                SET DocIndentLevel = ${indent}
+            WHERE DocLocation = '${fullPath}'
+            AND DocName = '${pageName}';
+        `;
+        return this.execCommandSqlite(sql);
+    },
+
     execQueryMySQL: function (sql) {
         return new Promise(function (resolve, reject) {
             console.log("Executing SQL query = " + sql);
@@ -664,6 +685,12 @@ var app_documents = {
             this.updatePageSqlite(path, pageName, docText);
     },
 
+    updatePageIndent(path, pageName, indent){
+        return (_settings.dbType == "MySql") ?
+            this.updatePageIndentMySQL(path, pageName, indent) :
+            this.updatePageIndentSqlite(path, pageName, indent);
+    },
+
     savePage: function(){
         return new Promise((resolve, reject)=>{
             let path = this.lastFullPath;
@@ -840,6 +867,30 @@ var app_documents = {
         }
     },
 
+    pageIncIndent_Clicked: function (pageName) {
+        let pageEl = this.getSelectedPageElement();
+        let marginL = parseInt(pageEl.style.marginLeft);
+        console.log(marginL);
+        if (marginL < 30){
+            let fullPath = this.dvDocuments.getSelectedFullPath();
+            let newMarginL = marginL + this.indentChange;
+            this.updatePageIndent(fullPath, pageName, newMarginL);
+            pageEl.style.marginLeft = `${newMarginL}px`;
+        }
+    },
+
+    pageDecIndent_Clicked: function (pageName) {
+        let pageEl = this.getSelectedPageElement();
+        let marginL = parseInt(pageEl.style.marginLeft);
+        console.log(marginL);
+        if (marginL >= this.indentChange){
+            let fullPath = this.dvDocuments.getSelectedFullPath();
+            let newMarginL = marginL - this.indentChange;
+            this.updatePageIndent(fullPath, pageName, newMarginL);
+            pageEl.style.marginLeft = `${newMarginL}px`;
+        }
+    },
+
     selectPage: async function(el){
         if (!el) return;
         if (getDocChanged()) {
@@ -954,6 +1005,14 @@ document.getElementById("btnPageRenameDoc").addEventListener("click", (e)=>{
 
 document.getElementById("btnPageRemoveDoc").addEventListener("click", (e)=>{
     app_documents.removePage_Clicked(app_documents.contextSelectedPage);
+});
+
+document.getElementById("btnPageIncIndent").addEventListener("click", (e)=>{
+    app_documents.pageIncIndent_Clicked(app_documents.contextSelectedPage);
+});
+
+document.getElementById("btnPageDecIndent").addEventListener("click", (e)=>{
+    app_documents.pageDecIndent_Clicked(app_documents.contextSelectedPage);
 });
 
 // #endregion DOC CONTEXT MENU EVENT HANDLERS

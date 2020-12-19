@@ -21,7 +21,8 @@ var settingsShown = false;
 var calRows = 5;
 
 const settingsFile = "./.settings";
-const dbFile = "./.calendarNotes.db";
+var dbFile = "./.calendarNotes.db";
+var settingsdbFile = "./.calendarNotes.db";
 
 var appSettings = new libAppSettings(settingsFile);
 
@@ -127,30 +128,38 @@ var CALENDAR = function () {
 
     // Load the settings from the file.
     await appSettings.loadSettingsFromFile()
-      .then((settings) => {
+      .then(async (settings) => {
         _settings = settings;
-        document.getElementById("selThemes").selectedIndex = settings.themeIndex;
+        if (!_settings.dbFile) _settings.dbFile = dbFile;
+        dbFile = _settings.dbFile;
+        console.log(dbFile);
+        if (!fs.existsSync(dbFile)){
+          await createSqliteDB();
+          ShowWarningMessageBox("DB file not found.  Creating it.");
+        }
+        document.getElementById("selThemes").selectedIndex = _settings.themeIndex;
         changeTheme(settings.themeIndex, function () {
           initSettingsIcon();
         });
-        document.getElementById("txtHost").value = settings.host;
-        document.getElementById("txtPort").value = settings.port;
-        document.getElementById("txtDatabase").value = settings.database;
-        document.getElementById("txtUsername").value = settings.user;
-        document.getElementById("txtPassword").value = settings.password;
-        document.getElementById("chkDocuments").checked = settings.documents == true;
-        if (settings.documents) {
+        document.getElementById("txtHost").value = _settings.host;
+        document.getElementById("txtPort").value = _settings.port;
+        document.getElementById("txtDatabase").value = _settings.database;
+        document.getElementById("txtUsername").value = _settings.user;
+        document.getElementById("txtPassword").value = _settings.password;
+        document.getElementById("chkDocuments").checked = _settings.documents == true;
+        if (_settings.documents) {
           document.getElementById("btnDocs").classList.remove("hide");
           app_documents.loadDocs(true);
         } else {
           document.getElementById("btnDocs").classList.add("hide");
         };
         dateSelected(daySelected);
-        document.getElementById("leftSideBar").style.width = settings.leftSideBarWidth;
-        document.getElementById("docsSideBar").style.width = settings.docsSideBarWidth;
-        document.getElementById("optSqlite").checked = (settings.dbType == "Sqlite");
-        document.getElementById("optMySql").checked = (settings.dbType == "MySql");
-        updateDBSelection("opt" + settings.dbType);
+        document.getElementById("leftSideBar").style.width = _settings.leftSideBarWidth;
+        document.getElementById("docsSideBar").style.width = _settings.docsSideBarWidth;
+        document.getElementById("optSqlite").checked = (_settings.dbType == "Sqlite");
+        document.getElementById("optMySql").checked = (_settings.dbType == "MySql");
+        updateDBSelection("opt" + _settings.dbType);
+        document.getElementById("lbldbFile").innerHTML = getFilename(_settings.dbFile);
       })
       .catch((err) => {
         // Assume any error means the settings file does not exist and create it.
@@ -412,7 +421,6 @@ function getRowsSqlite(sql, callback) {
   });
 }
 
-
 function getNotesMySQL(dateForDay, callback) {
   showWaitImage();
   var connection = mysql.createConnection(_settings);
@@ -444,6 +452,7 @@ function getNotesMySQL(dateForDay, callback) {
 }
 
 function getNotesSqlite(dateForDay, callback) {
+  console.log(dbFile);
   let db = new sqlite3.Database(dbFile, (err) => {
     if (!err) {
       db.all("SELECT * FROM Notes WHERE NoteDate = '" + formatDateSqlite(dateForDay) + "'", [], (err, rows) => {
@@ -1395,9 +1404,15 @@ function getSettingsfromDialog() {
     port: document.getElementById("txtPort").value,
     themeIndex: el.options[el.selectedIndex].value,
     documents: document.getElementById("chkDocuments").checked,
-    dbType: (document.getElementById("optSqlite").checked) ? "Sqlite" : "MySql"
+    dbType: (document.getElementById("optSqlite").checked) ? "Sqlite" : "MySql",
+    dbFile: settingsdbFile
   };
   return settings;
+}
+
+function getFilename(fullPath){
+  let paths = fullPath.split("/");
+  return paths[paths.length-1];
 }
 
 /// Test the connection to the database using the settings entered into the dialog box.
@@ -1511,13 +1526,45 @@ function toggleSettingsBox() {
 }
 
 function updateDBSelection(elSelected) {
-  (elSelected == "optSqlite") ? document.getElementById("optMySql").checked = false: document.getElementById("optSqlite").checked = false
+  if (elSelected == "optSqlite") {
+    document.getElementById("optMySql").checked = false;
+  }
+  else{
+    document.getElementById("optSqlite").checked = false;
+  }  
   var optSqlite = document.getElementById("optSqlite");
   var mySqlEls = document.querySelectorAll("tr[db='mysql']");
-  for (var el of mySqlEls) {
+  for (let el of mySqlEls) {
     (optSqlite.checked) ? el.classList.add("hide"): el.classList.remove("hide");
   }
+  var mySqliteEls = document.querySelectorAll("tr[db='sqlite']");
+  for (let el of mySqliteEls) {
+    (optSqlite.checked) ? el.classList.remove("hide"): el.classList.add("hide");
+  }
 }
+
+function getdbFilename() {
+  return new Promise((resolve, reject) => {
+      const options = {
+          defaultPath: "./",
+          filters: [{
+                  name: 'Sqlite DB',
+                  extensions: ['db']
+              },
+              {
+                  name: 'All Files',
+                  extensions: ['*']
+              }
+          ]
+      };
+      const result = dialog.showSaveDialogSync(null, options);
+      if (result) {
+          console.log(result);
+          resolve(result);
+      }
+  });
+}
+
 
 // #endregion SETTINGS CODE
 
@@ -1762,7 +1809,6 @@ async function dateSelected(dayNum) {
       ]);
     }
   }
-  console.log("3 getNotes.");
   await getNotes(getSelectedDate());
   blockInterface = false;
   getTasks();
@@ -1801,7 +1847,7 @@ document.getElementById("btnSettings").addEventListener("click", function () {
 
 document
   .getElementById("btnSettingsClose")
-  .addEventListener("click", function () {
+  .addEventListener("click", async function () {
     _settings = getSettingsfromDialog();
     _settings.documents ? document.getElementById("btnDocs").classList.remove("hide") :
       document.getElementById("btnDocs").classList.add("hide");
@@ -1813,11 +1859,25 @@ document
       }
     });
 
+    dbFile = _settings.dbFile;
+    if (!fs.existsSync(settingsdbFile)){
+      await createSqliteDB(settingsdbFile);
+    }
+
+    getNotes(getSelectedDate());
+    getTasks();
+    if (_settings.documents) {
+      document.getElementById("btnDocs").classList.remove("hide");
+      app_documents.loadDocs(true);
+    } else {
+      document.getElementById("btnDocs").classList.add("hide");
+    };
+    
     $("#settingsSlider").animate({
       right: "-200px"
     });
     document.getElementById("settingsSlider").classList.add("hide");
-
+    
     settingsShown = false;
   });
 
@@ -1946,6 +2006,16 @@ document.querySelector("#txtNotes").addEventListener('keydown', function (e) {
     e.preventDefault();
   }
 }, false);
+
+document.getElementById("btnBrowsedbFile").addEventListener("click", async ()=>{
+  getdbFilename()
+  .then((fullPath)=>{
+    if (!fullPath.endsWith(".db")) fullPath += ".db";
+    console.log(fullPath);
+    settingsdbFile = fullPath;
+    document.getElementById("lbldbFile").innerHTML = getFilename(settingsdbFile);
+  });
+});
 
 //#region RESIZABLE SPLITTERS
 document.getElementById("vSplitter").addEventListener("mousedown", initVDrag, false);

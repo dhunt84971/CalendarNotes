@@ -167,7 +167,7 @@
 	</div>
 
 	<!--#region SETTINGS BOX -->
-	<div class="hide" id="settingsSlider">
+	<div class="vbox overflowAuto hide" id="settingsSlider">
 		<table>
 			<tr>
 				<td class="entryLabelTitle">DATABASE -</td>
@@ -177,6 +177,14 @@
 					<div class="hboxAuto noPadding noMargin">
 						<div class="inputRadio"><input type="radio" id="optSqlite"></div>
 						<div class="labelRadio">SQL Lite (Local DB)</div>
+					</div>
+				</td> 
+			</tr>
+			<tr db="sqlite">
+				<td>
+					<div class="hbox noPadding noMargin">
+						<div class="boxedValue" id="lbldbFile">.calenderDB</div>
+						<div class="btn browseButton" id="btnBrowsedbFile">...</div>
 					</div>
 				</td> 
 			</tr>
@@ -256,9 +264,17 @@
 			<tr>
 				<td><div class="hbox"><div class="vbox flexMiddle"><input type='checkbox' id='chkDocuments'></div><div class="vbox">Documents</div></div></td>
 			</tr>
-			<div class="version">v1.1.1</div>
-			<div class="settingsClose btn" id="btnSettingsClose" title="Changes are saved on close.">APPLY/CLOSE</div>
 		</table>
+		<div class="vboxFill"></div>
+		<div class="hbox">
+			<div class="vbox">
+				<div class="vboxFill"></div>
+				<div class="version">v1.1.2</div>
+			</div>
+			<div class="hboxFill"></div>
+			<div class="btn" id="btnSettingsClose" title="Changes are saved on close.">APPLY/CLOSE</div>
+		</div>
+
 	</div>
 	<!-- #endregion SETTINGS BOX -->
 	

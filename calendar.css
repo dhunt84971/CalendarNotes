@@ -192,6 +192,18 @@ body {
     margin-left: 0px !important;
 }
 
+.overflowAuto {
+    overflow: auto;
+}
+
+.overflowHidden {
+    overflow: hidden;
+}
+
+.overflowScrollY {
+    overflow-y: scroll;
+}
+
 /*#endregion LAYOUT STYLES */
 
 textarea {
@@ -823,9 +835,6 @@ background: var(--buttonhover);
 }
 
 .version {
-    position: absolute;
-    bottom: 5px;
-    left: 5px;
     font: 10px/1.1 "Helvetica Neue", Helvetica, Arial, san-serif;
 }
 
@@ -843,6 +852,25 @@ background: var(--buttonhover);
     box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.25);
     -moz-box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.25);
     -webkit-box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.25);
+}
+
+.boxedValue {
+    border: 1px;
+    height: 19px;
+    width: 100%;
+    border-style: solid;
+    border-color: black;
+    background-color: white;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+    padding-left: 5px;
+}
+
+.browseButton {
+    height: 19px;
+    font: 10px/1.1 "Helvetica Neue", Helvetica, Arial, san-serif;
 }
 
 /* #endregion SETTINGS BOX */

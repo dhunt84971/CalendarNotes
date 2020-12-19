@@ -1639,7 +1639,7 @@ function showWaitImage () {
   if (!!document.getElementById("imgWaitImage")) {
       return; //The image is already being displayed.
   }
-  var waitImagePath = 'file://' + APPDIR + '/images/sunWait.gif';
+  var waitImagePath = 'file://' + APPDIR + '/images/waitImg.gif';
   var waitImg = document.createElement("img");
   waitImg.id = "imgWaitImage";
   waitImg.src = waitImagePath;

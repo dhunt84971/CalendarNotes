@@ -857,7 +857,7 @@ background: var(--buttonhover);
 .boxedValue {
     border: 1px;
     height: 19px;
-    width: 100%;
+    width: 160px;
     border-style: solid;
     border-color: black;
     background-color: white;
@@ -866,11 +866,14 @@ background: var(--buttonhover);
     border-bottom-left-radius: 2px;
     border-bottom-right-radius: 2px;
     padding-left: 5px;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .browseButton {
     height: 19px;
     font: 10px/1.1 "Helvetica Neue", Helvetica, Arial, san-serif;
+    margin-left: 2px;
 }
 
 /* #endregion SETTINGS BOX */

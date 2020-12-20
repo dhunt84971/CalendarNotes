@@ -132,6 +132,7 @@ var CALENDAR = function () {
         _settings = settings;
         if (!_settings.dbFile) _settings.dbFile = dbFile;
         dbFile = _settings.dbFile;
+        settingsdbFile = dbFile;
         console.log(dbFile);
         if (!fs.existsSync(dbFile)){
           await createSqliteDB();
@@ -160,6 +161,7 @@ var CALENDAR = function () {
         document.getElementById("optMySql").checked = (_settings.dbType == "MySql");
         updateDBSelection("opt" + _settings.dbType);
         document.getElementById("lbldbFile").innerHTML = getFilename(_settings.dbFile);
+        document.getElementById("lbldbFile").title = _settings.dbFile;
       })
       .catch((err) => {
         // Assume any error means the settings file does not exist and create it.
@@ -569,7 +571,7 @@ function getTasksSqlite(callback) {
 
 function createSqliteDB(callback) {
   return new Promise((resolve, reject) => {
-    let db = new sqlite3.Database(dbFile, (err) => {
+    let db = new sqlite3.Database(dbFile, async (err) => {
       if (err) {
         console.error(err.message);
         reject();
@@ -581,12 +583,16 @@ function createSqliteDB(callback) {
           NoteText TEXT,
           LastModified TEXT
         )`;
-        db.run(sql);
+        await new Promise((resolve)=>{
+          db.run(sql,()=>{ resolve(); });
+        });
         sql = `CREATE TABLE TasksList (
           ID INTEGER PRIMARY KEY,
           TasksList TEXT
         )`;
-        db.run(sql);
+        await new Promise((resolve)=>{
+          db.run(sql,()=>{ resolve(); });
+        });
         sql = `CREATE TABLE Docs (
           ID INTEGER PRIMARY KEY,
           DocName TEXT,
@@ -596,12 +602,14 @@ function createSqliteDB(callback) {
           LastModified TEXT,
           DocIndentLevel INTEGER DEFAULT 0
         )`;
-        db.run(sql);
-        db.close();
-        resolve();
-        if (callback) callback();
+        await new Promise((resolve)=>{
+          db.run(sql,()=>{ resolve(); });
+        });
+        db.close(()=>{
+          resolve();
+          if (callback) callback();  
+        });
       }
-      console.log('Connected to the database.');
     });
   });
 }
@@ -1415,6 +1423,11 @@ function getFilename(fullPath){
   return paths[paths.length-1];
 }
 
+function getPath(fullPath){
+  let paths = fullPath.split("/");
+  return paths.slice(0, paths.length-1).join("/");
+}
+
 /// Test the connection to the database using the settings entered into the dialog box.
 function testDBConnection() {
   var settings = getSettingsfromDialog();
@@ -1543,10 +1556,10 @@ function updateDBSelection(elSelected) {
   }
 }
 
-function getdbFilename() {
+function getdbFilename(path) {
   return new Promise((resolve, reject) => {
       const options = {
-          defaultPath: "./",
+          defaultPath: path ? path : "./",
           filters: [{
                   name: 'Sqlite DB',
                   extensions: ['db']
@@ -1851,28 +1864,26 @@ document
     _settings = getSettingsfromDialog();
     _settings.documents ? document.getElementById("btnDocs").classList.remove("hide") :
       document.getElementById("btnDocs").classList.add("hide");
-    appSettings.setSettingsInFile(_settings, (err) => {
-      if (!err) {
-        dateSelected(lastDaySelected);
-      } else {
-        console.log("Error saving settings file.");
-      }
-    });
-
-    dbFile = _settings.dbFile;
+    await appSettings.setSettingsInFile(_settings);
     if (!fs.existsSync(settingsdbFile)){
-      await createSqliteDB(settingsdbFile);
+      console.log(1);
+      await createSqliteDB();
+      console.log(2);
     }
-
+    console.log(3);
     getNotes(getSelectedDate());
+    console.log(4);
     getTasks();
+    console.log(5);
     if (_settings.documents) {
       document.getElementById("btnDocs").classList.remove("hide");
+      console.log(6);
       app_documents.loadDocs(true);
     } else {
       document.getElementById("btnDocs").classList.add("hide");
     };
-    
+    console.log(7);
+
     $("#settingsSlider").animate({
       right: "-200px"
     });
@@ -2008,12 +2019,13 @@ document.querySelector("#txtNotes").addEventListener('keydown', function (e) {
 }, false);
 
 document.getElementById("btnBrowsedbFile").addEventListener("click", async ()=>{
-  getdbFilename()
+  getdbFilename(getPath(dbFile))
   .then((fullPath)=>{
     if (!fullPath.endsWith(".db")) fullPath += ".db";
     console.log(fullPath);
     settingsdbFile = fullPath;
     document.getElementById("lbldbFile").innerHTML = getFilename(settingsdbFile);
+    document.getElementById("lbldbFile").title = settingsdbFile;
   });
 });
 

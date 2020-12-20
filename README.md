@@ -101,7 +101,7 @@ The **REVERT** button is there to remove any unsaved edits.  For example, if the
 Date navigation is accomplished by clicking on a date in the calendar.  This will immediately save the current notes and tasks and load the notes for the selected date.  Use the **>>** button to navigate to today and the left and right arrow buttons to move to the previous or next month.  By holding the **Ctrl** key and clicking on an arrow it is possible to move 12 months into the past or future.
 
 ### Search
-One of the most powerful features of the Calendar Notes application is the simple to use search feature.  To search for a note containing some words click on the **SEARCH** button and enter the words into the text field to the left of the **GO** button then click on the **GO** button to execute the search.  The search uses an inclusive condition for the words being search meaning that only notes containing ALL of the words will be included in the results.  The results are displayed as buttons below the search entry field.  Each button displays a date where matching words were found.
+One of the most powerful features of the Calendar Notes application is the simple to use search feature.  To search for a note containing some words click on the **SEARCH** button and enter the words into the text field to the left of the **GO** button then click on the **GO** button to execute the search.  The search uses an inclusive condition for the words being sought meaning that only notes containing ALL of the words will be included in the results.  The results are displayed as buttons below the search entry field.  Each button displays a date where matching words were found.
 
 <img src="./screenshots/search_results.png">
 

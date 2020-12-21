@@ -1042,6 +1042,14 @@ document.getElementById("txtRename").addEventListener("click", (e) =>{
     e.stopPropagation();
 });
 
+document.getElementById("btnExpandAll").addEventListener("click", (e) =>{
+    app_documents.dvDocuments.expandAll();
+});
+
+document.getElementById("btnCollapseAll").addEventListener("click", (e) =>{
+    app_documents.dvDocuments.collapseAll();
+});
+
 // #region DOC CONTEXT MENU EVENT HANDLERS
 document.getElementById("btnAddSubDoc").addEventListener("click", ()=>{
     app_documents.addDocLocation(app_documents.contextSelectedDoc,"New Document");

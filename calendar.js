@@ -427,7 +427,7 @@ function getNotesMySQL(dateForDay, callback) {
   showWaitImage();
   var connection = mysql.createConnection(_settings);
   connection.connect();
-  var sqlQuery = "SELECT * from Notes where NoteDate = '" + dateForDay + "'";
+  var sqlQuery = `SELECT * from Notes where NoteDate = '${dateForDay}'`;
   console.log(sqlQuery);
   connection.query(sqlQuery, function (err, rows, fields) {
     hideWaitImage();
@@ -600,7 +600,9 @@ function createSqliteDB(callback) {
           DocColor INTEGER DEFAULT 16777215,
           DocText TEXT,
           LastModified TEXT,
-          DocIndentLevel INTEGER DEFAULT 0
+          DocIndentLevel INTEGER DEFAULT 0,
+          DocOrder INTEGER DEFAULT 0,
+          PageOrder INTEGER DEFAULT 0
         )`;
         await new Promise((resolve)=>{
           db.run(sql,()=>{ resolve(); });
@@ -1488,6 +1490,8 @@ async function createNotesDBTables(callback) {
   createDocsTable += "`DocText` varchar(20000) DEFAULT NULL,";
   createDocsTable += "`LastModified` datetime NOT NULL,";
   createDocsTable += "`DocIndentLevel` int(11) NOT NULL DEFAULT '0',";
+  createDocsTable += "`DocOrder` int(11) NOT NULL DEFAULT '0',";
+  createDocsTable += "`PageOrder` int(11) NOT NULL DEFAULT '0',";
   createDocsTable += "PRIMARY KEY (`ID`),";
   createDocsTable += "UNIQUE KEY `ID_UNIQUE` (`ID`)";
   createDocsTable += 
@@ -1866,24 +1870,17 @@ document
       document.getElementById("btnDocs").classList.add("hide");
     await appSettings.setSettingsInFile(_settings);
     if (!fs.existsSync(settingsdbFile)){
-      console.log(1);
       await createSqliteDB();
-      console.log(2);
     }
-    console.log(3);
     getNotes(getSelectedDate());
-    console.log(4);
     getTasks();
-    console.log(5);
     if (_settings.documents) {
       document.getElementById("btnDocs").classList.remove("hide");
-      console.log(6);
       app_documents.loadDocs(true);
     } else {
       document.getElementById("btnDocs").classList.add("hide");
     };
-    console.log(7);
-
+    
     $("#settingsSlider").animate({
       right: "-200px"
     });

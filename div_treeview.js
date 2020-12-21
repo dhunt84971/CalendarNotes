@@ -98,7 +98,8 @@ function div_treeview(divTVElement, divTVDelimeter) {
                     if (onSelect_Callback) onSelect_Callback(getFullPath(item));
                 }
             }
-            expandToSelected();
+            console.log(fullPath);
+            if (fullPath) expandToSelected();
         }
     }
 

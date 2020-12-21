@@ -129,6 +129,11 @@ body {
     width: 100%;
 }
 
+#btnAddDoc {
+    justify-content: center;
+    align-items: center;
+}
+
 .vbox {
     display: flex;
     flex-direction: column;
@@ -244,6 +249,10 @@ textarea {
     background-color: var(--buttonhover);
     cursor: pointer;
     color: var(--buttonhovertext);
+}
+
+.btnSmall {
+    width: 20px;
 }
 
 /* #endregion BUTTONS */

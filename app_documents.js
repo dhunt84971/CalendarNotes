@@ -116,6 +116,7 @@ var app_documents = {
             SELECT DocName, DocIndentLevel
             FROM Docs 
             WHERE DocLocation = '${docFullName}'
+            ORDER BY PageOrder ASC
         `;
         return this.execQueryMySQL(sql);
     },
@@ -125,11 +126,12 @@ var app_documents = {
             SELECT DocName, DocIndentLevel
             FROM Docs 
             WHERE DocLocation = '${docFullName}'
+            ORDER BY PageOrder ASC
         `;
         return this.execQuerySqlite(sql);
     },
 
-    addDocLocationMySQL: function (parentDoc, docName) {
+    addDocLocationMySQL: function (parentDoc, docName, docOrder) {
         return new Promise((resolve, reject) => {
             var docFullName = parentDoc == "" ? docName : parentDoc + "/" + docName;
             // Make sure the document name is unique.
@@ -142,8 +144,8 @@ var app_documents = {
                         if (err) throw err;
                         var sql = `
                             INSERT INTO Docs 
-                                (DocName, DocLocation, DocColor, DocText, LastModified) 
-                                VALUES ('New Page', '${docNewName}',-1, '', '${getMySQLNow()}')
+                                (DocName, DocLocation, DocColor, DocText, LastModified, DocOrder, PageOrder) 
+                                VALUES ('New Page', '${docNewName}',-1, '', '${getMySQLNow()}', ${docOrder}, 0)
                         `;
                         console.log("Executing SQL query = " + sql);
                         connection.query(sql, function (err, result) {
@@ -157,7 +159,7 @@ var app_documents = {
         });
     },
 
-    addDocLocationSqlite: function (parentDoc, docName) {
+    addDocLocationSqlite: function (parentDoc, docName, docOrder) {
         return new Promise((resolve, reject) => {
             var docFullName = parentDoc == "" ? docName : parentDoc + "/" + docName;
             // Make sure the document name is unique.
@@ -168,9 +170,8 @@ var app_documents = {
                         if (err) throw err;
                         var sql = `
                             INSERT INTO Docs 
-                            (DocName, DocLocation, DocColor, DocText, LastModified) 
-                            VALUES ('New Page', '${docNewName}',
-                            -1, '','${getMySQLNow()}')
+                                (DocName, DocLocation, DocColor, DocText, LastModified, DocOrder, PageOrder) 
+                                VALUES ('New Page', '${docNewName}',-1, '', '${getMySQLNow()}', ${docOrder}, 0)
                         `;
                         console.log("Executing SQL query = " + sql);
                         db.run(sql, (err) => {
@@ -183,28 +184,28 @@ var app_documents = {
         });
     },
 
-    addPageMySQL: function (path) {
+    addPageMySQL: function (path, docOrder, pageOrder) {
         // Get a unique page name.
         let newPageName = this.getUniquePageName("New Page");
         // Add the document to the database.
         var sql = `
             INSERT INTO Docs 
-            (DocName, DocLocation, DocColor, DocText, LastModified) 
+            (DocName, DocLocation, DocColor, DocText, LastModified, DocOrder, PageOrder) 
             VALUES ('${newPageName}', '${path}',
-            -1, '','${getMySQLNow()}')
+            -1, '','${getMySQLNow()}', ${docOrder}, ${pageOrder})
         `;
         return this.execCommandMySQL(sql);
     },
 
-    addPageSqlite: function (path) {
+    addPageSqlite: function (path, docOrder, pageOrder) {
         // Get a unique page name.
         let newPageName = this.getUniquePageName("New Page");
         // Add the document to the database.
         var sql = `
             INSERT INTO Docs 
-            (DocName, DocLocation, DocColor, DocText, LastModified) 
+            (DocName, DocLocation, DocColor, DocText, LastModified, DocOrder, PageOrder) 
             VALUES ('${newPageName}', '${path}',
-            -1, '','${getMySQLNow()}')
+            -1, '','${getMySQLNow()}', ${docOrder}, ${pageOrder})
         `;
         return this.execCommandSqlite(sql);
     },
@@ -309,8 +310,9 @@ var app_documents = {
             var connection = mysql.createConnection(_settings);
             connection.connect();
             let sql = `
-                SELECT DISTINCT DocLocation
+                SELECT DISTINCT DocLocation, DocOrder
                 FROM Docs
+                ORDER BY DocOrder ASC
             `;
             connection.query( sql, (err, data) => {
                 hideWaitImage();
@@ -635,7 +637,10 @@ var app_documents = {
 
     loadDocs: function (selectFirst) {
         return new Promise((resolve, reject)=>{
+            document.getElementById("txtDoc").value = "";
+            document.getElementById("txtDocView").value = "";
             emptyDiv("lstDocuments");
+            emptyDiv("lstDocs");
             this.getDocs()
             .then((data)=>{
                 console.log(data);
@@ -655,25 +660,68 @@ var app_documents = {
             });
         });
     },
+
+    getMaxDocOrder: function (){
+        return new Promise(async (resolve, reject)=>{
+            let sql = `
+            SELECT MAX(DocOrder) AS MaxDocOrder FROM Docs
+            `;
+            let data = _settings.dbType == "MySql" ? 
+                await this.execQueryMySQL(sql) : 
+                await this.execQuerySqlite(sql);
+            data.length > 0 ? resolve(data[0].MaxDocOrder) : resolve(-1);
+        });
+    },
+
+    getMaxPageOrder: function (docLocation){
+        return new Promise(async (resolve, reject)=>{
+            let sql = `
+            SELECT MAX(PageOrder) AS MaxPageOrder FROM Docs
+            WHERE DocLocation = '${docLocation}'
+            `;
+            let data = _settings.dbType == "MySql" ? 
+                await this.execQueryMySQL(sql) : 
+                await this.execQuerySqlite(sql);
+            data.length > 0 ? resolve(data[0].MaxPageOrder) : resolve(-1);
+        });
+    },
+
+    getDocOrder: function (docLocation){
+        return new Promise(async (resolve, reject)=>{
+            let sql = `
+            SELECT DocOrder FROM Docs
+            WHERE DocLocation = '${docLocation}'
+            `;
+            let data = _settings.dbType == "MySql" ? 
+                await this.execQueryMySQL(sql) : 
+                await this.execQuerySqlite(sql);
+            data.length > 0 ? resolve(data[0].DocOrder) : resolve(0);
+        });
+    },
     //#endregion DATA RETRIEVAL FUNCTIONS
 
     //#region DATA TRANSMITTAL FUNCTIONS
     addDocLocation: async function (parentDoc, docName) {
         let path = this.dvDocuments.getSelectedFullPath();
+        let docOrder = await this.getMaxDocOrder();
+        docOrder ++;
         if (_settings.dbType == "MySql"){
-            await this.addDocLocationMySQL(parentDoc, docName);
+            await this.addDocLocationMySQL(parentDoc, docName, docOrder);
         }
         else{
-            await this.addDocLocationSqlite(parentDoc, docName);
+            await this.addDocLocationSqlite(parentDoc, docName, docOrder);
         }
         await this.loadDocs();
-        this.dvDocuments.setSelectedPath(path);
+        (path) ? this.dvDocuments.setSelectedPath(path) : this.dvDocuments.selectFirstItem();
     },
 
-    addPage: function (path) {
+    addPage: async function (path) {
+        let pageOrder = await this.getMaxPageOrder(path);
+        pageOrder ++;
+        let docOrder = await this.getDocOrder(path);
         return (_settings.dbType == "MySql") ?
-            this.addPageMySQL(path) :
-            this.addPageSqlite(path);
+            this.addPageMySQL(path, docOrder, pageOrder) :
+            this.addPageSqlite(path, docOrder, pageOrder);
     },
 
     addPage_Clicked: function(){

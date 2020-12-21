@@ -690,6 +690,21 @@ var app_documents = {
             data.length > 0 ? resolve(data[0].DocOrder) : resolve(0);
         });
     },
+
+    getPageOrder: function (docLocation, pageName){
+        return new Promise(async (resolve, reject)=>{
+            let sql = `
+            SELECT PageOrder FROM Docs
+            WHERE DocLocation = '${docLocation}'
+            AND DocName = '${pageName}'
+            `;
+            let data = _settings.dbType == "MySql" ? 
+                await this.execQueryMySQL(sql) : 
+                await this.execQuerySqlite(sql);
+            resolve(data[0].PageOrder);
+        });
+    },
+
     //#endregion DATA RETRIEVAL FUNCTIONS
 
     //#region DATA TRANSMITTAL FUNCTIONS
@@ -809,10 +824,69 @@ var app_documents = {
             this.deleteDocSqlite(fullPath);
     },
 
+    moveDocUp: function (fullPath){
+
+    },
+
+    moveDocDown: function (fullPath){
+
+    },
+
     deletePage: function (fullPath, pageName){
         return (_settings.dbType == "MySql") ?
             this.deletePageMySQL(fullPath, pageName) :
             this.deletePageSqlite(fullPath, pageName);
+    },
+
+    swapPages: function (fullPath, pageOrder1, pageOrder2){
+        return new Promise(async (resolve, reject)=>{
+            let holdPageOrder = -999;
+            let sql = `
+                UPDATE Docs SET PageOrder = ${holdPageOrder}
+                WHERE DocLocation = '${fullPath}' AND PageOrder = ${pageOrder1}
+            `;
+            await this.execCommandSql(sql);
+            sql = `
+                UPDATE Docs SET PageOrder = ${pageOrder1}
+                WHERE DocLocation = '${fullPath}' AND PageOrder = ${pageOrder2}
+            `;
+            await this.execCommandSql(sql);
+            sql = `
+                UPDATE Docs SET PageOrder = ${pageOrder2}
+                WHERE DocLocation = '${fullPath}' AND PageOrder = ${holdPageOrder}
+            `;
+            await this.execCommandSql(sql);
+            resolve();
+        });
+    },
+
+    movePageUp: async function (fullPath, pageName){
+        let pageOrder1 = await this.getPageOrder(fullPath, pageName);
+        if (pageOrder1 <= 0) return;  // Already at the top.
+        let pageOrder2 = pageOrder1 - 1;
+        await this.swapPages(fullPath, pageOrder1, pageOrder2);
+        this.loadPages(fullPath)
+            .then(()=>{
+                this.selectPageByName(pageName);
+            });
+    },
+
+    movePageDown: async function (fullPath, pageName){
+        let pageOrder1 = await this.getPageOrder(fullPath, pageName);
+        let maxPageOrder = await this.getMaxPageOrder(fullPath);
+        if (pageOrder1 == maxPageOrder) return;  // Already at the bottom.
+        let pageOrder2 = pageOrder1 + 1;
+        await this.swapPages(fullPath, pageOrder1, pageOrder2);
+        this.loadPages(fullPath)
+            .then(()=>{
+                this.selectPageByName(pageName);
+            });
+    },
+
+    execCommandSql: function (sql){
+        return (_settings.dbType == "MySql") ?
+            this.execCommandMySQL(sql) :
+            this.execCommandSqlite(sql);
     },
 
     //#endregion DATA TRANSMITTAL FUNCTIONS
@@ -942,6 +1016,17 @@ var app_documents = {
             pageEl.style.marginLeft = `${newMarginL}px`;
         }
     },
+
+    pageMoveUp_Clicked: function (pageName) {
+        let fullPath = this.dvDocuments.getSelectedFullPath();
+        this.movePageUp(fullPath, pageName);
+    },
+
+    pageMoveDown_Clicked: function (pageName) {
+        let fullPath = this.dvDocuments.getSelectedFullPath();
+        this.movePageDown(fullPath, pageName);
+    },
+
 
     selectPage: async function(el){
         if (!el) return;
@@ -1073,6 +1158,14 @@ document.getElementById("btnPageIncIndent").addEventListener("click", (e)=>{
 
 document.getElementById("btnPageDecIndent").addEventListener("click", (e)=>{
     app_documents.pageDecIndent_Clicked(app_documents.contextSelectedPage);
+});
+
+document.getElementById("btnPageMoveUp").addEventListener("click", (e)=>{
+    app_documents.pageMoveUp_Clicked(app_documents.contextSelectedPage);
+});
+
+document.getElementById("btnPageMoveDown").addEventListener("click", (e)=>{
+    app_documents.pageMoveDown_Clicked(app_documents.contextSelectedPage);
 });
 
 // #endregion DOC CONTEXT MENU EVENT HANDLERS

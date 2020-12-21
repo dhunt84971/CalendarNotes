@@ -1739,7 +1739,6 @@ function locateMenu(elMenu, x, y){
 
   elMenu.style.left = posX + "px";
   elMenu.style.top = posY + "px";
-  
 }
 // #endregion DOM HELPER FUNCTIONS
 

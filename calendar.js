@@ -1723,6 +1723,26 @@ function hideWaitImage() {
 };
 // #endregion WAIT IMAGE FUNCTIONS
 
+// #region DOM HELPER FUNCTIONS
+function locateMenu(elMenu, x, y){
+  // This function properly locates the context menu so that it stays in the window. 
+  elMenu.classList.remove("hide");
+  let elW = elMenu.offsetWidth;
+  let docW = document.body.clientWidth;
+  let posX = x;
+  if (elW + x > docW - 5) posX = docW - elW - 5;
+
+  let elH = elMenu.offsetHeight;
+  let docH = document.body.clientHeight;
+  let posY = y;
+  if (elH + y > docH - 5) posY = docH - elH - 5;
+
+  elMenu.style.left = posX + "px";
+  elMenu.style.top = posY + "px";
+  
+}
+// #endregion DOM HELPER FUNCTIONS
+
 // #region DOCUMENT EVENT HANDLERS
 document.getElementById("btnNow").addEventListener("click", function () {
   gotoDate(getNow());
@@ -1948,10 +1968,7 @@ document.getElementById("txtDoc").addEventListener("input", () => {
 document.getElementById("txtNotes").addEventListener("contextmenu", (e) => {
   console.log(e.clientX);
   var menu = document.querySelector(".notesMenu");
-  menu.style.left = e.clientX + "px";
-  menu.style.top = e.clientY + "px";
-  menu.classList.remove("hide");
-  console.log(menu);
+  locateMenu(menu, e.clientX, e.clientY);
 });
 
 // document.getElementById("btnHideMenu").addEventListener("click", (e)=>{

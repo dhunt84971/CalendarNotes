@@ -58,23 +58,15 @@ var app_documents = {
 
     docContextMenu: function (el, fullPath) {
         this.contextSelectedDoc = fullPath;
-        console.log(el.clientX);
         var menu = document.querySelector(".docsMenu");
-        menu.style.left = el.clientX + "px";
-        menu.style.top = el.clientY + "px";
-        menu.classList.remove("hide");
-        console.log(menu);
+        locateMenu(menu, el.clientX, el.clientY);
     },
 
     pageContextMenu: function (e) {
         let el = e.target;
         this.contextSelectedPage = el.innerHTML;
-        console.log(e.clientX);
         var menu = document.querySelector(".pagesMenu");
-        menu.style.left = e.clientX - 200 + "px";
-        menu.style.top = e.clientY + "px";
-        menu.classList.remove("hide");
-        console.log(menu);
+        locateMenu(menu, e.clientX, e.clientY);
     },
 
     showtxtRename: function (el) {

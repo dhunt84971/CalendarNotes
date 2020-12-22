@@ -983,7 +983,13 @@ background: var(--buttonhover);
     text-overflow: ellipsis;
 }
 
+.dragTarget {
+    background-color: var(--buttonhover);
+}
 
+.dropNotAllowed {
+    cursor: not-allowed;
+}
 /* #endregion DOCUMENTS */
 
 /* #region WAIT IMAGE */

@@ -321,6 +321,7 @@ var app_documents = {
         let sql = `
             SELECT DISTINCT DocLocation 
             FROM Docs
+            ORDER BY DocOrder ASC
         `;
         return this.execQuerySqlite(sql);
     },
@@ -691,6 +692,34 @@ var app_documents = {
         });
     },
 
+    getUpDocOrder: function (path, docOrder){
+        return new Promise(async (resolve, reject)=>{
+            let sql = `
+            SELECT MAX(DocOrder) AS UpDocOrder FROM Docs
+            WHERE DocLocation LIKE '${path}%'
+            AND DocOrder < ${docOrder}
+            `;
+            let data = _settings.dbType == "MySql" ? 
+                await this.execQueryMySQL(sql) : 
+                await this.execQuerySqlite(sql);
+            data.length > 0 ? resolve(data[0].UpDocOrder) : resolve();
+        });
+    },
+
+    getDownDocOrder: function (path, docOrder){
+        return new Promise(async (resolve, reject)=>{
+            let sql = `
+            SELECT MIN(DocOrder) AS DownDocOrder FROM Docs
+            WHERE DocLocation LIKE '${path}%'
+            AND DocOrder > ${docOrder}
+            `;
+            let data = _settings.dbType == "MySql" ? 
+                await this.execQueryMySQL(sql) : 
+                await this.execQuerySqlite(sql);
+            data.length > 0 ? resolve(data[0].DownDocOrder) : resolve();
+        });
+    },
+
     getPageOrder: function (docLocation, pageName){
         return new Promise(async (resolve, reject)=>{
             let sql = `
@@ -760,6 +789,7 @@ var app_documents = {
         return new Promise((resolve, reject)=>{
             let path = this.lastFullPath;
             let pageName = this.getSelectedPageName();
+            if (!pageName) resolve();
             let docText = this.txtDoc.value;
             this.updatePage(path, pageName, docText)
             .then(()=>{
@@ -824,14 +854,6 @@ var app_documents = {
             this.deleteDocSqlite(fullPath);
     },
 
-    moveDocUp: function (fullPath){
-
-    },
-
-    moveDocDown: function (fullPath){
-
-    },
-
     deletePage: function (fullPath, pageName){
         return (_settings.dbType == "MySql") ?
             this.deletePageMySQL(fullPath, pageName) :
@@ -881,6 +903,59 @@ var app_documents = {
             .then(()=>{
                 this.selectPageByName(pageName);
             });
+    },
+
+    swapDocs: function (docOrder1, docOrder2){
+        return new Promise(async (resolve, reject)=>{
+            let holdDocOrder = -999;
+            let sql = `
+                UPDATE Docs SET DocOrder = ${holdDocOrder}
+                WHERE DocOrder = ${docOrder1}
+            `;
+            await this.execCommandSql(sql);
+            sql = `
+                UPDATE Docs SET DocOrder = ${docOrder1}
+                WHERE DocOrder = ${docOrder2}
+            `;
+            await this.execCommandSql(sql);
+            sql = `
+                UPDATE Docs SET DocOrder = ${docOrder2}
+                WHERE DocOrder = ${holdDocOrder}
+            `;
+            await this.execCommandSql(sql);
+            resolve();
+        });
+    },
+
+    moveUpDoc: async function (fullPath){
+        // Get the selected location's DocOrder.
+        let docOrder1 = await this.getDocOrder(fullPath);
+        if (docOrder1 == 0) return; // Cannot go up from the highest point.
+        // Get the parent path to the passed fullPath.
+        let locations = fullPath.split("/");
+        let parentPath = locations.length > 1 ? locations.slice(0,locations.length-1).join("/") : "";
+        // Get the DocOrder number of the next highest doc location less than this one.
+        let docOrder2 = await this.getUpDocOrder(parentPath, docOrder1);
+        if (docOrder2){
+            await this.swapDocs(docOrder1, docOrder2);
+            await this.loadDocs();
+            this.dvDocuments.setSelectedPath(fullPath);
+        }
+    },
+
+    moveDownDoc: async function (fullPath){
+        // Get the selected location's DocOrder.
+        let docOrder1 = await this.getDocOrder(fullPath);
+        // Get the parent path to the passed fullPath.
+        let locations = fullPath.split("/");
+        let parentPath = locations.length > 1 ? locations.slice(0,locations.length-1).join("/") : "";
+        // Get the DocOrder number of the next highest doc location less than this one.
+        let docOrder2 = await this.getDownDocOrder(parentPath, docOrder1);
+        if (docOrder2){
+            await this.swapDocs(docOrder1, docOrder2);
+            await this.loadDocs();
+            this.dvDocuments.setSelectedPath(fullPath);
+        }
     },
 
     execCommandSql: function (sql){
@@ -1027,6 +1102,16 @@ var app_documents = {
         this.movePageDown(fullPath, pageName);
     },
 
+    moveUpDoc_Clicked: function (docName) {
+        let fullPath = this.dvDocuments.getSelectedFullPath();
+        this.moveUpDoc(fullPath, docName);
+    },
+
+    moveDownDoc_Clicked: function (docName) {
+        let fullPath = this.dvDocuments.getSelectedFullPath();
+        this.moveDownDoc(fullPath, docName);
+    },
+
 
     selectPage: async function(el){
         if (!el) return;
@@ -1073,7 +1158,8 @@ var app_documents = {
     //#region HELPER FUNCTIONS
     getSelectedPageName: function(){
         let el = this.getSelectedPageElement();
-        return el.innerHTML;
+        if (el) return el.innerHTML;
+        return;
     },
 
     getSelectedPageElement: function(){
@@ -1166,6 +1252,14 @@ document.getElementById("btnPageMoveUp").addEventListener("click", (e)=>{
 
 document.getElementById("btnPageMoveDown").addEventListener("click", (e)=>{
     app_documents.pageMoveDown_Clicked(app_documents.contextSelectedPage);
+});
+
+document.getElementById("btnMoveUpDoc").addEventListener("click", (e)=>{
+    app_documents.moveUpDoc_Clicked(app_documents.contextSelectedDoc);
+});
+
+document.getElementById("btnMoveDownDoc").addEventListener("click", (e)=>{
+    app_documents.moveDownDoc_Clicked(app_documents.contextSelectedDoc);
 });
 
 // #endregion DOC CONTEXT MENU EVENT HANDLERS

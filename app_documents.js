@@ -12,6 +12,8 @@ var app_documents = {
     renameTarget: {},
     lastFullPath: "",
     indentChange: 10,
+    draggedPageEl: {},
+    draggedDocEl: {},
     //#endregion GLOBAL DECLARATIONS
 
     //#region PAGE RENDER FUNCTIONS
@@ -27,6 +29,7 @@ var app_documents = {
                         let firstPage = {};
                         for (var i = 0; i < data.length; i++) {
                             let pageBtnEl = addItemtoDiv("lstDocs", data[i].DocName, "btn pageItem", "data-grp=page");
+                            pageBtnEl.setAttribute("draggable", "true");
                             let marginL = data[i].DocIndentLevel * 5;
                             pageBtnEl.style.marginLeft = `${marginL}px`;
                             pageBtnEl.addEventListener("click", (e)=>{
@@ -958,6 +961,16 @@ var app_documents = {
         }
     },
 
+    swapPagesByName: async function (fullPath, pageNameSrc, pageNameDst){
+        let pageOrder1 = await this.getPageOrder(fullPath, pageNameSrc);
+        let pageOrder2 = await this.getPageOrder(fullPath, pageNameDst);
+        await this.swapPages(fullPath, pageOrder1, pageOrder2);
+        this.loadPages(fullPath)
+            .then(()=>{
+                this.selectPageByName(pageNameSrc);
+            });
+    },
+
     execCommandSql: function (sql){
         return (_settings.dbType == "MySql") ?
             this.execCommandMySQL(sql) :
@@ -1112,6 +1125,11 @@ var app_documents = {
         this.moveDownDoc(fullPath, docName);
     },
 
+    swapPage_Dropped: function (pageNameSrc, pageNameDst) {
+        let fullPath = this.dvDocuments.getSelectedFullPath();
+        this.swapPagesByName (fullPath, pageNameSrc, pageNameDst);
+    },
+
 
     selectPage: async function(el){
         if (!el) return;
@@ -1211,6 +1229,45 @@ document.getElementById("btnExpandAll").addEventListener("click", (e) =>{
 
 document.getElementById("btnCollapseAll").addEventListener("click", (e) =>{
     app_documents.dvDocuments.collapseAll();
+});
+
+document.addEventListener("dragstart", (e)=>{
+    app_documents.draggedPageEl = e.target;
+    e.target.style.opacity = .5;
+});
+
+document.addEventListener("dragend", (e)=> {
+    // reset the transparency
+    e.target.style.opacity = "";
+});
+
+document.addEventListener("dragenter", (e)=> {
+    // highlight potential drop target when the draggable element enters it
+    if ( e.target.classList.contains("pageItem" )) {
+        e.target.classList.add("dragTarget");
+    }
+});
+
+document.addEventListener("dragleave", (e)=> {
+    // reset background of potential drop target when the draggable element leaves it
+    if ( e.target.classList.contains("pageItem" )) {
+        e.target.classList.remove("dragTarget");
+    }
+});
+
+
+document.addEventListener("dragover", (e)=> {
+    // prevent default to allow drop
+    e.preventDefault();
+});
+
+document.addEventListener("drop", (e)=> {
+    // move dragged elem to the selected drop target
+    if (e.target.classList.contains("pageItem")) {
+        app_documents.swapPage_Dropped(app_documents.draggedPageEl.innerText, e.target.innerText);
+    }
+    // prevent default action (open as link for some elements)
+    e.preventDefault();    
 });
 
 // #region DOC CONTEXT MENU EVENT HANDLERS

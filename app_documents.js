@@ -1231,6 +1231,8 @@ document.getElementById("btnCollapseAll").addEventListener("click", (e) =>{
     app_documents.dvDocuments.collapseAll();
 });
 
+//#region DRAG AND DROP EVENT HANDLERS
+
 document.addEventListener("dragstart", (e)=>{
     app_documents.draggedPageEl = e.target;
     e.target.style.opacity = .5;
@@ -1255,7 +1257,6 @@ document.addEventListener("dragleave", (e)=> {
     }
 });
 
-
 document.addEventListener("dragover", (e)=> {
     // prevent default to allow drop
     e.preventDefault();
@@ -1269,6 +1270,8 @@ document.addEventListener("drop", (e)=> {
     // prevent default action (open as link for some elements)
     e.preventDefault();    
 });
+
+//#endregion DRAG AND DROP EVENT HANDLERS
 
 // #region DOC CONTEXT MENU EVENT HANDLERS
 document.getElementById("btnAddSubDoc").addEventListener("click", ()=>{

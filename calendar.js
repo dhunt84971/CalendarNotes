@@ -1899,6 +1899,9 @@ document
     } else {
       document.getElementById("btnDocs").classList.add("hide");
     };
+    if (document.getElementById("btnViewMD").classList.contains("btnSelected")){
+      mdViewSelected();
+    }
     
     $("#settingsSlider").animate({
       right: "-200px"

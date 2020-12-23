@@ -984,7 +984,7 @@ background: var(--buttonhover);
 }
 
 .dragTarget {
-    background-color: var(--buttonhover);
+    background-color: var(--buttonhover) !important;
 }
 
 .dropNotAllowed {

@@ -185,7 +185,6 @@ function div_treeview(divTVElement, divTVDelimeter) {
     function getFullPath(divItem){
         var fullPath = [];
         var noParent = false;
-        var divParent;
         while(!noParent){
             console.log("Found innertext = '" + divItem.innerText.trim() + "'");
             fullPath.unshift(divItem.innerText.trim()); //Inner text will have the marker on it.
@@ -311,6 +310,7 @@ function div_treeview(divTVElement, divTVDelimeter) {
     this.addTVItem = addTVItem;
     this.getSelectedElement = getSelectedElement;
     this.getSelectedFullPath = getSelectedFullPath;
+    this.getFullPath = getFullPath;
     this.setSelectedPath = setSelectedPath;
     this.onSelect = onSelect;
     this.onDblClick = onDblClick;

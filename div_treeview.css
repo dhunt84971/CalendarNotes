@@ -47,6 +47,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    pointer-events: none;
 }
 
 .div_treeview_selected {

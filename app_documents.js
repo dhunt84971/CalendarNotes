@@ -619,6 +619,25 @@ var app_documents = {
             this.docNameExistsSqlite(docFullName);
     },
 
+    getUniquePageDocName: function (path, pageName) {
+        return new Promise(async (resolve, reject) => {
+            var fileNameIndex = 0;
+            var pageReturnName = pageName;
+            console.log("looking for name " + pageName);
+            var nameFound = await this.docPageExists(path, pageName);
+            console.log("looping");
+            while (nameFound) {
+                console.log("incrementing name");
+                fileNameIndex += 1;
+                pageReturnName = pageName + "(" + fileNameIndex + ")";
+                console.log("searching for " + pageReturnName);
+                nameFound = await this.docPageExists(path, pageReturnName);
+            }
+            resolve(pageReturnName);
+            return pageReturnName;
+        });
+    },
+
     docPageExists: function (fullPath, pageName){
         return (_settings.dbType == "MySql") ?
             this.docPageExistsMySQL(fullPath, pageName) :
@@ -827,14 +846,13 @@ var app_documents = {
 
     getUniquePageName: function (pageName) {
         let pages = document.querySelectorAll("div[data-grp='page']");
-        console.log(pages);
+        let pagesArr = Array.from(pages);
+        console.log(pagesArr);
         let newPageName = pageName;
         let idx = 0;
-        for (let el of pages){
-            if (el.innerHTML == newPageName){
-                idx += 1;
-                newPageName = `${pageName} (${idx})`;
-            }
+        while (pagesArr.find(x=>x.innerText==newPageName)){
+            idx += 1;
+            newPageName = `${pageName} (${idx})`;
         }
         return newPageName;
     },
@@ -968,6 +986,24 @@ var app_documents = {
         this.loadPages(fullPath)
             .then(()=>{
                 this.selectPageByName(pageNameSrc);
+            });
+    },
+
+    movePageByName: async function(fullPath, pageNameSrc, docLocationDst){
+        let movePageOrder = await this.getMaxPageOrder(docLocationDst);
+        let newPageName = await this.getUniquePageDocName(docLocationDst, pageNameSrc);
+        movePageOrder ++;
+        let sql = `
+            UPDATE Docs SET PageOrder = ${movePageOrder}, DocLocation = '${docLocationDst}',
+            DocName = '${newPageName}'
+            WHERE DocLocation = '${fullPath}' AND DocName = '${pageNameSrc}'
+        `;
+        await this.execCommandSql(sql);
+        await this.loadDocs();
+        this.dvDocuments.setSelectedPath(docLocationDst);
+        this.loadPages(docLocationDst)
+            .then(()=>{
+                this.selectPageByName(newPageName);
             });
     },
 
@@ -1127,7 +1163,12 @@ var app_documents = {
 
     swapPage_Dropped: function (pageNameSrc, pageNameDst) {
         let fullPath = this.dvDocuments.getSelectedFullPath();
-        this.swapPagesByName (fullPath, pageNameSrc, pageNameDst);
+        this.swapPagesByName(fullPath, pageNameSrc, pageNameDst);
+    },
+
+    movePageDropped: function (pageNameSrc, docLocationDst) {
+        let fullPath = this.dvDocuments.getSelectedFullPath();
+        this.movePageByName(fullPath, pageNameSrc, docLocationDst);
     },
 
 
@@ -1245,15 +1286,17 @@ document.addEventListener("dragend", (e)=> {
 
 document.addEventListener("dragenter", (e)=> {
     // highlight potential drop target when the draggable element enters it
-    if ( e.target.classList.contains("pageItem" )) {
-        e.target.classList.add("dragTarget");
+    if (app_documents.draggedPageEl){
+        if (e.target.classList.contains("pageItem")) e.target.classList.add("dragTarget");
+        if (e.target.classList.contains("div_treeview_item")) e.target.classList.add("dragTarget");
     }
 });
 
 document.addEventListener("dragleave", (e)=> {
     // reset background of potential drop target when the draggable element leaves it
-    if ( e.target.classList.contains("pageItem" )) {
-        e.target.classList.remove("dragTarget");
+    if (app_documents.draggedPageEl){
+        if (e.target.classList.contains("pageItem")) e.target.classList.remove("dragTarget");
+        if (e.target.classList.contains("div_treeview_item")) e.target.classList.remove("dragTarget");
     }
 });
 
@@ -1267,6 +1310,12 @@ document.addEventListener("drop", (e)=> {
     if (e.target.classList.contains("pageItem")) {
         app_documents.swapPage_Dropped(app_documents.draggedPageEl.innerText, e.target.innerText);
     }
+    else if (e.target.className.includes("div_treeview")){
+        console.log(app_documents.dvDocuments.getFullPath(e.target));
+        app_documents.movePageDropped(app_documents.draggedPageEl.innerText, app_documents.dvDocuments.getFullPath(e.target))
+    }
+    app_documents.draggedDocEl = {};
+    app_documents.draggedPageEl = {};
     // prevent default action (open as link for some elements)
     e.preventDefault();    
 });

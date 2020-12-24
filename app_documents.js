@@ -1035,7 +1035,7 @@ var app_documents = {
             await this.swapDocsByLocation(docLocationSrc, docLocationDst);
         }
         else { // The doc is being dropped into a different location.
-            let docNewLocation = `${docLocationDst}/${srcLastPath}`;
+            let docNewLocation = docLocationDst != "" ? `${docLocationDst}/${srcLastPath}`: srcLastPath;
             docNewLocation = await this.getUniqueDocName(docNewLocation);
             await this.updateDocLocation(docLocationSrc, docNewLocation);
             await this.loadDocs();
@@ -1318,7 +1318,7 @@ document.addEventListener("dragstart", (e)=>{
     if (e.target.classList.contains("pageItem")){
         app_documents.draggedPageEl = e.target;
     }
-    else{
+    else if (e.target.classList.contains("div_treeview_item")) {
         app_documents.draggedDocEl = e.target;
     }
     e.target.style.opacity = .5;
@@ -1337,15 +1337,13 @@ document.addEventListener("dragenter", (e)=> {
     }
     else if (app_documents.draggedDocEl){
         if (e.target.classList.contains("div_treeview_item")) e.target.classList.add("dragTarget");
+        if (e.target.id == "btnAddDoc") e.target.classList.add("dragTarget");
     }
 });
 
 document.addEventListener("dragleave", (e)=> {
     // reset background of potential drop target when the draggable element leaves it
-    if (app_documents.draggedPageEl){
-        if (e.target.classList.contains("pageItem")) e.target.classList.remove("dragTarget");
-        if (e.target.classList.contains("div_treeview_item")) e.target.classList.remove("dragTarget");
-    }
+    e.target.classList.remove("dragTarget");
 });
 
 document.addEventListener("dragover", (e)=> {
@@ -1359,16 +1357,23 @@ document.addEventListener("drop", (e)=> {
         if (e.target.classList.contains("pageItem")) {
             app_documents.swapPage_Dropped(app_documents.draggedPageEl.innerText, e.target.innerText);
         }
-        else if (e.target.className.includes("div_treeview")){
+        else if (e.target.classList.contains("div_treeview_item")){
             console.log(app_documents.dvDocuments.getFullPath(e.target));
             app_documents.movePage_Dropped(app_documents.draggedPageEl.innerText, 
                 app_documents.dvDocuments.getFullPath(e.target));
         }
     }
     else if (app_documents.draggedDocEl){ 
-        app_documents.moveDoc_Dropped(app_documents.dvDocuments.getFullPath(app_documents.draggedDocEl), 
-            app_documents.dvDocuments.getFullPath(e.target));
+        if (e.target.classList.contains("div_treeview_item")){
+            app_documents.moveDoc_Dropped(app_documents.dvDocuments.getFullPath(app_documents.draggedDocEl), 
+                app_documents.dvDocuments.getFullPath(e.target));
+        }
+        else if (e.target.id == "btnAddDoc"){
+            app_documents.moveDoc_Dropped(app_documents.dvDocuments.getFullPath(app_documents.draggedDocEl), 
+                "");
+        }
     }
+    e.target.classList.remove("dragTarget");
     // Reinitialize the dragged item references.
     app_documents.draggedDocEl = undefined;
     app_documents.draggedPageEl = undefined;

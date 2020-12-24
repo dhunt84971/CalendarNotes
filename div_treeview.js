@@ -7,6 +7,7 @@ function div_treeview(divTVElement, divTVDelimeter) {
 
     function addTVText(parent, text) {
         var newItem = document.createElement("div");
+        newItem.setAttribute("draggable", "true");
         //newItem.innerText = text;
         newItem.classList.add("div_treeview_item");
         newItem.classList.add("div_treeview_hbox");

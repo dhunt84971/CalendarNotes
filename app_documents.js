@@ -12,8 +12,8 @@ var app_documents = {
     renameTarget: {},
     lastFullPath: "",
     indentChange: 10,
-    draggedPageEl: {},
-    draggedDocEl: {},
+    draggedPageEl: undefined,
+    draggedDocEl: undefined,
     //#endregion GLOBAL DECLARATIONS
 
     //#region PAGE RENDER FUNCTIONS
@@ -1007,6 +1007,42 @@ var app_documents = {
             });
     },
 
+    swapDocsByLocation: async function (docLocationSrc, docLocationDst){
+        let docOrder1 = await this.getDocOrder(docLocationSrc);
+        let docOrder2 = await this.getDocOrder(docLocationDst);
+        await this.swapDocs(docOrder1, docOrder2);
+        await this.loadDocs();
+        this.dvDocuments.setSelectedPath(docLocationDst);
+    },
+
+    updateDocLocation: function (docLocation, docNewLocation){
+        let sql = `
+            UPDATE Docs SET DocLocation = REPLACE(DocLocation, '${docLocation}', '${docNewLocation}')
+            WHERE DocLocation LIKE '${docLocation}/%'
+            OR DocLocation = '${docLocation}'
+        `;
+        return this.execCommandSql(sql);
+    },
+
+    moveDocByLocation: async function (docLocationSrc, docLocationDst){
+        // Get the last portion of the source location.
+        let srcLocations = docLocationSrc.split("/");
+        let srcLastPath = srcLocations[srcLocations.length-1];
+        let srcParentPath = srcLocations.length > 1 ? srcLocations.slice(0,srcLocations.length-1).join("/") : "";
+        let dstLocations = docLocationDst.split("/");
+        let dstParentPath = dstLocations.length > 1 ? dstLocations.slice(0,dstLocations.length-1).join("/") : "";
+        if (srcParentPath == dstParentPath) {  // The doc is being dropped onto a doc in the same location.
+            await this.swapDocsByLocation(docLocationSrc, docLocationDst);
+        }
+        else { // The doc is being dropped into a different location.
+            let docNewLocation = `${docLocationDst}/${srcLastPath}`;
+            docNewLocation = await this.getUniqueDocName(docNewLocation);
+            await this.updateDocLocation(docLocationSrc, docNewLocation);
+            await this.loadDocs();
+            this.dvDocuments.setSelectedPath(docNewLocation);
+        }
+    },
+
     execCommandSql: function (sql){
         return (_settings.dbType == "MySql") ?
             this.execCommandMySQL(sql) :
@@ -1166,9 +1202,13 @@ var app_documents = {
         this.swapPagesByName(fullPath, pageNameSrc, pageNameDst);
     },
 
-    movePageDropped: function (pageNameSrc, docLocationDst) {
+    movePage_Dropped: function (pageNameSrc, docLocationDst) {
         let fullPath = this.dvDocuments.getSelectedFullPath();
         this.movePageByName(fullPath, pageNameSrc, docLocationDst);
+    },
+
+    moveDoc_Dropped: function (docLocationSrc, docLocationDst) {
+        this.moveDocByLocation(docLocationSrc, docLocationDst);
     },
 
 
@@ -1275,7 +1315,12 @@ document.getElementById("btnCollapseAll").addEventListener("click", (e) =>{
 //#region DRAG AND DROP EVENT HANDLERS
 
 document.addEventListener("dragstart", (e)=>{
-    app_documents.draggedPageEl = e.target;
+    if (e.target.classList.contains("pageItem")){
+        app_documents.draggedPageEl = e.target;
+    }
+    else{
+        app_documents.draggedDocEl = e.target;
+    }
     e.target.style.opacity = .5;
 });
 
@@ -1288,6 +1333,9 @@ document.addEventListener("dragenter", (e)=> {
     // highlight potential drop target when the draggable element enters it
     if (app_documents.draggedPageEl){
         if (e.target.classList.contains("pageItem")) e.target.classList.add("dragTarget");
+        if (e.target.classList.contains("div_treeview_item")) e.target.classList.add("dragTarget");
+    }
+    else if (app_documents.draggedDocEl){
         if (e.target.classList.contains("div_treeview_item")) e.target.classList.add("dragTarget");
     }
 });
@@ -1307,16 +1355,24 @@ document.addEventListener("dragover", (e)=> {
 
 document.addEventListener("drop", (e)=> {
     // move dragged elem to the selected drop target
-    if (e.target.classList.contains("pageItem")) {
-        app_documents.swapPage_Dropped(app_documents.draggedPageEl.innerText, e.target.innerText);
+    if (app_documents.draggedPageEl){
+        if (e.target.classList.contains("pageItem")) {
+            app_documents.swapPage_Dropped(app_documents.draggedPageEl.innerText, e.target.innerText);
+        }
+        else if (e.target.className.includes("div_treeview")){
+            console.log(app_documents.dvDocuments.getFullPath(e.target));
+            app_documents.movePage_Dropped(app_documents.draggedPageEl.innerText, 
+                app_documents.dvDocuments.getFullPath(e.target));
+        }
     }
-    else if (e.target.className.includes("div_treeview")){
-        console.log(app_documents.dvDocuments.getFullPath(e.target));
-        app_documents.movePageDropped(app_documents.draggedPageEl.innerText, app_documents.dvDocuments.getFullPath(e.target))
+    else if (app_documents.draggedDocEl){ 
+        app_documents.moveDoc_Dropped(app_documents.dvDocuments.getFullPath(app_documents.draggedDocEl), 
+            app_documents.dvDocuments.getFullPath(e.target));
     }
-    app_documents.draggedDocEl = {};
-    app_documents.draggedPageEl = {};
-    // prevent default action (open as link for some elements)
+    // Reinitialize the dragged item references.
+    app_documents.draggedDocEl = undefined;
+    app_documents.draggedPageEl = undefined;
+    // prevent default action.
     e.preventDefault();    
 });
 

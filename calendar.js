@@ -148,6 +148,9 @@ var CALENDAR = function () {
         document.getElementById("txtUsername").value = _settings.user;
         document.getElementById("txtPassword").value = _settings.password;
         document.getElementById("chkDocuments").checked = _settings.documents == true;
+        document.getElementById("chkSpelling").checked = _settings.spellChecking == true;
+        // Set spell checking.
+        setSpellChecking(_settings.spellChecking);
         if (_settings.documents) {
           document.getElementById("btnDocs").classList.remove("hide");
           app_documents.loadDocs(true);
@@ -1415,7 +1418,8 @@ function getSettingsfromDialog() {
     themeIndex: el.options[el.selectedIndex].value,
     documents: document.getElementById("chkDocuments").checked,
     dbType: (document.getElementById("optSqlite").checked) ? "Sqlite" : "MySql",
-    dbFile: settingsdbFile
+    dbFile: settingsdbFile,
+    spellChecking: document.getElementById("chkSpelling").checked
   };
   return settings;
 }
@@ -1582,7 +1586,13 @@ function getdbFilename(path) {
   });
 }
 
-
+function setSpellChecking(checkSpelling){
+  let chkSpell = checkSpelling ? "true" : "false";
+  let textAreas = document.querySelectorAll("textarea");
+  for (let textArea of textAreas){
+    textArea.setAttribute("spellCheck", chkSpell);
+  }
+}
 // #endregion SETTINGS CODE
 
 // #region RESIZE SIDE BARS
@@ -1891,6 +1901,8 @@ document
     if (!fs.existsSync(settingsdbFile)){
       await createSqliteDB();
     }
+    setSpellChecking(_settings.spellChecking);
+    dbFile = settingsdbFile;
     getNotes(getSelectedDate());
     getTasks();
     if (_settings.documents) {

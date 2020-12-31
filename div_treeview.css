@@ -67,8 +67,8 @@
 .div_treeview_marker {
     margin-top: 2px;
     margin-right: 5px;
-    width: 10px;
-    min-width: 10px;
+    width: 0px;
+    min-width: 0px;
     height: 10px;
     background-color: var(--buttonface);
 }

@@ -11,7 +11,7 @@
   "homepage": "https://github.com/dhunt84971/CalendarNotes",
   "repository": "https://github.com/dhunt84971/CalendarNotes",
   "license": "MIT",
-    "scripts": {
+  "scripts": {
     "start": "electron .",
     "postinstall": "electron-builder install-app-deps",
     "package": "electron-packager . --production",
@@ -26,7 +26,6 @@
     "electron-builder": "20.44.4"
   },
   "dependencies": {
-    "better-sqlite3": "^7.1.1",
     "fs": "0.0.1-security",
     "lib-app-settings": "^1.1.1",
     "marked": "^1.2.2",

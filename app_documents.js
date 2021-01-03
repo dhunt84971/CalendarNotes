@@ -980,6 +980,9 @@ var app_documents = {
     },
 
     swapPagesByName: async function (fullPath, pageNameSrc, pageNameDst){
+        if (getDocChanged()){
+            await this.savePage();
+        }
         let pageOrder1 = await this.getPageOrder(fullPath, pageNameSrc);
         let pageOrder2 = await this.getPageOrder(fullPath, pageNameDst);
         await this.swapPages(fullPath, pageOrder1, pageOrder2);
@@ -990,6 +993,9 @@ var app_documents = {
     },
 
     movePageByName: async function(fullPath, pageNameSrc, docLocationDst){
+        if (getDocChanged()){
+            await this.savePage();
+        }
         let movePageOrder = await this.getMaxPageOrder(docLocationDst);
         let newPageName = await this.getUniquePageDocName(docLocationDst, pageNameSrc);
         movePageOrder ++;
@@ -1008,6 +1014,9 @@ var app_documents = {
     },
 
     swapDocsByLocation: async function (docLocationSrc, docLocationDst){
+        if (getDocChanged()){
+            await this.savePage();
+        }
         let docOrder1 = await this.getDocOrder(docLocationSrc);
         let docOrder2 = await this.getDocOrder(docLocationDst);
         await this.swapDocs(docOrder1, docOrder2);
@@ -1026,6 +1035,9 @@ var app_documents = {
 
     moveDocByLocation: async function (docLocationSrc, docLocationDst){
         // Get the last portion of the source location.
+        if (getDocChanged()){
+            await this.savePage();
+        }
         let srcLocations = docLocationSrc.split("/");
         let srcLastPath = srcLocations[srcLocations.length-1];
         let srcParentPath = srcLocations.length > 1 ? srcLocations.slice(0,srcLocations.length-1).join("/") : "";
@@ -1224,8 +1236,8 @@ var app_documents = {
         .then((data)=>{
             if (data){
                 this.showPageData(data[0].DocText);
-                this.lastFullPath = fullPath;
             }
+            this.lastFullPath = fullPath;
         })
         .catch((err)=>{
             console.log(err);

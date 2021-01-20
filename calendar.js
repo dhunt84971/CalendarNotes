@@ -1109,10 +1109,10 @@ function sqlTasksExistsSqlite(callback) {
 // #region SQL HELPER FUNCTIONS
 function formatDateSqlite(date) {
   console.log(date.toString());
-  let parts = date.split("-");
-  let year = parts[0];
-  let month = parts[1].padStart(2, "0");
-  let day = parts[2].padStart(2, "0");
+  let parts = date.includes("/") ? date.split("/") : date.split("-");
+  let year = parts[0].length > 2 ? parts[0] : parts[2];
+  let month = parts[0].length > 2 ? parts[1].padStart(2, "0") : parts[0].padStart(2, "0");
+  let day = parts[0].length > 2 ? parts[2].padStart(2, "0") : parts[1].padStart(2, "0");
   return [year, month, day].join('-');
 }
 

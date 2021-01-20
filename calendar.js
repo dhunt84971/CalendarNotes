@@ -458,9 +458,13 @@ function getNotesMySQL(dateForDay, callback) {
 
 function getNotesSqlite(dateForDay, callback) {
   console.log(dbFile);
+  console.log(dateForDay);
+  console.log(formatDateSqlite(dateForDay));
+  let sql = "SELECT * FROM Notes WHERE NoteDate = '" + formatDateSqlite(dateForDay) + "'";
+  console.log(sql);
   let db = new sqlite3.Database(dbFile, (err) => {
     if (!err) {
-      db.all("SELECT * FROM Notes WHERE NoteDate = '" + formatDateSqlite(dateForDay) + "'", [], (err, rows) => {
+      db.all(sql, [], (err, rows) => {
         if (!err) {
           if (rows.length > 0) {
             if (callback) {
@@ -1104,16 +1108,11 @@ function sqlTasksExistsSqlite(callback) {
 
 // #region SQL HELPER FUNCTIONS
 function formatDateSqlite(date) {
-  var d = new Date(date),
-    month = '' + (d.getMonth() + 1),
-    day = '' + d.getDate(),
-    year = d.getFullYear();
-
-  if (month.length < 2)
-    month = '0' + month;
-  if (day.length < 2)
-    day = '0' + day;
-
+  console.log(date.toString());
+  let parts = date.split("-");
+  let year = parts[0];
+  let month = parts[1].padStart(2, "0");
+  let day = parts[2].padStart(2, "0");
   return [year, month, day].join('-');
 }
 

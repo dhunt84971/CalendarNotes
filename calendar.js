@@ -1749,6 +1749,7 @@ function locateMenu(elMenu, x, y){
   elMenu.style.left = posX + "px";
   elMenu.style.top = posY + "px";
 }
+
 // #endregion DOM HELPER FUNCTIONS
 
 // #region DOCUMENT EVENT HANDLERS
@@ -2040,7 +2041,32 @@ document.querySelector("#txtNotes").addEventListener('keydown', function (e) {
     // The notes have been changed.  Indicate this with the Save button stars.
     document.getElementById("btnSave").innerHTML = "*SAVE*";
 
-    // prevent the focus lose
+    // prevent the focus loss
+    e.preventDefault();
+  }
+}, false);
+
+document.querySelector("#txtDoc").addEventListener('keydown', function (e) {
+  if (e.keyCode === 9) { // tab was pressed
+    // get caret position/selection
+    var start = this.selectionStart;
+    var end = this.selectionEnd;
+
+    var target = e.target;
+    var value = target.value;
+
+    // set textarea value to: text before caret + tab + text after caret
+    target.value = value.substring(0, start) +
+      "\t" +
+      value.substring(end);
+
+    // put caret at right position again (add one for the tab)
+    this.selectionStart = this.selectionEnd = start + 1;
+
+    // The notes have been changed.  Indicate this with the Save button stars.
+    document.getElementById("btnSave").innerHTML = "*SAVE*";
+
+    // prevent the focus loss
     e.preventDefault();
   }
 }, false);

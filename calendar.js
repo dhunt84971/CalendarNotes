@@ -578,46 +578,48 @@ function getTasksSqlite(callback) {
 
 function createSqliteDB(callback) {
   return new Promise((resolve, reject) => {
-    let db = new sqlite3.Database(dbFile, async (err) => {
+    let db = new sqlite3.Database(dbFile, (err) => {
       if (err) {
         console.error(err.message);
         reject();
       } else {
-        // Create the tables.
-        var sql = `CREATE TABLE Notes (
-          ID INTEGER PRIMARY KEY,
-          NoteDate TEXT,
-          NoteText TEXT,
-          LastModified TEXT
-        )`;
-        await new Promise((resolve)=>{
-          db.run(sql,()=>{ resolve(); });
-        });
-        sql = `CREATE TABLE TasksList (
-          ID INTEGER PRIMARY KEY,
-          TasksList TEXT
-        )`;
-        await new Promise((resolve)=>{
-          db.run(sql,()=>{ resolve(); });
-        });
-        sql = `CREATE TABLE Docs (
-          ID INTEGER PRIMARY KEY,
-          DocName TEXT,
-          DocLocation TEXT,
-          DocColor INTEGER DEFAULT 16777215,
-          DocText TEXT,
-          LastModified TEXT,
-          DocIndentLevel INTEGER DEFAULT 0,
-          DocOrder INTEGER DEFAULT 0,
-          PageOrder INTEGER DEFAULT 0
-        )`;
-        await new Promise((resolve)=>{
-          db.run(sql,()=>{ resolve(); });
-        });
-        db.close(()=>{
-          resolve();
-          if (callback) callback();  
-        });
+        (async (err) => {
+          // Create the tables.
+          var sql = `CREATE TABLE Notes (
+            ID INTEGER PRIMARY KEY,
+            NoteDate TEXT,
+            NoteText TEXT,
+            LastModified TEXT
+          )`;
+          await new Promise((resolve)=>{
+            db.run(sql,()=>{ resolve(); });
+          });
+          sql = `CREATE TABLE TasksList (
+            ID INTEGER PRIMARY KEY,
+            TasksList TEXT
+          )`;
+          await new Promise((resolve)=>{
+            db.run(sql,()=>{ resolve(); });
+          });
+          sql = `CREATE TABLE Docs (
+            ID INTEGER PRIMARY KEY,
+            DocName TEXT,
+            DocLocation TEXT,
+            DocColor INTEGER DEFAULT 16777215,
+            DocText TEXT,
+            LastModified TEXT,
+            DocIndentLevel INTEGER DEFAULT 0,
+            DocOrder INTEGER DEFAULT 0,
+            PageOrder INTEGER DEFAULT 0
+          )`;
+          await new Promise((resolve)=>{
+            db.run(sql,()=>{ resolve(); });
+          });
+          db.close(()=>{
+            resolve();
+            if (callback) callback();  
+          });
+        })();
       }
     });
   });
@@ -1898,11 +1900,12 @@ document
     _settings.documents ? document.getElementById("btnDocs").classList.remove("hide") :
       document.getElementById("btnDocs").classList.add("hide");
     await appSettings.setSettingsInFile(_settings);
+    dbFile = settingsdbFile;
     if (!fs.existsSync(settingsdbFile)){
+      console.log("Creating database.");
       await createSqliteDB();
     }
     setSpellChecking(_settings.spellChecking);
-    dbFile = settingsdbFile;
     getNotes(getSelectedDate());
     getTasks();
     if (_settings.documents) {

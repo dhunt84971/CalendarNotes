@@ -116,3 +116,57 @@ A markdown renderer has been included to allow the user to enter notes using mar
 In order to keep the application as functional as possible the left side of the application can be hidden so that only the notes editor area is displayed.  To do this click on the left pointing arrow next to the word **NOTES** at the top of the notes editor area.  To restore the left side, click on the right pointing arrow.
 
 <img src="./screenshots/fullwindow_notes.png">
+
+
+
+## Documents
+Currently an experimental feature, enabling documents provides additional functionality allowing the user to create documents and multiple pages for each document.  Use the gear to expose the settings and check the box next to Documents to enable the feature.
+
+<img src="./screenshots/settings_documents.png">
+
+### Add a Document
+To add a document, click on the **DOCS** button to reveal the documents and then click the **+ ADD DOC** button.
+
+<img src="./screenshots/add_documents.png">
+
+A page will be automatically added for the newly created document.  The new document and new page will have a default name.  Right click on the Document or Page button to display the context menu for the selected item.
+
+<img src="./screenshots/modify_document.png">
+
+Use the document and page context menus to modify the selected item.
+
+#### Document Context Menu
+**ADD DOC** - Add a document under the selected document.
+**RENAME** - Rename the selected document.  Documents at the same level cannot have the same name.
+**REMOVE** - Delete the selected document.  Deleting a document deletes all sub-documents and pages.
+**MOVE UP** - Move the selected document up in the list.  This does not change the level, only the order.
+**MOVE DOWN** - Move the selected document down in the list.  This does not change the level, only the order.
+
+#### Page Context Menu
+**RENAME** - Rename the selected page.  Pages within the same document cannot have the same name.
+**REMOVE** - Delete the selected page.
+**INCREASE INDENT** - Indent the page button to the right.  This is just a visual means of establishing a relationship between pages in the same document.
+**DECREASE INDENT** - Remove indent from the page button.  This moves the button to the left by one indent level per click.
+**MOVE UP** - Move the selected page up in the list.
+**MOVE DOWN** - Move the selected page down in the list.
+
+### Drag and Drop
+Documents and pages can be moved by dragging and dropping.  Dragging a document will move all sub-documents under that document.  Pages can be dragged from one document to another. 
+
+## Development Setup
+VS Code is the recommended IDE.  Install VS Code from using the instructions from the VS Code website.  Install nodejs and npm:
+
+For Debian based Linux systems just run:
+```
+sudo apt-get update
+sudo apt-get install nodejs npm
+```
+
+### Development SQLite Dependencies
+To setup a session for development it may be necessary to install python and make sure it is in the path.  This is because if a SQLite binary cannot be found for the installed version of Electron it will need to be built from source and the source includes python code.
+
+For Debian based Linux systems just run:
+```
+sudo apt-get update
+sudo apt-get install python
+```

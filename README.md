@@ -154,9 +154,9 @@ Use the document and page context menus to modify the selected item.
 Documents and pages can be moved by dragging and dropping.  Dragging a document will move all sub-documents under that document.  Pages can be dragged from one document to another. 
 
 ## Development Setup
-VS Code is the recommended IDE.  Install VS Code from using the instructions from the VS Code website.  Install nodejs and npm:
+VS Code is the recommended IDE.  Install VS Code using the instructions from the VS Code website.  Install nodejs and npm:
 
-For Debian based Linux systems just run:
+For Debian based Linux systems run:
 ```
 sudo apt-get update
 sudo apt-get install nodejs npm
@@ -165,7 +165,7 @@ sudo apt-get install nodejs npm
 ### Development SQLite Dependencies
 To setup a session for development it may be necessary to install python and make sure it is in the path.  This is because if a SQLite binary cannot be found for the installed version of Electron it will need to be built from source and the source includes python code.
 
-For Debian based Linux systems just run:
+For Debian based Linux systems run:
 ```
 sudo apt-get update
 sudo apt-get install python

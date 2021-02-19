@@ -136,19 +136,28 @@ A page will be automatically added for the newly created document.  The new docu
 Use the document and page context menus to modify the selected item.
 
 #### Document Context Menu
-**ADD DOC** - Add a document under the selected document.
-**RENAME** - Rename the selected document.  Documents at the same level cannot have the same name.
-**REMOVE** - Delete the selected document.  Deleting a document deletes all sub-documents and pages.
-**MOVE UP** - Move the selected document up in the list.  This does not change the level, only the order.
-**MOVE DOWN** - Move the selected document down in the list.  This does not change the level, only the order.
+  + **ADD DOC** - Add a document under the selected document.
+
+  + **RENAME** - Rename the selected document.  Documents at the same level cannot have the same name.
+
+  + **REMOVE** - Delete the selected document.  Deleting a document deletes all sub-documents and pages.
+
+  + **MOVE UP** - Move the selected document up in the list.  This does not change the level, only the order.
+
+  + **MOVE DOWN** - Move the selected document down in the list.  This does not change the level, only the order.
 
 #### Page Context Menu
-**RENAME** - Rename the selected page.  Pages within the same document cannot have the same name.
-**REMOVE** - Delete the selected page.
-**INCREASE INDENT** - Indent the page button to the right.  This is just a visual means of establishing a relationship between pages in the same document.
-**DECREASE INDENT** - Remove indent from the page button.  This moves the button to the left by one indent level per click.
-**MOVE UP** - Move the selected page up in the list.
-**MOVE DOWN** - Move the selected page down in the list.
+  + **RENAME** - Rename the selected page.  Pages within the same document cannot have the same name.
+
+  + **REMOVE** - Delete the selected page.
+
+  + **INCREASE INDENT** - Indent the page button to the right.  This is just a visual means of establishing a relationship between pages in the same document.
+
+  + **DECREASE INDENT** - Remove indent from the page button.  This moves the button to the left by one indent level per click.
+
+  + **MOVE UP** - Move the selected page up in the list.
+
+  + **MOVE DOWN** - Move the selected page down in the list.
 
 ### Drag and Drop
 Documents and pages can be moved by dragging and dropping.  Dragging a document will move all sub-documents under that document.  Pages can be dragged from one document to another. 

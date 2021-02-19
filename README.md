@@ -127,7 +127,7 @@ Currently an experimental feature, enabling documents provides additional functi
 ### Add a Document
 To add a document, click on the **DOCS** button to reveal the documents and then click the **+ ADD DOC** button.
 
-<img src="./screenshots/add_documents.png">
+<img src="./screenshots/add_document.png">
 
 A page will be automatically added for the newly created document.  The new document and new page will have a default name.  Right click on the Document or Page button to display the context menu for the selected item.
 

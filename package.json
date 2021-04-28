@@ -22,7 +22,7 @@
     "package-linux": "electron-packager . CalendarNotes --overwrite --asar=true --platform=linux --arch=x64 --icon=assets/icons/png/calendarNotes.png --prune=true --out=release-builds"
   },
   "devDependencies": {
-    "electron": "^10.1.5",
+    "electron": "^10.2.0",
     "electron-builder": "20.44.4"
   },
   "dependencies": {

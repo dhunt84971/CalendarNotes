@@ -774,6 +774,9 @@ background: var(--buttonhover);
     border-color: lightgray;
     border-width: 1px;
     min-height: 30px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     /*
     border-style: solid;
     border-color: lightgray;

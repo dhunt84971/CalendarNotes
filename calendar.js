@@ -1306,7 +1306,6 @@ function addSearchResultItem(srchSource) {
   else{
     element.setAttribute("onclick", "gotoDate('" + srchSource + "')");
   }
-  element.setAttribute("onclick", "gotoDate('" + srchSource + "')");
   element.setAttribute("onmouseover", "showSearchPreview('" + srchSource + "')");
   element.setAttribute("onmouseout", "hideSearchPreview()");
   //element.addEventListener('click', srchItemClick(srchDate));

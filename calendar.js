@@ -1244,16 +1244,18 @@ function searchNotes(srchText, callback) {
   }
 
   // Search for Docs...
-  if (_settings.dbType == "MySql") {
-    var sql =
-      `SELECT CONCAT(DocLocation, '${DOCNAMEDELIMETER}', DocName) as srchSource FROM Docs ` +
-      where.replaceAll("NoteText", "DocText");
-    getRowsMySql(sql, (err,rows) =>{ processRows(err, rows, "docs");});
-  } else {
-    var sql =
-      `SELECT DocLocation || '${DOCNAMEDELIMETER}' || DocName as srchSource FROM Docs ` +
-      where.replaceAll("NoteText", "DocText");
-    getRowsSqlite(sql, (err,rows) =>{ processRows(err, rows, "docs");});
+  if (document.getElementById("chkDocuments").checked){
+    if (_settings.dbType == "MySql") {
+      var sql =
+        `SELECT CONCAT(DocLocation, '${DOCNAMEDELIMETER}', DocName) as srchSource FROM Docs ` +
+        where.replaceAll("NoteText", "DocText");
+      getRowsMySql(sql, (err,rows) =>{ processRows(err, rows, "docs");});
+    } else {
+      var sql =
+        `SELECT DocLocation || '${DOCNAMEDELIMETER}' || DocName as srchSource FROM Docs ` +
+        where.replaceAll("NoteText", "DocText");
+      getRowsSqlite(sql, (err,rows) =>{ processRows(err, rows, "docs");});
+    }
   }
 
   if (callback) callback();

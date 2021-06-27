@@ -901,6 +901,7 @@ background: var(--buttonhover);
     overflow-y: auto;
     overflow-x: hidden;
     width: 100%;
+    margin-top: 1px;
 }
 
 /* #endregion SEARCH RESULT PREVIEW */

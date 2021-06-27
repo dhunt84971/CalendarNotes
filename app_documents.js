@@ -1064,12 +1064,18 @@ var app_documents = {
     //#endregion DATA TRANSMITTAL FUNCTIONS
 
     //#region DOCUMENT MANAGEMENT FUNCTIONS
-    selectDocument: async function (docName) {
+    setSelectedPage: async function(docPath, pageName){
+        await this.dvDocuments.setSelectedPath(docPath);
+        this.selectPageByName(pageName);
+    },
+
+    selectDocument: async function (docName, callback) {
         console.log(`Document ${docName} selected.`);
         if (getDocChanged()){
             await this.savePage();
         }
-        this.loadPages(docName);
+        await this.loadPages(docName);
+        if (callback) callback();
     },
 
     renameDoc_Clicked: function (docName) {
@@ -1284,8 +1290,8 @@ var app_documents = {
         this.txtRename = document.getElementById("txtRename");
         this.txtDoc = document.getElementById("txtDoc");
         this.dvDocuments = new div_treeview(this.lstDocuments, "/");
-        this.dvDocuments.onSelect((text)=> {
-            this.selectDocument(text);
+        this.dvDocuments.onSelect((text, callback)=> {
+            this.selectDocument(text, callback);
         });
         this.dvDocuments.onRightClick((el, fullPath)=>{
             this.docContextMenu(el, fullPath)

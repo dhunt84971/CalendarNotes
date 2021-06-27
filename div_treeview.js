@@ -88,20 +88,24 @@ function div_treeview(divTVElement, divTVDelimeter) {
     }
 
     function setSelectedPath(fullPath) {
-        if (divTVElement.innerHTML != ""){
-            removeAllSelected(divTVElement);
-            let paths = document.querySelectorAll(".div_treeview_item");
-            console.log(paths);
-            for (let item of paths){
-                console.log(getFullPath(item));
-                if (getFullPath(item) == fullPath){
-                    item.classList.add("div_treeview_selected");
-                    if (onSelect_Callback) onSelect_Callback(getFullPath(item));
+        return new Promise((resolve, reject)=>{
+            if (divTVElement.innerHTML != ""){
+                removeAllSelected(divTVElement);
+                let paths = document.querySelectorAll(".div_treeview_item");
+                console.log(paths);
+                for (let item of paths){
+                    console.log(getFullPath(item));
+                    if (getFullPath(item) == fullPath){
+                        item.classList.add("div_treeview_selected");
+                        if (onSelect_Callback) onSelect_Callback(getFullPath(item), ()=>{
+                            resolve();
+                        });
+                    }
                 }
+                console.log(fullPath);
+                if (fullPath) expandToSelected();
             }
-            console.log(fullPath);
-            if (fullPath) expandToSelected();
-        }
+        });
     }
 
     function expandToSelected(){

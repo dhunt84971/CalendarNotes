@@ -888,6 +888,7 @@ function showPageMarkdown() {
 }
 
 function hideAllViews() {
+  document.getElementById("txtSearchPreview").classList.add("hide");
   document.getElementById("txtNotesArea").classList.add("hide");
   document.getElementById("txtView").classList.add("hide");
   document.getElementById("divDocsView").classList.add("hide");
@@ -1454,6 +1455,8 @@ function showSearchPreview(srchSource) {
 }
 
 function hideSearchPreview() {
+  // If the search button is no longer selected assume this event was called after a selected document was clicked and ignore.
+  if (!document.getElementById("btnSearch").classList.contains("tabSelected")) return;
   document.getElementById("txtSearchPreview").classList.add("hide");
   if (document.getElementById("btnViewMD").classList.contains("btnSelected")) {
     document.getElementById("txtView").classList.remove("hide");
@@ -1474,6 +1477,12 @@ function gotoDate(selDate) {
 }
 
 function gotoDoc(selSource) {
+
+  let docPath = selSource.split(DOCNAMEDELIMETER)[0];
+  let pageName = selSource.split(DOCNAMEDELIMETER)[1];
+  app_documents.setSelectedPage(docPath, pageName);
+  docsViewSelected();
+  docsSelected();
   //TODO
 }
 // #endregion SEARCH CODE

@@ -1210,7 +1210,7 @@ function searchNotes(srchText, callback) {
     }
   }
 
-  var processRows = function (err, rows) {
+  var processRows = function (err, rows, searched) {
     if (!err) {
       if (rows.length > 0) {
         console.log("Search results found = " + rows.length);
@@ -1219,7 +1219,7 @@ function searchNotes(srchText, callback) {
           addSearchResultItem(rows[irec].srchSource);
         }
       } else {
-        alert("Nothing found containing search items.");
+        alert(`No ${searched} found containing search items.`);
       }
     } else {
       console.log("Error while performing Query.");
@@ -1234,13 +1234,13 @@ function searchNotes(srchText, callback) {
       "SELECT DATE_FORMAT(NoteDate, '%m/%d/%Y') as srchSource FROM Notes " +
       where +
       " ORDER BY NoteDate DESC";
-    getRowsMySql(sql, processRows);
+    getRowsMySql(sql, (err,rows) =>{ processRows(err, rows, "notes");});
   } else {
     var sql =
       "SELECT NoteDate, strftime('%m/%d/%Y', NoteDate) as srchSource FROM Notes " +
       where +
       " ORDER BY NoteDate DESC";
-    getRowsSqlite(sql, processRows);
+    getRowsSqlite(sql, (err,rows) =>{ processRows(err, rows, "notes");});
   }
 
   // Search for Docs...
@@ -1248,12 +1248,12 @@ function searchNotes(srchText, callback) {
     var sql =
       `SELECT CONCAT(DocLocation, '${DOCNAMEDELIMETER}', DocName) as srchSource FROM Docs ` +
       where.replaceAll("NoteText", "DocText");
-    getRowsMySql(sql, processRows);
+    getRowsMySql(sql, (err,rows) =>{ processRows(err, rows, "docs");});
   } else {
     var sql =
       `SELECT DocLocation || '${DOCNAMEDELIMETER}' || DocName as srchSource FROM Docs ` +
       where.replaceAll("NoteText", "DocText");
-    getRowsSqlite(sql, processRows);
+    getRowsSqlite(sql, (err,rows) =>{ processRows(err, rows, "docs");});
   }
 
   if (callback) callback();

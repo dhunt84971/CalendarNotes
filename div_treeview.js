@@ -98,22 +98,26 @@ function div_treeview(divTVElement, divTVDelimeter) {
                     if (getFullPath(item) == fullPath){
                         item.classList.add("div_treeview_selected");
                         if (onSelect_Callback) onSelect_Callback(getFullPath(item), ()=>{
+                            console.log(fullPath);
+                            if (fullPath) expandToSelected();
                             resolve();
                         });
                     }
                 }
-                console.log(fullPath);
-                if (fullPath) expandToSelected();
             }
         });
     }
 
     function expandToSelected(){
         let selected = getSelectedElement();
-        let prevItem = selected.parentNode;
-        while (prevItem != divTVElement){
-            expand(prevItem);
-            prevItem = prevItem.parentNode;
+        console.log(selected);
+        var divParent = selected.parentNode;
+        while (divParent != divTVElement){
+            var children = divParent.children;
+            for (var i=0; i<children.length; i++){
+                expand(children[i]);
+            }
+            divParent = divParent.parentNode; 
         }
     }
 
@@ -268,12 +272,16 @@ function div_treeview(divTVElement, divTVDelimeter) {
             console.log("expanding:");
             console.log(divItem);
             divItem.classList.remove("div_treeview_children_hidden");
-            var marker = divItem.children[0];
-            marker.classList.add(_expandedStyle);
-            marker.classList.remove(_collapsedStyle);
-            var divParent = divItem.parentNode;
-            var children = divParent.children;
-            for (var i=0; i<children.length; i++){
+            let marker = divItem.children[0];
+            let docItem = divItem.children[1];
+            let docChildren = docItem.children;
+            if (docChildren.length > 0){
+                marker.classList.add(_expandedStyle);
+                marker.classList.remove(_collapsedStyle);
+            }
+            let divParent = divItem.parentNode;
+            let children = divParent.children;
+            for (let i=0; i<children.length; i++){
                 children[i].classList.remove("div_treeview_collapsed");
             }
         }

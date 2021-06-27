@@ -774,6 +774,9 @@ background: var(--buttonhover);
     border-color: lightgray;
     border-width: 1px;
     min-height: 30px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     /*
     border-style: solid;
     border-color: lightgray;
@@ -898,6 +901,7 @@ background: var(--buttonhover);
     overflow-y: auto;
     overflow-x: hidden;
     width: 100%;
+    margin-top: 1px;
 }
 
 /* #endregion SEARCH RESULT PREVIEW */

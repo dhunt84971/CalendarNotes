@@ -30,6 +30,7 @@ var monthDisplayed, daySelected, yearDisplayed;
 var lastDaySelected;
 
 const APPDIR = electron.remote.app.getAppPath();
+const DOCNAMEDELIMETER = " - ";
 var numWaiting = 0;
 
 // These are placeholders that will be written over when the settings
@@ -887,6 +888,7 @@ function showPageMarkdown() {
 }
 
 function hideAllViews() {
+  document.getElementById("txtSearchPreview").classList.add("hide");
   document.getElementById("txtNotesArea").classList.add("hide");
   document.getElementById("txtView").classList.add("hide");
   document.getElementById("divDocsView").classList.add("hide");
@@ -1208,16 +1210,16 @@ function searchNotes(srchText, callback) {
     }
   }
 
-  var processRows = function (err, rows) {
+  var processRows = function (err, rows, searched) {
     if (!err) {
       if (rows.length > 0) {
         console.log("Search results found = " + rows.length);
         console.log(rows);
         for (var irec = 0; irec < rows.length; irec++) {
-          addSearchResultItem(rows[irec].srchDate);
+          addSearchResultItem(rows[irec].srchSource);
         }
       } else {
-        alert("Nothing found containing search items.");
+        alert(`No ${searched} found containing search items.`);
       }
     } else {
       console.log("Error while performing Query.");
@@ -1226,19 +1228,34 @@ function searchNotes(srchText, callback) {
     }
   }
 
+  // Search for Notes...
   if (_settings.dbType == "MySql") {
     var sql =
-      "SELECT DATE_FORMAT(NoteDate, '%m/%d/%Y') as srchDate FROM Notes " +
+      "SELECT DATE_FORMAT(NoteDate, '%m/%d/%Y') as srchSource FROM Notes " +
       where +
       " ORDER BY NoteDate DESC";
-    getRowsMySql(sql, processRows);
+    getRowsMySql(sql, (err,rows) =>{ processRows(err, rows, "notes");});
   } else {
     var sql =
-      "SELECT NoteDate, strftime('%m/%d/%Y', NoteDate) as srchDate FROM Notes " +
+      "SELECT NoteDate, strftime('%m/%d/%Y', NoteDate) as srchSource FROM Notes " +
       where +
       " ORDER BY NoteDate DESC";
-    getRowsSqlite(sql, processRows);
+    getRowsSqlite(sql, (err,rows) =>{ processRows(err, rows, "notes");});
   }
+
+  // Search for Docs...
+  if (_settings.dbType == "MySql") {
+    var sql =
+      `SELECT CONCAT(DocLocation, '${DOCNAMEDELIMETER}', DocName) as srchSource FROM Docs ` +
+      where.replaceAll("NoteText", "DocText");
+    getRowsMySql(sql, (err,rows) =>{ processRows(err, rows, "docs");});
+  } else {
+    var sql =
+      `SELECT DocLocation || '${DOCNAMEDELIMETER}' || DocName as srchSource FROM Docs ` +
+      where.replaceAll("NoteText", "DocText");
+    getRowsSqlite(sql, (err,rows) =>{ processRows(err, rows, "docs");});
+  }
+
   if (callback) callback();
 }
 
@@ -1276,15 +1293,21 @@ function clearSearchResults(callback) {
   if (callback) callbakc();
 }
 
-function addSearchResultItem(srchDate) {
+function addSearchResultItem(srchSource) {
   var listResults = document.getElementById("lstSearch");
   var element = document.createElement("div");
   //element.type = "button";
-  element.innerHTML = srchDate;
-  element.value = srchDate;
+  element.innerHTML = srchSource;
+  element.title = srchSource;
+  element.value = srchSource;
   element.className = "srchResultItem btn";
-  element.setAttribute("onclick", "gotoDate('" + srchDate + "')");
-  element.setAttribute("onmouseover", "showSearchPreview('" + srchDate + "')");
+  if (srchSource.includes(DOCNAMEDELIMETER)){
+    element.setAttribute("onclick", "gotoDoc('" + srchSource + "')");
+  }
+  else{
+    element.setAttribute("onclick", "gotoDate('" + srchSource + "')");
+  }
+  element.setAttribute("onmouseover", "showSearchPreview('" + srchSource + "')");
   element.setAttribute("onmouseout", "hideSearchPreview()");
   //element.addEventListener('click', srchItemClick(srchDate));
   listResults.appendChild(element);
@@ -1371,20 +1394,69 @@ function getNotePreview(dateForDay, callback) {
   if (callback) callback();
 }
 
+function getDocPreview(docLocName, callback) {
+  var txtSearchPreview = document.getElementById("txtSearchPreview");
+  var markD = false;
+
+  var processRows = function (err, rows) {
+    if (!err) {
+      if (rows.length > 0) {
+        console.log("getDocs rows returned = " + rows.length);
+        var previewText = rows[0].DocText;
+        if (document.getElementById("btnViewMD").classList.contains("btnSelected")) {
+          console.log("db notesText = " + previewText);
+          previewText = marked(previewText);
+          markD = true;
+        }
+        var searchText = document.getElementById("txtSearch").value;
+        var searchWords = searchText.split(" ");
+        var previewTextHighlighted = highlightWords(searchWords, previewText, markD);
+        txtSearchPreview.innerHTML = previewTextHighlighted;
+      } else {
+        txtSearchPreview.innerText = "Empty Document";
+      }
+    } else {
+      console.log("Error while performing Query, " + sqlQuery);
+      console.log(_settings);
+    }
+  }
+  var docName = docLocName.split(DOCNAMEDELIMETER).slice(1).join(DOCNAMEDELIMETER);
+  var docLocation = docLocName.split(DOCNAMEDELIMETER)[0];
+  var sql =
+    `SELECT DocText from Docs where DocName = '${docName}' AND DocLocation = '${docLocation}'`;
+  if (_settings.dbType == "MySql") {
+    getRowsMySql(sql, processRows);
+  } else {
+    getRowsSqlite(sql, processRows);
+  }
+  if (callback) callback();
+}
+
 String.prototype.replaceAll = function (search, replacement) {
   var target = this;
   return target.replace(new RegExp(search, 'g'), replacement);
 };
 
-function showSearchPreview(srchDate) {
-  getNotePreview(srchDate, function () {
-    document.getElementById("txtNotesArea").classList.add("hide");
-    document.getElementById("txtView").classList.add("hide");
-    document.getElementById("txtSearchPreview").classList.remove("hide");
-  });
+function showSearchPreview(srchSource) {
+  if (srchSource.includes(DOCNAMEDELIMETER)){
+    getDocPreview(srchSource, function() {
+      document.getElementById("txtNotesArea").classList.add("hide");
+      document.getElementById("txtView").classList.add("hide");
+      document.getElementById("txtSearchPreview").classList.remove("hide");
+    });
+  }
+  else{
+    getNotePreview(srchSource, function () {
+      document.getElementById("txtNotesArea").classList.add("hide");
+      document.getElementById("txtView").classList.add("hide");
+      document.getElementById("txtSearchPreview").classList.remove("hide");
+    });
+  }
 }
 
 function hideSearchPreview() {
+  // If the search button is no longer selected assume this event was called after a selected document was clicked and ignore.
+  if (!document.getElementById("btnSearch").classList.contains("tabSelected")) return;
   document.getElementById("txtSearchPreview").classList.add("hide");
   if (document.getElementById("btnViewMD").classList.contains("btnSelected")) {
     document.getElementById("txtView").classList.remove("hide");
@@ -1402,6 +1474,16 @@ function gotoDate(selDate) {
   calChangeDate(mm, yy, function () {
     dateSelected(dd);
   });
+}
+
+function gotoDoc(selSource) {
+
+  let docPath = selSource.split(DOCNAMEDELIMETER)[0];
+  let pageName = selSource.split(DOCNAMEDELIMETER)[1];
+  app_documents.setSelectedPage(docPath, pageName);
+  docsViewSelected();
+  docsSelected();
+  //TODO
 }
 // #endregion SEARCH CODE
 

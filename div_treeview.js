@@ -273,12 +273,8 @@ function div_treeview(divTVElement, divTVDelimeter) {
             console.log(divItem);
             divItem.classList.remove("div_treeview_children_hidden");
             let marker = divItem.children[0];
-            let docItem = divItem.children[1];
-            let docChildren = docItem.children;
-            if (docChildren.length > 0){
-                marker.classList.add(_expandedStyle);
-                marker.classList.remove(_collapsedStyle);
-            }
+            marker.classList.add(_expandedStyle);
+            marker.classList.remove(_collapsedStyle);
             let divParent = divItem.parentNode;
             let children = divParent.children;
             for (let i=0; i<children.length; i++){

@@ -893,7 +893,7 @@ function hideAllViews() {
   document.getElementById("txtView").classList.add("hide");
   document.getElementById("divDocsView").classList.add("hide");
   document.getElementById("txtDocArea").classList.add("hide");
-  document.getElementById("txtDocView").classList.add("hide");
+  document.getElementById("txtDocViewArea").classList.add("hide");
 }
 
 function notesViewSelected() {
@@ -903,7 +903,7 @@ function notesViewSelected() {
   if (document.getElementById("btnDocs").classList.contains("tabSelected")) {
     document.getElementById("divDocsView").classList.remove("hide");
     document.getElementById("txtDocArea").classList.remove("hide");
-    document.getElementById("txtDocView").classList.add("hide");
+    document.getElementById("txtDocViewArea").classList.add("hide");
   } else {
     document.getElementById("txtNotesArea").classList.remove("hide");
   }
@@ -915,7 +915,7 @@ function mdViewSelected() {
   document.getElementById("btnViewMD").classList.add("btnSelected");
   if (document.getElementById("btnDocs").classList.contains("tabSelected")) {
     document.getElementById("divDocsView").classList.remove("hide");
-    document.getElementById("txtDocView").classList.remove("hide");
+    document.getElementById("txtDocViewArea").classList.remove("hide");
     document.getElementById("txtDocArea").classList.add("hide");
   } else {
     document.getElementById("txtView").classList.remove("hide");
@@ -929,7 +929,7 @@ function docsViewSelected() {
   document.getElementById("divDocsView").classList.remove("hide");
   // If markdown view is selected display the view div.
   if (document.getElementById("btnViewMD").classList.contains("btnSelected")) {
-    document.getElementById("txtDocView").classList.remove("hide");
+    document.getElementById("txtDocViewArea").classList.remove("hide");
   } else {
     document.getElementById("txtDocArea").classList.remove("hide");
   }

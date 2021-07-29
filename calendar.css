@@ -303,6 +303,18 @@ textarea {
     display: none !important;
 }
 
+/* #region SCROLLBAR */
+::-webkit-scrollbar {
+    width: 14px;
+}
+
+::-webkit-scrollbar-thumb {
+    border: 4px solid rgba(0, 0, 0, 0);
+    background-clip: padding-box;
+    border-radius: 9999px;
+    background-color: #AAAAAA;
+}
+/* #endregion SCROLLBAR */
 
 /* #region RESIZING STYLES */
 .vsplit {

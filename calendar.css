@@ -731,6 +731,9 @@ background: var(--buttonhover);
 /* #endregion TASKS DIV STYLES */
 
 /* #region SEARCH DIV STYLES */
+.searchGoBox {
+    padding: 2px 0px 2px 0px;
+}
 .searchHeader {
     background-color: var(--titlebar);
     color: var(--titletext);

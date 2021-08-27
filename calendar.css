@@ -20,9 +20,7 @@
 }
 
 /* Stop the highlighting of non-input areas. */
-:not(input):not(textarea):not(p),
-:not(input):not(textarea):not(p)::after,
-:not(input):not(textarea):not(p)::before {
+.unselectable :not(input):not(textarea) {
     -webkit-user-select: none;
     user-select: none;
 } 

@@ -14,7 +14,7 @@
 		<div class="boxFillHor">
 			<div class="vbox noPadding" id="leftSideBar">
 				<!--#region CALENDAR -->
-				<div id="cal">
+				<div class="unselectable" id="cal">
 					<div class="header">
 						<span class="left button" id="prev"> &lang; </span>
 						<!--<span class="left hook"></span> -->
@@ -89,7 +89,7 @@
 				<!--#region LEFT SIDE PANEL-->
 				<div class="vbox vertDivider"></div>
 				<div class="vboxFill noPadding">
-					<div class="hbox noPadding">
+					<div class="hbox noPadding unselectable">
 						<div class="tasksButton tab" id="btnTasks">TASKS</div>
 						<div class="searchButton tab" id="btnDocs">DOCS</div>
 						<div class="searchButton tab" id="btnSearch">SEARCH</div>
@@ -99,7 +99,7 @@
 						<div class="tabFooter"></div>
 						<div class="vboxFill noPadding"><textarea id="txtTasks" spellcheck="false"></textarea></div>
 					</div>
-					<div class="vboxFill noPadding" id="divSearch">
+					<div class="vboxFill noPadding unselectable" id="divSearch">
 						<div class="tabFooter"></div>
 						<div class="hbox searchGoBox">
 							<input class="hboxFill" id="txtSearch">
@@ -108,7 +108,7 @@
 						</div>
 						<div class="vboxFill searchList" id="lstSearch"></div>
 					</div>
-					<div class="vboxFill noPadding hide" id="divDocs">
+					<div class="vboxFill noPadding hide unselectable" id="divDocs">
 						<div class="tabFooter"></div>
 						<div class="vboxFill border overflowHidden">
 							<div class="hbox noPadding noMargin">
@@ -131,7 +131,7 @@
 			<div class="vsplit" id="vSplitter"></div>
 			<div class="vboxFill noPadding">
 				<!--#region NOTES AND TASKS BOXES -->
-				<div class="vboxFill notes noPadding">
+				<div class="vboxFill notes noPadding unselectable">
 
 					<div class="hboxFill notesHeader noPadding">
 						<div class="div_arrow_collapse" id="btnHideLeft"></div>
@@ -165,7 +165,7 @@
 						</div>
 					</div>
 					<div class="vbox vertDivider"></div>
-					<div class="hboxFill noPadding">
+					<div class="hboxFill noPadding unselectable">
 						<div class="btn botButton flushLeft" id="btnSave"> SAVE </div>
 						<div class="btn botButton" id="btnViewText">EDIT</div>
 						<div class="btn botButton" id="btnViewMD">MARKDOWN</div>
@@ -289,7 +289,7 @@
 		<div class="hbox">
 			<div class="vbox">
 				<div class="vboxFill"></div>
-				<div class="version">v1.1.10</div>
+				<div class="version">v1.1.11</div>
 			</div>
 			<div class="hboxFill"></div>
 			<div class="btn" id="btnSettingsClose" title="Changes are saved on close.">APPLY/CLOSE</div>

@@ -64,7 +64,7 @@ for (var i = 0; i < themes.length; i++) {
 // #region INITIALIZATION CODE
 tasksSelected();
 notesViewSelected();
-document.getElementById("txtView").classList.add("hide");
+document.getElementById("txtViewArea").classList.add("hide");
 document.getElementById("settingsSlider").classList.add("hide");
 marked.setOptions({
   gfm: true,
@@ -856,8 +856,11 @@ function showNoteMarkdown() {
   }
   customMods = customMods.replace(/\|X\|/g, checkedSrc);
   customMods = customMods.replace(/\|_\|/g, uncheckedSrc);
+  //customMods = customMods.replace(/(\n){3}/g, '\n<br/><br/>'); // This does not work so <p> elements all have a top margin.  YUCK!!!
+  console.log(customMods);
 
   var markedNote = marked(customMods);
+  console.log(markedNote);
 
   viewDiv.innerHTML = markedNote;
 }
@@ -890,16 +893,19 @@ function showPageMarkdown() {
 function hideAllViews() {
   document.getElementById("txtSearchPreview").classList.add("hide");
   document.getElementById("txtNotesArea").classList.add("hide");
-  document.getElementById("txtView").classList.add("hide");
+  document.getElementById("txtViewArea").classList.add("hide");
   document.getElementById("divDocsView").classList.add("hide");
   document.getElementById("txtDocArea").classList.add("hide");
   document.getElementById("txtDocViewArea").classList.add("hide");
+  document.getElementById("vSplitterNotes").classList.add("hide");
+  document.getElementById("vSplitterDocs").classList.add("hide");
 }
 
 function notesViewSelected() {
   hideAllViews();
   document.getElementById("btnViewText").classList.add("btnSelected");
   document.getElementById("btnViewMD").classList.remove("btnSelected");
+  document.getElementById("btnViewSideBySide").classList.remove("btnSelected");
   if (document.getElementById("btnDocs").classList.contains("tabSelected")) {
     document.getElementById("divDocsView").classList.remove("hide");
     document.getElementById("txtDocArea").classList.remove("hide");
@@ -913,15 +919,62 @@ function mdViewSelected() {
   hideAllViews();
   document.getElementById("btnViewText").classList.remove("btnSelected");
   document.getElementById("btnViewMD").classList.add("btnSelected");
+  document.getElementById("btnViewSideBySide").classList.remove("btnSelected");
   if (document.getElementById("btnDocs").classList.contains("tabSelected")) {
     document.getElementById("divDocsView").classList.remove("hide");
     document.getElementById("txtDocViewArea").classList.remove("hide");
     document.getElementById("txtDocArea").classList.add("hide");
   } else {
-    document.getElementById("txtView").classList.remove("hide");
+    document.getElementById("txtViewArea").classList.remove("hide");
   }
   showNoteMarkdown();
   showPageMarkdown();
+}
+
+function sbsViewSelected() {
+  hideAllViews();
+  document.getElementById("btnViewText").classList.remove("btnSelected");
+  document.getElementById("btnViewMD").classList.remove("btnSelected");
+  document.getElementById("btnViewSideBySide").classList.add("btnSelected");
+  if (document.getElementById("btnDocs").classList.contains("tabSelected")) {
+    document.getElementById("divDocsView").classList.remove("hide");
+    document.getElementById("txtDocViewArea").classList.remove("hide");
+    document.getElementById("txtDocArea").classList.remove("hide");
+    document.getElementById("vSplitterDocs").classList.remove("hide");
+  } else {
+    document.getElementById("txtNotesArea").classList.remove("hide");
+    document.getElementById("vSplitterNotes").classList.remove("hide");
+    document.getElementById("txtViewArea").classList.remove("hide");
+  }
+  showNoteMarkdown();
+  showPageMarkdown();
+  sbsNotesViewInitResize();
+  sbsDocsViewInitResize();
+}
+
+function sbsNotesViewInitResize() {
+  var sbsView = document.getElementById("divNotesContainer");
+  var sbsViewWidth = sbsView.offsetWidth;
+  var sbsViewLeft = sbsView.offsetLeft;
+  
+  var sbsViewLeftDiv = document.getElementById("txtNotesArea");
+  var sbsViewRightDiv = document.getElementById("txtViewArea");
+  
+  sbsViewLeftDiv.style.width = sbsViewWidth/2 + "px"; 
+  sbsViewRightDiv.style.width = sbsViewWidth/2 + "px"; 
+  
+}
+
+function sbsDocsViewInitResize() {
+  var sbsView = document.getElementById("divDocsContainer");
+  var sbsViewWidth = sbsView.offsetWidth;
+  var sbsViewLeft = sbsView.offsetLeft;
+  
+  var sbsViewLeftDiv = document.getElementById("txtDocViewArea");
+  var sbsViewRightDiv = document.getElementById("txtDocArea");
+  
+  sbsViewLeftDiv.style.width = sbsViewWidth/2 + "px"; 
+  sbsViewRightDiv.style.width = sbsViewWidth/2 + "px"; 
 }
 
 function docsViewSelected() {
@@ -930,6 +983,10 @@ function docsViewSelected() {
   // If markdown view is selected display the view div.
   if (document.getElementById("btnViewMD").classList.contains("btnSelected")) {
     document.getElementById("txtDocViewArea").classList.remove("hide");
+  } else if (document.getElementById("btnViewSideBySide").classList.contains("btnSelected")) {
+    document.getElementById("txtDocViewArea").classList.remove("hide");
+    document.getElementById("vSplitterDocs").classList.remove("hide");
+    document.getElementById("txtDocArea").classList.remove("hide");
   } else {
     document.getElementById("txtDocArea").classList.remove("hide");
   }
@@ -938,12 +995,15 @@ function docsViewSelected() {
 function docsViewUnselected() {
   hideAllViews();
   if (document.getElementById("btnViewMD").classList.contains("btnSelected")) {
-    document.getElementById("txtView").classList.remove("hide");
+    document.getElementById("txtViewArea").classList.remove("hide");
+  } else if (document.getElementById("btnViewSideBySide").classList.contains("btnSelected")) {
+    document.getElementById("txtViewArea").classList.remove("hide");
+    document.getElementById("vSplitterNotes").classList.remove("hide");
+    document.getElementById("txtNotesArea").classList.remove("hide");
   } else {
     document.getElementById("txtNotesArea").classList.remove("hide");
   }
 }
-
 
 // #endregion NOTES CODE
 
@@ -1443,14 +1503,14 @@ function showSearchPreview(srchSource) {
   if (srchSource.includes(DOCNAMEDELIMETER)){
     getDocPreview(srchSource, function() {
       document.getElementById("txtNotesArea").classList.add("hide");
-      document.getElementById("txtView").classList.add("hide");
+      document.getElementById("txtViewArea").classList.add("hide");
       document.getElementById("txtSearchPreview").classList.remove("hide");
     });
   }
   else{
     getNotePreview(srchSource, function () {
       document.getElementById("txtNotesArea").classList.add("hide");
-      document.getElementById("txtView").classList.add("hide");
+      document.getElementById("txtViewArea").classList.add("hide");
       document.getElementById("txtSearchPreview").classList.remove("hide");
     });
   }
@@ -1461,7 +1521,10 @@ function hideSearchPreview() {
   if (!document.getElementById("btnSearch").classList.contains("tabSelected")) return;
   document.getElementById("txtSearchPreview").classList.add("hide");
   if (document.getElementById("btnViewMD").classList.contains("btnSelected")) {
-    document.getElementById("txtView").classList.remove("hide");
+    document.getElementById("txtViewArea").classList.remove("hide");
+  } else if (document.getElementById("btnViewSideBySide").classList.contains("btnSelected")) {
+    document.getElementById("txtNotesArea").classList.remove("hide");
+    document.getElementById("txtViewArea").classList.remove("hide");
   } else {
     document.getElementById("txtNotesArea").classList.remove("hide");
   }
@@ -2054,6 +2117,10 @@ document.getElementById("btnViewMD").addEventListener("click", () => {
   mdViewSelected();
 });
 
+document.getElementById("btnViewSideBySide").addEventListener("click", () => {
+  sbsViewSelected();
+});
+
 document.getElementById("txtNotes").addEventListener("input", () => {
   document.getElementById("btnSave").innerHTML = "*SAVE*";
 });
@@ -2090,7 +2157,7 @@ document.getElementById("btnInsertTable").addEventListener("click", (e) => {
   document.getElementById("btnSave").innerHTML = "*SAVE*";
 });
 
-// Hide the contextmenu whenever any where on the document is clicked.
+// Hide the contextmenu whenever anywhere on the document is clicked.
 document.querySelector("body").addEventListener("click", () => {
   document.querySelector(".notesMenu").classList.add("hide");
   document.querySelector(".docsMenu").classList.add("hide");
@@ -2167,6 +2234,34 @@ document.getElementById("btnBrowsedbFile").addEventListener("click", async ()=>{
     document.getElementById("lbldbFile").innerHTML = getFilename(settingsdbFile);
     document.getElementById("lbldbFile").title = settingsdbFile;
   });
+});
+
+document.getElementById("txtNotes").addEventListener("scroll", () => {
+  document.getElementById("txtView").scrollTop = document.getElementById("txtNotes").scrollTop;
+});
+
+document.getElementById("txtView").addEventListener("scroll", () => {
+  document.getElementById("txtNotes").scrollTop = document.getElementById("txtView").scrollTop;
+});
+
+document.getElementById("txtNotes").addEventListener("keyup", (e) => {
+  if (btnViewSideBySide.classList.contains("btnSelected")){
+    showNoteMarkdown();
+  }
+});
+
+document.getElementById("txtDoc").addEventListener("scroll", () => {
+  document.getElementById("txtDocView").scrollTop = document.getElementById("txtDoc").scrollTop;
+});
+
+document.getElementById("txtDocView").addEventListener("scroll", () => {
+  document.getElementById("txtDoc").scrollTop = document.getElementById("txtDocView").scrollTop;
+});
+
+document.getElementById("txtDoc").addEventListener("keyup", (e) => {
+  if (btnViewSideBySide.classList.contains("btnSelected")){
+    showPageMarkdown();
+  }
 });
 
 //#region RESIZABLE SPLITTERS

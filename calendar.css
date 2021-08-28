@@ -120,6 +120,7 @@ body {
     flex: 1 1 auto;
     padding: 5px;
     width: 100%;
+    overflow: auto;
 }
 
 #btnAddDoc {
@@ -211,6 +212,13 @@ textarea {
     border-color: var(--titlebar);
 }
 
+#txtView {
+    resize: none;
+    font: 13px/1.5 "Helvetica Neue", Helvetica, Arial, san-serif;
+    margin-top: 1px;
+    border-color: var(--titlebar);
+}
+
 /* #region BUTTONS */
 .btn {
     /*
@@ -246,6 +254,12 @@ textarea {
 
 .btnSmall {
     width: 20px;
+}
+
+.botButton {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 /* #endregion BUTTONS */

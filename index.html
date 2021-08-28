@@ -139,26 +139,36 @@
 						<div class="hboxFill"></div>
 						<img id="btnSettings" src="settingsIconWht.png" width="23px" height="23px">
 					</div>
-					<div class="vboxFill noPadding" id="txtNotesArea">
-						<textarea id="txtNotes" spellcheck="false"></textarea>
-					</div>
-					<div class="vboxFill searchPreview hide markd" id="txtView"></div>
-					<div class="vboxFill searchPreview hide markd" id="txtSearchPreview"></div>
-					<div class="vboxFill noPadding hide" id="divDocsView">
-						<div class="boxFillHor noPadding noMargin">
-							<div class="vboxFill noPadding hide" id="txtDocArea">
-								<textarea id="txtDoc" spellcheck="false"></textarea>
+					<div class="vboxFill noPadding">
+						<div class="hboxFill noPadding noMargin" id="divNotesContainer">
+							<div class="vboxFill noPadding"  id="txtNotesArea">
+								<textarea id="txtNotes" spellcheck="false"></textarea>
 							</div>
-							<div class="vboxFill noPadding hide" id="txtDocViewArea">
-								<div class="vboxFill searchPreview markd" id="txtDocView"></div>
+							<div class="vsplit" id="vSplitterNotes"></div>
+							<div class="vboxFill noPadding hide" id="txtViewArea">
+								<div class="vboxFill searchPreview markd" id="txtView" ></div>
 							</div>
-							<div class="vsplit" id="vSplitterDoc"></div>
-							<div class="vbox noPadding" id="docsSideBar">
-								<div class="vboxFill docsList">
-									<div class="btn hide" id="btnAddPage">+ ADD PAGE</div>
-									<div class="vbox vertDivider"></div>
-									<div class="vboxFill noPadding noMargin overflowAuto">
-										<div id="lstDocs"></div>
+						</div>
+						<div class="vboxFill searchPreview hide markd" id="txtSearchPreview"></div>
+						<div class="vboxFill noPadding hide" id="divDocsView">
+							<div class="boxFillHor noPadding noMargin">
+								<div class="hboxFill noPadding noMargin" id="divDocsContainer">
+									<div class="vboxFill noPadding hide" id="txtDocArea">
+										<textarea id="txtDoc" spellcheck="false"></textarea>
+									</div>
+									<div class="vsplit" id="vSplitterDocs"></div>
+									<div class="vboxFill noPadding hide" id="txtDocViewArea">
+										<div class="vboxFill searchPreview markd" id="txtDocView"></div>
+									</div>
+								</div>
+								<div class="vsplit" id="vSplitterDoc"></div>
+								<div class="vbox noPadding unselectable" id="docsSideBar">
+									<div class="vboxFill docsList">
+										<div class="btn hide" id="btnAddPage">+ ADD PAGE</div>
+										<div class="vbox vertDivider"></div>
+										<div class="vboxFill noPadding noMargin overflowAuto">
+											<div id="lstDocs"></div>
+										</div>
 									</div>
 								</div>
 							</div>
@@ -169,6 +179,7 @@
 						<div class="btn botButton flushLeft" id="btnSave"> SAVE </div>
 						<div class="btn botButton" id="btnViewText">EDIT</div>
 						<div class="btn botButton" id="btnViewMD">MARKDOWN</div>
+						<div class="btn botButton" id="btnViewSideBySide">SIDE-BY-SIDE</div>
 						<div class="hboxFill"></div>
 						<div class="btn botButton flushRight" id="btnRevert">REVERT</div>
 					</div>

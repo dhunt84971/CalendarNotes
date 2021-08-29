@@ -775,6 +775,7 @@ background: var(--buttonhover);
     border-color: var(--titlebar);
     background-color: var(--notesBGColor);
     height: 100%;
+    color: var(--notesTextColor);
 }
 
 .docsList {

@@ -388,42 +388,50 @@ var CALENDAR = function () {
 
 // #region DATABASE CODE
 function getRowsMySql(sql, callback) {
-  console.log("SQL = " + sql);
-  showWaitImage();
-  var connection = mysql.createConnection(_settings);
-  connection.connect();
-  connection.query(sql, function (err, rows, fields) {
-    hideWaitImage();
-    if (!err) {
-      if (callback) {
-        callback(err, rows);
+  return new Promise((resolve, reject)=>{
+    console.log("SQL = " + sql);
+    showWaitImage();
+    var connection = mysql.createConnection(_settings);
+    connection.connect();
+    connection.query(sql, function (err, rows, fields) {
+      hideWaitImage();
+      if (!err) {
+        if (callback) {
+          callback(err, rows);
+        }
+        resolve(rows);
+      } else {
+        if (callback) {
+          callback(err, null);
+        }
+        resolve();
       }
-    } else {
-      if (callback) {
-        callback(err, null);
-      }
-    }
+    });
+    connection.end();
   });
-  connection.end();
 }
 
 function getRowsSqlite(sql, callback) {
-  console.log("SQL = " + sql);
-  let db = new sqlite3.Database(dbFile, (err) => {
-    if (!err) {
-      db.all(sql, [], (err, rows) => {
-        if (!err) {
-          if (callback) {
-            callback(err, rows);
+  return new Promise((resolve, reject)=>{
+    console.log("SQL = " + sql);
+    let db = new sqlite3.Database(dbFile, (err) => {
+      if (!err) {
+        db.all(sql, [], (err, rows) => {
+          if (!err) {
+            if (callback) {
+              callback(err, rows);
+            }
+            resolve(rows);
+          } else {
+            if (callback) {
+              callback(err, null);
+            }
+            resolve();
           }
-        } else {
-          if (callback) {
-            callback(err, null);
-          }
-        }
-      });
-    }
-    db.close();
+        });
+      }
+      db.close();
+    });
   });
 }
 
@@ -1252,7 +1260,7 @@ function execSqlQuery(_settings, query, callback) {
 
 // #region SEARCH CODE
 
-function searchNotes(srchText, callback) {
+async function searchNotes(srchText, callback) {
   var searchWords, word, where, first, noteDate;
 
   // Build the where clause from the individual search words.
@@ -1270,52 +1278,62 @@ function searchNotes(srchText, callback) {
     }
   }
 
-  var processRows = function (err, rows, searched) {
-    if (!err) {
-      if (rows.length > 0) {
-        console.log("Search results found = " + rows.length);
-        console.log(rows);
-        for (var irec = 0; irec < rows.length; irec++) {
-          addSearchResultItem(rows[irec].srchSource);
-        }
-      } else {
-        alert(`No ${searched} found containing search items.`);
-      }
-    } else {
-      console.log("Error while performing Query.");
-      console.log(err);
-      alert("Error executing search query.");
+  var processRows = function (rows) {
+    console.log("Search results found = " + rows.length);
+    console.log(rows);
+    for (var irec = 0; irec < rows.length; irec++) {
+      addSearchResultItem(rows[irec].srchSource);
     }
   }
 
-  // Search for Notes...
-  if (_settings.dbType == "MySql") {
-    var sql =
-      "SELECT DATE_FORMAT(NoteDate, '%m/%d/%Y') as srchSource FROM Notes " +
-      where +
-      " ORDER BY NoteDate DESC";
-    getRowsMySql(sql, (err,rows) =>{ processRows(err, rows, "notes");});
-  } else {
-    var sql =
-      "SELECT NoteDate, strftime('%m/%d/%Y', NoteDate) as srchSource FROM Notes " +
-      where +
-      " ORDER BY NoteDate DESC";
-    getRowsSqlite(sql, (err,rows) =>{ processRows(err, rows, "notes");});
-  }
-
+  let rows;
   // Search for Docs...
+  let docsFound = false;
   if (document.getElementById("chkDocuments").checked){
     if (_settings.dbType == "MySql") {
       var sql =
         `SELECT CONCAT(DocLocation, '${DOCNAMEDELIMETER}', DocName) as srchSource FROM Docs ` +
         where.replaceAll("NoteText", "DocText");
-      getRowsMySql(sql, (err,rows) =>{ processRows(err, rows, "docs");});
+        rows = await getRowsMySql(sql);
     } else {
       var sql =
         `SELECT DocLocation || '${DOCNAMEDELIMETER}' || DocName as srchSource FROM Docs ` +
         where.replaceAll("NoteText", "DocText");
-      getRowsSqlite(sql, (err,rows) =>{ processRows(err, rows, "docs");});
+        rows = await getRowsSqlite(sql);
     }
+  }
+  if (rows) {
+    docsFound = rows.length > 0;
+    if (docsFound) {
+      processRows(rows);
+    }
+  }
+  
+  // Search for Notes...
+  let notesFound = false;
+  if (_settings.dbType == "MySql") {
+    var sql =
+      "SELECT DATE_FORMAT(NoteDate, '%m/%d/%Y') as srchSource FROM Notes " +
+      where +
+      " ORDER BY NoteDate DESC";
+    rows = await getRowsMySql(sql);
+  } else {
+    var sql = 
+      "SELECT NoteDate, strftime('%m/%d/%Y', NoteDate) as srchSource FROM Notes " +
+      where +
+      " ORDER BY NoteDate DESC";
+    rows = await getRowsSqlite(sql);
+  }
+  if (rows) {
+    notesFound = rows.length > 0;
+    if (notesFound) {
+      processRows(rows);
+    }
+  }
+
+  if (!notesFound && !docsFound) {
+    var listResults = document.getElementById("lstSearch");
+    listResults.innerHTML = "Not found";
   }
 
   if (callback) callback();
@@ -1349,10 +1367,9 @@ function docsSelected() {
 
 }
 
-function clearSearchResults(callback) {
+function clearSearchResults() {
   var listResults = document.getElementById("lstSearch");
   listResults.innerHTML = "";
-  if (callback) callbakc();
 }
 
 function addSearchResultItem(srchSource) {
@@ -1938,7 +1955,8 @@ document.getElementById("btnDocs").addEventListener("click", function () {
 document.getElementById("btnGo").addEventListener("click", function () {
   var searchText = document.getElementById("txtSearch").value;
   console.log("Searching for " + searchText);
-  clearSearchResults(searchNotes(searchText));
+  clearSearchResults();
+  searchNotes(searchText);
 });
 
 document.getElementById("btnHideLeft").addEventListener("click", function () {

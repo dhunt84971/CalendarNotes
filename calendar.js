@@ -4,7 +4,7 @@ const {
 } = require("electron").remote;
 const electron = require("electron");
 const {
-  remote
+  remote, clipboard
 } = require("electron");
 const ipc = require("electron").ipcRenderer;
 const libAppSettings = require("lib-app-settings");
@@ -32,6 +32,7 @@ var lastDaySelected;
 const APPDIR = electron.remote.app.getAppPath();
 const DOCNAMEDELIMETER = " - ";
 var numWaiting = 0;
+var notesSelectedText = "";
 
 // These are placeholders that will be written over when the settings
 // are read from the settings file.
@@ -2162,6 +2163,11 @@ document.getElementById("txtNotes").addEventListener("contextmenu", (e) => {
 //   menu.classList.add("hide");
 // });
 
+function hideContextMenu() {
+  var menu = document.querySelector(".notesMenu");
+  menu.classList.add("hide");
+}
+
 document.getElementById("btnInsertTable").addEventListener("click", (e) => {
   var tableTemplate = "| header1 | header2 | header3 |\n| --- | --- | --- |\n|  |  |  |";
   var cursorPos = $('#txtNotes').prop('selectionStart');
@@ -2170,10 +2176,27 @@ document.getElementById("btnInsertTable").addEventListener("click", (e) => {
   var textBefore = v.substring(0, cursorPos);
   var textAfter = v.substring(cursorPos, v.length);
   $('#txtNotes').val(textBefore + tableTemplate + textAfter);
-  var menu = document.querySelector(".notesMenu");
-  menu.classList.add("hide");
+  hideContextMenu();
   document.getElementById("btnSave").innerHTML = "*SAVE*";
 });
+
+document.getElementById("btnCopy").addEventListener("click", (e) => {
+  if (notesSelectedText.length > 0) {
+    console.log("selectedText = " + notesSelectedText);
+    clipboard.writeText(notesSelectedText, "clipboard");
+  }
+  hideContextMenu();
+});
+
+document.getElementById("btnPaste").addEventListener("click", (e) => {
+  let notesText = document.getElementById("txtNotes").value;
+  let selectionStart = notesText.selectionStart;
+  let cpText = clipboard.readText("selection");
+  notesText.value = notesText.value.substring(0, selectionStart) + cpText + notesText.value.substring(selectionStart);
+  hideContextMenu();
+  document.getElementById("btnSave").innerHTML = "*SAVE*";
+});
+
 
 // Hide the contextmenu whenever anywhere on the document is clicked.
 document.querySelector("body").addEventListener("click", () => {
@@ -2194,22 +2217,51 @@ document.addEventListener("keyup", (e) => {
 
 // Intercept the tab key while in the txtNotes area.
 document.querySelector("#txtNotes").addEventListener('keydown', function (e) {
-  if (e.keyCode === 9) { // tab was pressed
+  if (e.keyCode === 9 || (e.shiftKey && e.keyCode === 9)) { // tab was pressed
+    console.log("tab key pressed.");
     // get caret position/selection
     var start = this.selectionStart;
     var end = this.selectionEnd;
 
     var target = e.target;
     var value = target.value;
+    var selectedText = value.substring(start, end);
+    var tabbedText = selectedText.replace(/\n/g, "\n\t");
+    var untabbedText = selectedText.replace(/\n\t/g, "\n");
 
-    // set textarea value to: text before caret + tab + text after caret
-    target.value = value.substring(0, start) +
-      "\t" +
-      value.substring(end);
+    if (start == end) {
+      // no selection, insert (or remove) tab at cursor position
+      if (!e.shiftKey) {
+        target.value = value.substring(0, start) + "\t" + value.substring(end);
+        this.selectionStart = this.selectionEnd = start + 1;
+      }
+      else{
+        console.log("shift tab pressed.");
+        if (value[start - 1] == "\t") {
+          target.value = value.substring(0, start - 1) + value.substring(end);
+          this.selectionStart = this.selectionEnd = start-1;
+        }
+      }
+    }
+    else{      
+      if (!e.shiftKey) {
+        target.value = value.substring(0, start) +
+          "\t" + tabbedText + value.substring(end);
+        this.selectionStart = start + 1;
+        this.selectionEnd = end + 1;
+      }
+      else{
+        if (value[start - 1] == "\t") {
+          target.value = value.substring(0, start - 1) +
+            untabbedText + value.substring(end);
+          this.selectionStart = start - 1;
+          this.selectionEnd = end - 1;
+        }
 
-    // put caret at right position again (add one for the tab)
-    this.selectionStart = this.selectionEnd = start + 1;
-
+      }
+      // put caret at right position again (add one for the tab)
+      //this.selectionStart = this.selectionEnd = start + 1;
+    }                 
     // The notes have been changed.  Indicate this with the Save button stars.
     document.getElementById("btnSave").innerHTML = "*SAVE*";
 
@@ -2217,6 +2269,18 @@ document.querySelector("#txtNotes").addEventListener('keydown', function (e) {
     e.preventDefault();
   }
 }, false);
+
+function getSelectionText() {
+  var text = "";
+  var activeEl = document.getElementById("txtNotes");
+  text = activeEl.value.slice(activeEl.selectionStart, activeEl.selectionEnd);
+  return text;
+}
+
+document.onmouseup = document.onkeyup = document.onselectionchange = function() {
+  notesSelectedText = getSelectionText();
+  console.log("notesSelectedText = " + notesSelectedText);
+};
 
 document.querySelector("#txtDoc").addEventListener('keydown', function (e) {
   if (e.keyCode === 9) { // tab was pressed

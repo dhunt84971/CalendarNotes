@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require("electron");
+const { app, shell, BrowserWindow } = require("electron");
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -22,7 +22,7 @@ function createWindow() {
   win.setMenu(null);
 
   // Open the DevTools.
-  // win.webContents.openDevTools();
+  win.webContents.openDevTools();
   
   // Emitted when the window is closed.
   win.on("closed", () => {
@@ -35,6 +35,19 @@ function createWindow() {
   win.once('ready-to-show', () => {
     win.show();
   });
+
+  // Open links in external browser (deprecated)
+  win.webContents.on("new-window", function(e, url) {
+    e.preventDefault();
+    shell.openExternal(url);
+  });
+
+  // Open links in external browser
+  win.webContents.on("will-navigate", function(e, url) {
+    e.preventDefault();
+    shell.openExternal(url);
+  });
+
 }
 
 // This method will be called when Electron has finished

@@ -33,6 +33,7 @@ const APPDIR = electron.remote.app.getAppPath();
 const DOCNAMEDELIMETER = " - ";
 var numWaiting = 0;
 var notesSelectedText = "";
+var notesCursorPos = 0;
 
 // These are placeholders that will be written over when the settings
 // are read from the settings file.
@@ -2158,11 +2159,6 @@ document.getElementById("txtNotes").addEventListener("contextmenu", (e) => {
   locateMenu(menu, e.clientX, e.clientY);
 });
 
-// document.getElementById("btnHideMenu").addEventListener("click", (e)=>{
-//   var menu = document.querySelector(".notesMenu");
-//   menu.classList.add("hide");
-// });
-
 function hideContextMenu() {
   var menu = document.querySelector(".notesMenu");
   menu.classList.add("hide");
@@ -2189,10 +2185,9 @@ document.getElementById("btnCopy").addEventListener("click", (e) => {
 });
 
 document.getElementById("btnPaste").addEventListener("click", (e) => {
-  let notesText = document.getElementById("txtNotes").value;
-  let selectionStart = notesText.selectionStart;
-  let cpText = clipboard.readText("selection");
-  notesText.value = notesText.value.substring(0, selectionStart) + cpText + notesText.value.substring(selectionStart);
+  let notesText = document.getElementById("txtNotes");
+  let cpText = clipboard.readText("clipboard");
+  notesText.value = notesText.value.substring(0, notesCursorPos) + cpText + notesText.value.substring(notesCursorPos);
   hideContextMenu();
   document.getElementById("btnSave").innerHTML = "*SAVE*";
 });
@@ -2270,16 +2265,10 @@ document.querySelector("#txtNotes").addEventListener('keydown', function (e) {
   }
 }, false);
 
-function getSelectionText() {
-  var text = "";
-  var activeEl = document.getElementById("txtNotes");
-  text = activeEl.value.slice(activeEl.selectionStart, activeEl.selectionEnd);
-  return text;
-}
-
 document.onmouseup = document.onkeyup = document.onselectionchange = function() {
-  notesSelectedText = getSelectionText();
-  console.log("notesSelectedText = " + notesSelectedText);
+  let txtNotes = document.getElementById("txtNotes");
+  notesSelectedText = txtNotes.value.slice(txtNotes.selectionStart, txtNotes.selectionEnd);
+  notesCursorPos = document.getElementById("txtNotes").selectionStart;
 };
 
 document.querySelector("#txtDoc").addEventListener('keydown', function (e) {

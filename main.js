@@ -16,7 +16,7 @@ function createWindow() {
   });
   
   // and load the index.html of the app.
-  win.loadFile("index.html");
+  win.loadFile("index.html").catch((e)=>{console.log(e);});
 
   // Remove Window Menu
   win.setMenu(null);

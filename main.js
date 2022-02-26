@@ -1,12 +1,13 @@
-const { app, shell, BrowserWindow } = require("electron");
+const { app, shell, BrowserWindow, ipcMain } = require("electron");
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win = null;
+let settingsSaved = false;
 
 function createWindow() {
   // Create the browser window.
-  win = new BrowserWindow({ width: 800, height: 650, show: false,
+  win = new BrowserWindow({ width: 800, height: 600, show: false,
     webPreferences: {
       nodeIntegration: true,
       webviewTag: true,
@@ -22,7 +23,14 @@ function createWindow() {
   win.setMenu(null);
 
   // Open the DevTools.
-  //win.webContents.openDevTools();
+  // win.webContents.openDevTools();
+
+  win.on("close", (e) =>{
+    if (!settingsSaved){
+      e.preventDefault();
+      win.webContents.send("saveSettings", null);
+    }
+  });
   
   // Emitted when the window is closed.
   win.on("closed", () => {
@@ -49,6 +57,13 @@ function createWindow() {
   });
 
 }
+
+//#region IPC EVENTS
+ipcMain.on("closeWindow", (event, message) => {
+  settingsSaved = true;
+  win.close();
+});
+//#endregion IPC EVENTS
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.

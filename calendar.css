@@ -17,6 +17,7 @@
     --invertSettingsIcon: false;
     --notesMenuBGColor: #464646;
     --iconhover: white;
+    --calBorder: #a74c00;
 }
 
 /* Stop the highlighting of non-input areas. */

@@ -13,6 +13,7 @@ var mysql = require("mysql");
 var sqlite3 = require("sqlite3").verbose();
 var fs = require("fs");
 var marked = require("marked");
+const { resolve } = require("dns");
 //#endregion GLOBAL REFERENCES
 
 //#region GLOBAL VARIABLES
@@ -34,6 +35,8 @@ const DOCNAMEDELIMETER = " - ";
 var numWaiting = 0;
 var notesSelectedText = "";
 var notesCursorPos = 0;
+
+const win = remote.getCurrentWindow();
 
 // These are placeholders that will be written over when the settings
 // are read from the settings file.
@@ -168,6 +171,7 @@ var CALENDAR = function () {
         updateDBSelection("opt" + _settings.dbType);
         document.getElementById("lbldbFile").innerHTML = getFilename(_settings.dbFile);
         document.getElementById("lbldbFile").title = _settings.dbFile;
+        restoreWindowPosition();
       })
       .catch((err) => {
         // Assume any error means the settings file does not exist and create it.
@@ -1601,6 +1605,42 @@ function getPath(fullPath){
   return paths.slice(0, paths.length-1).join("/");
 }
 
+function saveWindowPosition(callback) {
+  let windowState = win.getBounds();
+  return appSettings.setSettingInFile("windowState", windowState);
+}
+
+function restoreWindowPosition() {
+  try {
+    if (_settings) {
+      let ws = _settings.windowState;
+      if (ws.x <= 0 || ws.y <= 0 || ws.width <= 0 || ws.height <= 0) return;
+      win.setPosition(ws.x, ws.y);
+      win.setSize(ws.width, ws.height);
+    }
+    else {
+      win.setSize(800, 600);
+    }
+  }
+  catch{
+    win.setSize(800, 600);
+  };  
+}
+
+function promptSaveChanges() {
+  if (document.getElementById("btnSave").innerHTML == "*SAVE*"){
+    const options = {
+      type:"question", 
+      buttons: ["No", "Yes"], 
+      defaultId: 1,
+      title: "Save Changes",
+      message: "Do you want to save changes before closing?"
+    }
+    return dialog.showMessageBox(null, options);
+  }
+  return null;
+}
+
 /// Test the connection to the database using the settings entered into the dialog box.
 function testDBConnection() {
   var settings = getSettingsfromDialog();
@@ -2345,3 +2385,20 @@ document.getElementById("vSplitterDoc").addEventListener("mousedown", (e) => {
 //#endregion RESIZABLE SPLITTERS
 
 // #endregion DOCUMENT EVENT HANDLERS
+
+// #region IPC EVENT HANDLERS
+
+ipc.on("saveSettings", (event, message) => {
+  (async()=>{
+    await saveWindowPosition();
+    let value = await promptSaveChanges();
+    if (value){
+      if (value.response == 1){
+        await saveNotes(lastDaySelected, document.getElementById("txtNotes").value);
+      }
+    }
+    electron.ipcRenderer.send("closeWindow", null);
+    resolve();
+  })();
+});
+// #endregion IPC EVENT HANDLERS

@@ -2,7 +2,7 @@
 An Electron application for daily notes (or journal) entries saved to a SQLite or MySQL DB and searchable by words.
 
 Current release:
-<br/>https://github.com/dhunt84971/CalendarNotes/releases/tag/v1.1.14
+<br/>https://github.com/dhunt84971/CalendarNotes/releases/tag/v1.1.15
 
 
 This is a port of an application originally written in Gambas.  Much of the code for the calendar component came from a 
@@ -32,8 +32,8 @@ The deb file is suitable for all debian based distros include Ubuntu, however th
 
 ```
 sudo apt-get update
-sudo apt-get install libappindicator1
-sudo dpkg -i calendarNotes_1.0.1_amd64.deb
+sudo apt-get install libappindicator1 gconf2 gconf-service
+sudo dpkg -i calendarNotes_1.1.15_amd64.deb
 ```
 NOTE: Substitute the example deb file name with the version that was downloaded.
 

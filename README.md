@@ -32,7 +32,7 @@ The deb file is suitable for all debian based distros include Ubuntu, however th
 
 ```
 sudo apt-get update
-sudo apt-get install libappindicator1 gconf2 gconf-service
+sudo apt-get install nodejs npm python3 sqlite3 libappindicator1 gconf2 gconf-service
 sudo dpkg -i calendarNotes_1.1.15_amd64.deb
 ```
 NOTE: Substitute the example deb file name with the version that was downloaded.

@@ -23,7 +23,9 @@ function createWindow() {
   win.setMenu(null);
 
   // Open the DevTools.
-  // win.webContents.openDevTools();
+  // devtools = new BrowserWindow();
+  // win.webContents.setDevToolsWebContents(devtools.webContents);
+  // win.webContents.openDevTools({mode: 'detach'});
 
   win.on("close", (e) =>{
     if (!settingsSaved){

@@ -31,7 +31,7 @@ var monthDisplayed, daySelected, yearDisplayed;
 var lastDaySelected;
 
 const APPDIR = electron.remote.app.getAppPath();
-const DOCNAMEDELIMETER = " - ";
+const DOCNAMEDELIMETER = " -> ";
 var numWaiting = 0;
 var notesSelectedText = "";
 var notesCursorPos = 0;

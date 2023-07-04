@@ -8,9 +8,8 @@ const {
 } = require("electron");
 const ipc = require("electron").ipcRenderer;
 const libAppSettings = require("lib-app-settings");
+const spawn = require("child_process").spawn;
 
-var mysql = require("mysql");
-var sqlite3 = require("sqlite3").verbose();
 var fs = require("fs");
 var marked = require("marked");
 const { resolve } = require("dns");
@@ -24,6 +23,7 @@ var calRows = 5;
 const settingsFile = "./.settings";
 var dbFile = "./.calendarNotes.db";
 var settingsdbFile = "./.calendarNotes.db";
+var dbLocked = false;
 
 var appSettings = new libAppSettings(settingsFile);
 
@@ -393,30 +393,6 @@ var CALENDAR = function () {
 // #endregion CALENDAR OBJECT CODE
 
 // #region DATABASE CODE
-function getRowsMySql(sql, callback) {
-  return new Promise((resolve, reject)=>{
-    console.log("SQL = " + sql);
-    showWaitImage();
-    var connection = mysql.createConnection(_settings);
-    connection.connect();
-    connection.query(sql, function (err, rows, fields) {
-      hideWaitImage();
-      if (!err) {
-        if (callback) {
-          callback(err, rows);
-        }
-        resolve(rows);
-      } else {
-        if (callback) {
-          callback(err, null);
-        }
-        resolve();
-      }
-    });
-    connection.end();
-  });
-}
-
 function getRowsSqlite(sql, callback) {
   return new Promise((resolve, reject)=>{
     console.log("SQL = " + sql);
@@ -441,182 +417,116 @@ function getRowsSqlite(sql, callback) {
   });
 }
 
-function getNotesMySQL(dateForDay, callback) {
-  showWaitImage();
-  var connection = mysql.createConnection(_settings);
-  connection.connect();
-  var sqlQuery = `SELECT * from Notes where NoteDate = '${dateForDay}'`;
-  console.log(sqlQuery);
-  connection.query(sqlQuery, function (err, rows, fields) {
-    hideWaitImage();
-    console.log("Notes received");
-    if (!err) {
-      if (rows.length > 0) {
-        if (callback) {
-          callback(err, rows[0].NoteText);
-        }
-      } else {
-        if (callback) {
-          callback(err, " ");
-        }
-        return;
-      }
-    } else {
-      if (callback) {
-        callback(err);
-      }
-      return;
-    }
-    connection.end();
-  });
-}
-
 function getNotesSqlite(dateForDay, callback) {
-  console.log(dbFile);
-  console.log(dateForDay);
-  console.log(formatDateSqlite(dateForDay));
-  let sql = "SELECT * FROM Notes WHERE NoteDate = '" + formatDateSqlite(dateForDay) + "'";
-  console.log(sql);
-  let db = new sqlite3.Database(dbFile, (err) => {
-    if (!err) {
-      db.all(sql, [], (err, rows) => {
-        if (!err) {
-          if (rows.length > 0) {
-            if (callback) {
-              callback(err, rows[0].NoteText);
-            }
-          } else {
-            if (callback) {
-              callback(err, " ");
-            }
-            return;
-          }
-        } else {
-          if (callback) {
-            callback(err);
-          }
-          return;
+    console.log(dbFile);
+    console.log(dateForDay);
+    console.log(formatDateSqlite(dateForDay));
+    let sql = `SELECT NoteText FROM Notes WHERE NoteDate = "` + formatDateSqlite(dateForDay) + `"`;
+    console.log(sql);
+    execCommandSql(sql, (err, data)=>{
+		if (data == undefined) data = " ";
+        console.log(data);
+		if (callback) {
+              callback(err, data);
         }
-        db.close();
-      });
-    } else {
-      console.error(err.message);
-      if (callback) {
-        callback(err);
-      }
-      return;
-    }
-  });
-}
-
-function saveNotesMySql(dateForDay, notesText, callback) {
-  //var noteExists = sqlNoteExists(dateForDay);
-  console.log("Saving notes = '" + notesText + "'");
-  if (notesText == "") notesText = " ";
-
-  sqlNoteExistsMySql(dateForDay, function (result) {
-    if (result) {
-      updateNotesMySql(dateForDay, notesText, callback);
-    } else {
-      insertNotesMySql(dateForDay, notesText, callback);
-    }
-  });
+    });
 }
 
 function saveNotesSqlite(dateForDay, notesText, callback) {
   //var noteExists = sqlNoteExists(dateForDay);
   console.log("Saving notes = '" + notesText + "'");
   if (notesText == "") notesText = " ";
-
+  console.log("calling sqlNoteExistsSqlite...");
   sqlNoteExistsSqlite(dateForDay, function (result) {
     if (result) {
-      updateNotesSqlite(dateForDay, notesText, callback);
+		console.log("Updating");
+        updateNotesSqlite(dateForDay, notesText, callback);
     } else {
-      insertNotesSqlite(dateForDay, notesText, callback);
+		console.log("Inserting");
+        insertNotesSqlite(dateForDay, notesText, callback);
     }
-  });
-}
-
-function getTasksMySql(callback) {
-  showWaitImage();
-  var connection = mysql.createConnection(_settings);
-  connection.connect();
-  connection.query("SELECT * FROM TasksList LIMIT 1", (err, rows, fields) => {
-    hideWaitImage();
-    if (!err) {
-      console.log(rows);
-      if (callback) {
-        callback(err, rows[0].TasksList);
-      }
-    } else {
-      console.log("Error while performing Query.");
-      if (callback) {
-        callback(err);
-      }
-    }
-    connection.end();
   });
 }
 
 function getTasksSqlite(callback) {
-  let db = new sqlite3.Database(dbFile, (err) => {
-    if (!err) {
-      db.all("SELECT * FROM TasksList", [], (err, rows) => {
-        if (!err) {
-          if (rows.length > 0) {
-            if (callback) {
-              callback(err, rows[0].TasksList);
-            }
-          } else {
-            if (callback) {
-              callback(err, " ");
-            }
-            return;
-          }
-        } else {
-          if (callback) {
-            callback(err);
-          }
-          return;
+    var sql = `SELECT TasksList FROM TasksList`;
+    execCommandSql(sql, (err, data)=>{
+		if (data == undefined) data = " ";
+		console.log(data);
+        if (callback) {
+			callback(err, data);
         }
-        db.close();
-      });
-    } else {
-      console.error(err.message);
-      if (callback) {
-        callback(err);
-      }
-      return;
-    }
-  });
+    });
+}
+
+function sleep(millisec) {
+	return new Promise(resolve=> {
+		setTimeout(() => { resolve('') }, millisec);
+	});
+}
+
+function execCommandSql(sql, callback){
+	// wait for lock.
+	return new Promise(function(resolve,reject){
+		(async()=>{
+			while (dbLocked){
+				console.log("Waiting");
+				await sleep(100);
+			}
+			dbLocked = true;
+			console.log("Executing SQL command " + sql);
+			var sqlProcess = spawn("sqlite3", [dbFile, sql]);
+			sqlProcess.stdout.setEncoding("utf-8");
+			var output = "";
+			var err = "";
+			sqlProcess.stdout.on("data", (data) => {
+				console.log("Got back data from sql command.");
+				if (data) output += data;
+			});
+			sqlProcess.stderr.on("data", (data) => {
+				console.log("Got back error from sql command.");
+				if (data) err += data;
+			});
+			// sqlProcess.on("exit", ()=>{
+			// 	console.log("Got back exit from sql command.");
+			// 	dbLocked = false;
+			// 	if (callback){
+			// 		callback(err, output);
+			// 	}
+			// 	resolve(err, output);
+			// 	return(err, output);
+			// });
+			sqlProcess.on("close", ()=>{
+				console.log("Got back close from sql command.");
+				dbLocked = false;
+				if (callback){
+					callback(err, output);
+				}
+				resolve(err, output);
+				return(err, output);
+			});
+		})()
+	});
 }
 
 function createSqliteDB(callback) {
-  return new Promise((resolve, reject) => {
-    let db = new sqlite3.Database(dbFile, (err) => {
-      if (err) {
-        console.error(err.message);
-        reject();
-      } else {
-        (async (err) => {
-          // Create the tables.
-          var sql = `CREATE TABLE Notes (
-            ID INTEGER PRIMARY KEY,
-            NoteDate TEXT,
-            NoteText TEXT,
-            LastModified TEXT
-          )`;
-          await new Promise((resolve)=>{
-            db.run(sql,()=>{ resolve(); });
-          });
-          sql = `CREATE TABLE TasksList (
+	return new Promise(async (resolve, reject) => {
+		var sql;
+		var data;
+		// Create the tables.
+		sql = `'CREATE TABLE Notes (
+			ID INTEGER PRIMARY KEY,
+			NoteDate TEXT,
+			NoteText TEXT,
+			LastModified TEXT
+		)'`;
+		data = await execCommandSql(sql);
+		sql = `'CREATE TABLE TasksList (
             ID INTEGER PRIMARY KEY,
             TasksList TEXT
-          )`;
-          await new Promise((resolve)=>{
-            db.run(sql,()=>{ resolve(); });
-          });
-          sql = `CREATE TABLE Docs (
+        )'`;
+        data = await execCommandSql(sql);
+		sql = `'CREATE TABLE Docs (
             ID INTEGER PRIMARY KEY,
             DocName TEXT,
             DocLocation TEXT,
@@ -626,18 +536,10 @@ function createSqliteDB(callback) {
             DocIndentLevel INTEGER DEFAULT 0,
             DocOrder INTEGER DEFAULT 0,
             PageOrder INTEGER DEFAULT 0
-          )`;
-          await new Promise((resolve)=>{
-            db.run(sql,()=>{ resolve(); });
-          });
-          db.close(()=>{
-            resolve();
-            if (callback) callback();  
-          });
-        })();
-      }
-    });
-  });
+        )'`;
+        data = await execCommandSql(sql);
+		resolve(data);
+	});
 }
 // #endregion DATABASE CODE
 
@@ -652,20 +554,7 @@ function loadNotes(notes) {
 
 function getNotes(dateForDay, callback) {
   return new Promise(function (resolve, reject) {
-    // Block the interface from acting on any input.
-    if (_settings.dbType == "MySql") {
-      getNotesMySQL(dateForDay, (err, notes) => {
-        if (!err) {
-          loadNotes(notes);
-        } else {
-          alert("Error querying database.  Check settings.");
-          console.log("Error while performing query.");
-          console.log(_settings);
-          reject(err);
-        }
-        resolve();
-      });
-    } else { //if (dbType == "Sqlite")
+      // Block the interface from acting on any input.
       getNotesSqlite(dateForDay, (err, notes) => {
         if (!err) {
           loadNotes(notes);
@@ -677,164 +566,52 @@ function getNotes(dateForDay, callback) {
         }
         resolve();
       });
-    }
-  });
+    });
 }
 
 function saveNotes(dateForDay, notesText) {
   return new Promise(function (resolve, reject) {
     console.log("Saving notes = '" + notesText + "'");
     if (notesText == "") notesText = " ";
-    if (_settings.dbType == "MySql") {
-      saveNotesMySql(dateForDay, notesText, () => {
+    saveNotesSqlite(dateForDay, notesText, () => {
         resolve();
-      });
-    } else {
-      saveNotesSqlite(dateForDay, notesText, () => {
-        resolve();
-      });
-    }
+    });
     document.getElementById("btnSave").innerHTML = "SAVE";
   });
 }
 
-function updateNotesMySql(dateForDay, notesText, callback) {
-  showWaitImage();
-  var connection = mysql.createConnection(_settings);
-  connection.connect(function (err) {
-    if (err) throw err;
-    var sql = "UPDATE Notes SET NoteText = '" + sqlSafeText(notesText) + "', ";
-    sql += "LastModified = '" + getMySQLNow() + "' ";
-    sql += "WHERE NoteDate = '" + dateForDay + "'";
-    console.log("Executing SQL query = " + sql);
-
-    connection.query(sql, function (err, result) {
-      hideWaitImage();
-      if (err) throw err;
-      console.log(result.affectedRows + " record(s) updated");
-      if (callback) callback(err, result);
-      connection.end();
-    });
-  });
-}
-
 function updateNotesSqlite(dateForDay, notesText, callback) {
-  console.log(formatDateSqlite(dateForDay));
-  let db = new sqlite3.Database(dbFile, (err) => {
-    if (err) throw err;
-    var sql = "UPDATE Notes SET NoteText = '" + sqlSafeText(notesText) + "', ";
-    sql += "LastModified = '" + getMySQLNow() + "' ";
-    sql += "WHERE NoteDate = '" + formatDateSqlite(dateForDay) + "'";
+    console.log(formatDateSqlite(dateForDay));
+    var sql = `UPDATE Notes SET NoteText = "` + sqlSafeText(notesText) + `", `;
+    sql += `LastModified = "` + getMySQLNow() + `" `;
+    sql += `WHERE NoteDate = "` + formatDateSqlite(dateForDay) + `"`;
     console.log("Executing SQL query = " + sql);
-
-    db.run(sql, function (err) {
-      if (err) throw err;
-      if (callback) callback(err, "success");
-    });
-    db.close();
-  });
-}
-
-function insertNotesMySql(dateForDay, notesText, callback) {
-  showWaitImage();
-  var connection = mysql.createConnection(_settings);
-  connection.connect(function (err) {
-    if (err) throw err;
-    var sql = "INSERT INTO Notes (NoteDate, NoteText, LastModified) VALUES (";
-    sql += "'" + dateForDay + "', ";
-    sql += "'" + sqlSafeText(notesText) + "', ";
-    sql += "'" + getMySQLNow() + "')";
-    console.log("Executing SQL query = " + sql);
-
-    connection.query(sql, function (err, result) {
-      hideWaitImage();
-      if (err) throw err;
-      if (callback) callback(err, result);
-      connection.end();
-    });
-  });
+	execCommandSql(sql, (err,data)=>{
+		let result = err? "success" : "failure";
+		if (callback) callback(err, result);
+	});
 }
 
 function insertNotesSqlite(dateForDay, notesText, callback) {
-  let db = new sqlite3.Database(dbFile, (err) => {
-    if (err) throw err;
-    var sql = "INSERT INTO Notes (NoteDate, NoteText, LastModified) VALUES (";
-    sql += "'" + formatDateSqlite(dateForDay) + "', ";
-    sql += "'" + sqlSafeText(notesText) + "', ";
-    sql += "'" + getMySQLNow() + "')";
+    var sql = `INSERT INTO Notes (NoteDate, NoteText, LastModified) VALUES (`;
+    sql += `"` + formatDateSqlite(dateForDay) + `", `;
+    sql += `"` + sqlSafeText(notesText) + `", `;
+    sql += `"` + getMySQLNow() + `")`;
     console.log("Executing SQL query = " + sql);
-
-    db.run(sql, (err) => {
-      if (err) throw err;
-      if (callback) callback(err, "success");
-    });
-    db.close();
-  });
-}
-
-function sqlNoteExistsMySql(dateForDay, callback) {
-  var retValue = false;
-  showWaitImage();
-  var connection = mysql.createConnection(_settings);
-  connection.connect();
-  console.log(
-    "Searching for Note : " +
-    "SELECT * from Notes where NoteDate = '" +
-    dateForDay +
-    "'"
-  );
-
-  connection.query(
-    "SELECT * from Notes where NoteDate = '" + dateForDay + "'",
-    function (err, rows, fields) {
-      hideWaitImage();
-      if (!err) {
-        console.log("Rows found = " + rows.length);
-        console.log("Returning = " + (rows.length > 0));
-        retValue = rows.length > 0;
-        if (callback) callback(retValue);
-      }
-      connection.end();
-    }
-  );
-
-  return retValue;
+	execCommandSql(sql, (err,data)=>{
+		let result = err? "success" : "failure";
+		if (callback) callback(err, result);
+	});
 }
 
 function sqlNoteExistsSqlite(dateForDay, callback) {
-  var retValue = false;
-  let db = new sqlite3.Database(dbFile, (err) => {
-    if (!err) {
-      console.log(
-        "Searching for Note : " +
-        "SELECT * from Notes where NoteDate = '" +
-        dateForDay +
-        "'"
-      );
-      var sql = "SELECT * FROM Notes WHERE NoteDate = '" + formatDateSqlite(dateForDay) + "'";
-      db.all(sql, [], (err, rows) => {
-        if (!err) {
-          console.log("Rows found = " + rows.length);
-          console.log("Returning = " + (rows.length > 0));
-          retValue = rows.length > 0;
-          if (callback) callback(retValue);
-        }
-      });
-      db.close();
-    }
-  });
-  return retValue;
-}
-
-function saveTasksMySql(tasksText, callback) {
-  //var noteExists = sqlNoteExists(dateForDay);
-  sqlTasksExistsMySql(function (result) {
-    if (result) {
-      updateTasksMySql(tasksText, callback);
-    } else {
-      insertTasksMySql(tasksText, callback);
-    }
-  });
+	var retValue = false;
+	var sql = `SELECT * FROM Notes WHERE NoteDate = "` + formatDateSqlite(dateForDay) + `"`;
+	console.log(sql);
+    execCommandSql(sql, (err, data)=>{
+		retValue = data.length > 0;
+		if (callback) callback(retValue);
+    });
 }
 
 function saveTasksSqlite(tasksText, callback) {
@@ -1028,158 +805,58 @@ function loadTasks(tasks) {
 
 // Get the tasks from the database.
 function getTasks() {
-  return new Promise(function (resolve, reject) {
-    // Block the interface from acting on any input.
-    if (_settings.dbType == "MySql") {
-      getTasksMySql((err, tasks) => {
-        if (!err) {
-          loadTasks(tasks);
-        } else {
-          alert("Error querying database.  Check settings.");
-          console.log("Error while performing Query.");
-          console.log(_settings);
-          reject(err);
-        }
-        resolve();
-      });
-    } else { //if (dbType == "Sqlite")
-      getTasksSqlite((err, tasks) => {
-        if (!err) {
-          loadTasks(tasks);
-        } else {
-          alert("Error querying database.  Check settings.");
-          console.log("Error while performing Query.");
-          console.log(_settings);
-          reject(err);
-        }
-        resolve();
-      });
-    }
-  });
+	return new Promise(function (resolve, reject) {
+		// Block the interface from acting on any input.
+		getTasksSqlite((err, tasks) => {
+			if (!err) {
+			  loadTasks(tasks);
+			} else {
+			  alert("Error querying database.  Check settings.");
+			  console.log("Error while performing Query.");
+			  console.log(_settings);
+			  reject(err);
+			}
+			resolve();
+		});
+	});
 }
 
 function saveTasks(tasksText) {
-  return new Promise(function (resolve, reject) {
-    if (_settings.dbType == "MySql") {
-      saveTasksMySql(tasksText, () => {
-        resolve();
-      });
-    } else {
-      saveTasksSqlite(tasksText, () => {
-        resolve();
-      });
-    }
-  });
-}
-
-function updateTasksMySql(tasksText, callback) {
-  showWaitImage();
-  var connection = mysql.createConnection(_settings);
-  connection.connect(function (err) {
-    if (err) throw err;
-    var sql =
-      "UPDATE TasksList SET TasksList = '" + sqlSafeText(tasksText) + "'";
-    console.log("Executing SQL query = " + sql);
-    connection.query(sql, function (err, result) {
-      hideWaitImage();
-      console.log("4");
-      if (err) throw err;
-      console.log(result.affectedRows + " record(s) updated");
-      if (callback) callback(err, result);
-      connection.end();
+	return new Promise(function (resolve, reject) {
+		saveTasksSqlite(tasksText, () => {
+			resolve();
+		});
     });
-  });
 }
 
 function updateTasksSqlite(tasksText, callback) {
-  let db = new sqlite3.Database(dbFile, (err) => {
-    if (err) throw err;
-    var sql =
-      "UPDATE TasksList SET TasksList = '" + sqlSafeText(tasksText) + "'";
-    console.log("Executing SQL query = " + sql);
-
-    db.run(sql, (err) => {
-      if (err) throw err;
-      if (callback) callback(err);
+	var sql = `UPDATE TasksList SET TasksList = "`
+	sql += sqlSafeText(tasksText) + `"`;
+	console.log("Executing SQL query = " + sql);
+	execCommandSql(sql, (err,data) =>{
+		if (err) throw err;
+		if (callback) callback(err);
     });
-    db.close();
-  });
-}
-
-function insertTasksMySql(tasksText, callback) {
-  showWaitImage();
-  var connection = mysql.createConnection(_settings);
-  connection.connect(function (err) {
-    if (err) throw err;
-    var sql = "INSERT INTO TasksList (TasksList) VALUES (";
-    sql += "'" + sqlSafeText(tasksText) + "')";
-    console.log("Executing SQL query = " + sql);
-
-    connection.query(sql, function (err, result) {
-      hideWaitImage();
-      if (err) throw err;
-      if (callback) callback(err, result);
-      connection.end();
-    });
-  });
-
 }
 
 function insertTasksSqlite(tasksText, callback) {
-  let db = new sqlite3.Database(dbFile, (err) => {
-    if (err) throw err;
-    var sql = "INSERT INTO TasksList (TasksList) VALUES (";
-    sql += "'" + sqlSafeText(tasksText) + "')";
+    var sql = `INSERT INTO TasksList (TasksList) VALUES (`;
+    sql += `"` + sqlSafeText(tasksText) + `")`;
     console.log("Executing SQL query = " + sql);
-
-    db.run(sql, function (err) {
-      if (err) throw err;
-      if (callback) callback(err, "success");
+	execCommandSql(sql, (err,data) =>{
+		if (err) throw err;
+		if (callback) callback(err);
     });
-    db.close();
-  });
-
-}
-
-function sqlTasksExistsMySql(callback) {
-  var retValue = false;
-  showWaitImage();
-  var connection = mysql.createConnection(_settings);
-  connection.connect();
-  console.log("Searching for Tasks : " + "SELECT * from TasksList");
-
-  connection.query("SELECT * from TasksList", function (err, rows, fields) {
-    hideWaitImage();
-    if (!err) {
-      console.log("Rows found = " + rows.length);
-      console.log("Returning = " + (rows.length > 0));
-      retValue = rows.length > 0;
-      if (callback) callback(retValue);
-    }
-    connection.end();
-  });
-
-  return retValue;
 }
 
 function sqlTasksExistsSqlite(callback) {
-  var retValue = false;
-  let db = new sqlite3.Database(dbFile, (err) => {
-    if (err) throw err;
-    var sql = "SELECT * from TasksList";
-
-    db.all(sql, [], (err, rows) => {
-      if (!err) {
-        console.log("Rows found = " + rows.length);
-        console.log("Returning = " + (rows.length > 0));
-        retValue = rows.length > 0;
-        if (callback) callback(retValue);
-      }
-    });
-    db.close();
-  });
-
-  return retValue;
+    var retValue = false;
+    var sql = `SELECT * from TasksList`;
+	execCommandSql(sql, (err, data)=>{
+		console.log(data);
+		retValue = data.length > 0;
+		if (callback) callback(retValue);
+	});
 }
 
 // #endregion TASKS CODE

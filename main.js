@@ -17,15 +17,13 @@ function createWindow() {
   });
   
   // and load the index.html of the app.
-  win.loadFile("index.html").catch((e)=>{console.log(e);});
+  win.loadFile("index.html");
 
   // Remove Window Menu
   win.setMenu(null);
 
   // Open the DevTools.
-  // devtools = new BrowserWindow();
-  // win.webContents.setDevToolsWebContents(devtools.webContents);
-  // win.webContents.openDevTools({mode: 'detach'});
+  win.webContents.openDevTools({mode: 'detach'});
 
   win.on("close", (e) =>{
     if (!settingsSaved){

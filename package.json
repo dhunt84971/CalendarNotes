@@ -1,7 +1,7 @@
 {
   "name": "calendarNotes",
   "productname": "Calendar Notes",
-  "version": "1.1.16",
+  "version": "1.1.16x86",
   "description": "Calendar Notes",
   "main": "main.js",
   "author": {
@@ -13,7 +13,6 @@
   "license": "MIT",
   "scripts": {
     "start": "electron .",
-    "postinstall": "electron-builder install-app-deps",
     "package": "electron-packager . --production",
     "pack": "build --dir",
     "dist": "build",
@@ -22,15 +21,12 @@
     "package-linux": "electron-packager . CalendarNotes --overwrite --asar=true --platform=linux --arch=x64 --icon=assets/icons/png/calendarNotes.png --prune=true --out=release-builds"
   },
   "devDependencies": {
-    "electron": "^10.2.0",
-    "electron-builder": "20.44.4"
+    "electron": "3.1.12"
   },
   "dependencies": {
     "fs": "0.0.1-security",
     "lib-app-settings": "^1.1.1",
-    "marked": "^2.0.0",
-    "mysql": "^2.18.1",
-    "sqlite3": "^5.1.6"
+    "marked": "^2.0.0"
   },
   "postinstall": "electron-builder install-app-deps",
   "build": {

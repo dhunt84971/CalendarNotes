@@ -396,24 +396,18 @@ var CALENDAR = function () {
 function getRowsSqlite(sql, callback) {
   return new Promise((resolve, reject)=>{
     console.log("SQL = " + sql);
-    let db = new sqlite3.Database(dbFile, (err) => {
-      if (!err) {
-        db.all(sql, [], (err, rows) => {
-          if (!err) {
-            if (callback) {
-              callback(err, rows);
-            }
-            resolve(rows);
-          } else {
-            if (callback) {
-              callback(err, null);
-            }
-            resolve();
-          }
-        });
-      }
-      db.close();
-    });
+    execCommandSql(sql, (err, data)=>{
+		console.log(data);
+		if (data){
+			let rows = data.split("\n");
+			if (callback) callback(err, rows);
+			resolve(rows);
+		}
+		else {
+			if (callback) callback("",[]);
+			resolve();
+		}
+	});
   });
 }
 
@@ -684,6 +678,7 @@ function showPageMarkdown() {
 function hideAllViews() {
   document.getElementById("txtSearchPreview").classList.add("hide");
   document.getElementById("txtNotesArea").classList.add("hide");
+  document.getElementById("divNotesContainer").classList.add("hide");
   document.getElementById("txtViewArea").classList.add("hide");
   document.getElementById("divDocsView").classList.add("hide");
   document.getElementById("txtDocArea").classList.add("hide");
@@ -703,6 +698,7 @@ function notesViewSelected() {
     document.getElementById("txtDocViewArea").classList.add("hide");
   } else {
     document.getElementById("txtNotesArea").classList.remove("hide");
+    document.getElementById("divNotesContainer").classList.remove("hide");
   }
 }
 
@@ -717,6 +713,7 @@ function mdViewSelected() {
     document.getElementById("txtDocArea").classList.add("hide");
   } else {
     document.getElementById("txtViewArea").classList.remove("hide");
+    document.getElementById("divNotesContainer").classList.remove("hide");
   }
   showNoteMarkdown();
   showPageMarkdown();
@@ -734,6 +731,7 @@ function sbsViewSelected() {
     document.getElementById("vSplitterDocs").classList.remove("hide");
   } else {
     document.getElementById("txtNotesArea").classList.remove("hide");
+    document.getElementById("divNotesContainer").classList.remove("hide");
     document.getElementById("vSplitterNotes").classList.remove("hide");
     document.getElementById("txtViewArea").classList.remove("hide");
   }
@@ -787,12 +785,15 @@ function docsViewUnselected() {
   hideAllViews();
   if (document.getElementById("btnViewMD").classList.contains("btnSelected")) {
     document.getElementById("txtViewArea").classList.remove("hide");
+    document.getElementById("divNotesContainer").classList.remove("hide");
   } else if (document.getElementById("btnViewSideBySide").classList.contains("btnSelected")) {
     document.getElementById("txtViewArea").classList.remove("hide");
     document.getElementById("vSplitterNotes").classList.remove("hide");
     document.getElementById("txtNotesArea").classList.remove("hide");
+    document.getElementById("divNotesContainer").classList.remove("hide");
   } else {
     document.getElementById("txtNotesArea").classList.remove("hide");
+    document.getElementById("divNotesContainer").classList.remove("hide");
   }
 }
 
@@ -953,10 +954,10 @@ async function searchNotes(srchText, callback) {
     word = searchWords[i];
     if (word) {
       if (first) {
-        where = " WHERE UPPER(NoteText) LIKE '%" + word.toUpperCase() + "%'";
+        where = ` WHERE UPPER(NoteText) LIKE "%` + word.toUpperCase() + `%"`;
         first = false;
       } else {
-        where += " AND UPPER(NoteText) LIKE '%" + word.toUpperCase() + "%'";
+        where += ` AND UPPER(NoteText) LIKE "%` + word.toUpperCase() + `%"`;
       }
     }
   }
@@ -965,7 +966,15 @@ async function searchNotes(srchText, callback) {
     console.log("Search results found = " + rows.length);
     console.log(rows);
     for (var irec = 0; irec < rows.length; irec++) {
-      addSearchResultItem(rows[irec].srchSource);
+		if (rows[irec]){
+			let fields = rows[irec].split("|");
+			if (fields.length > 1){
+				addSearchResultItem(fields[1]);
+			}
+			else{
+				addSearchResultItem(fields[0]);
+			}
+		}
     }
   }
 
@@ -973,17 +982,10 @@ async function searchNotes(srchText, callback) {
   // Search for Docs...
   let docsFound = false;
   if (document.getElementById("chkDocuments").checked){
-    if (_settings.dbType == "MySql") {
-      var sql =
-        `SELECT CONCAT(DocLocation, '${DOCNAMEDELIMETER}', DocName) as srchSource FROM Docs ` +
-        where.replaceAll("NoteText", "DocText");
-        rows = await getRowsMySql(sql);
-    } else {
-      var sql =
-        `SELECT DocLocation || '${DOCNAMEDELIMETER}' || DocName as srchSource FROM Docs ` +
-        where.replaceAll("NoteText", "DocText");
-        rows = await getRowsSqlite(sql);
-    }
+    var sql =
+      `SELECT DocLocation || "${DOCNAMEDELIMETER}" || DocName as srchSource FROM Docs ` +
+      where.replaceAll("NoteText", "DocText");
+      rows = await getRowsSqlite(sql);
   }
   if (rows) {
     docsFound = rows.length > 0;
@@ -994,19 +996,11 @@ async function searchNotes(srchText, callback) {
   
   // Search for Notes...
   let notesFound = false;
-  if (_settings.dbType == "MySql") {
-    var sql =
-      "SELECT DATE_FORMAT(NoteDate, '%m/%d/%Y') as srchSource FROM Notes " +
-      where +
-      " ORDER BY NoteDate DESC";
-    rows = await getRowsMySql(sql);
-  } else {
-    var sql = 
-      "SELECT NoteDate, strftime('%m/%d/%Y', NoteDate) as srchSource FROM Notes " +
-      where +
-      " ORDER BY NoteDate DESC";
+  var sql = 
+    "SELECT NoteDate, strftime('%m/%d/%Y', NoteDate) as srchSource FROM Notes " +
+    where +
+    " ORDER BY NoteDate DESC";
     rows = await getRowsSqlite(sql);
-  }
   if (rows) {
     notesFound = rows.length > 0;
     if (notesFound) {
@@ -1120,7 +1114,7 @@ function getNotePreview(dateForDay, callback) {
     if (!err) {
       if (rows.length > 0) {
         console.log("getNotes rows returned = " + rows.length);
-        var previewText = rows[0].NoteText;
+        var previewText = rows;
         if (document.getElementById("btnViewMD").classList.contains("btnSelected")) {
           console.log("db notesText = " + previewText);
           previewText = marked(previewText);
@@ -1139,20 +1133,12 @@ function getNotePreview(dateForDay, callback) {
     }
   }
 
-  var sql =
-    "SELECT * from Notes where NoteDate = '" +
-    convertMySQLDate(dateForDay) +
-    "'";
   var sqlite =
-    "SELECT * from Notes where NoteDate = '" +
+    "SELECT NoteText from Notes where NoteDate = '" +
     formatDateSqlite(dateForDay) +
     "'";
-  console.log(sql);
-  if (_settings.dbType == "MySql") {
-    getRowsMySql(sql, processRows);
-  } else {
-    getRowsSqlite(sqlite, processRows);
-  }
+  console.log(sqlite);
+  execCommandSql(sqlite, processRows);
   if (callback) callback();
 }
 
@@ -1164,7 +1150,7 @@ function getDocPreview(docLocName, callback) {
     if (!err) {
       if (rows.length > 0) {
         console.log("getDocs rows returned = " + rows.length);
-        var previewText = rows[0].DocText;
+        var previewText = rows;
         if (document.getElementById("btnViewMD").classList.contains("btnSelected")) {
           console.log("db notesText = " + previewText);
           previewText = marked(previewText);
@@ -1186,11 +1172,7 @@ function getDocPreview(docLocName, callback) {
   var docLocation = docLocName.split(DOCNAMEDELIMETER)[0];
   var sql =
     `SELECT DocText from Docs where DocName = '${docName}' AND DocLocation = '${docLocation}'`;
-  if (_settings.dbType == "MySql") {
-    getRowsMySql(sql, processRows);
-  } else {
-    getRowsSqlite(sql, processRows);
-  }
+  execCommandSql(sql, processRows);
   if (callback) callback();
 }
 
@@ -1203,6 +1185,7 @@ function showSearchPreview(srchSource) {
   if (srchSource.includes(DOCNAMEDELIMETER)){
     getDocPreview(srchSource, function() {
       document.getElementById("txtNotesArea").classList.add("hide");
+      document.getElementById("divNotesContainer").classList.add("hide");
       document.getElementById("txtViewArea").classList.add("hide");
       document.getElementById("txtSearchPreview").classList.remove("hide");
     });
@@ -1210,6 +1193,7 @@ function showSearchPreview(srchSource) {
   else{
     getNotePreview(srchSource, function () {
       document.getElementById("txtNotesArea").classList.add("hide");
+      document.getElementById("divNotesContainer").classList.add("hide");
       document.getElementById("txtViewArea").classList.add("hide");
       document.getElementById("txtSearchPreview").classList.remove("hide");
     });
@@ -1222,11 +1206,14 @@ function hideSearchPreview() {
   document.getElementById("txtSearchPreview").classList.add("hide");
   if (document.getElementById("btnViewMD").classList.contains("btnSelected")) {
     document.getElementById("txtViewArea").classList.remove("hide");
+    document.getElementById("divNotesContainer").classList.remove("hide");
   } else if (document.getElementById("btnViewSideBySide").classList.contains("btnSelected")) {
     document.getElementById("txtNotesArea").classList.remove("hide");
+    document.getElementById("divNotesContainer").classList.remove("hide");
     document.getElementById("txtViewArea").classList.remove("hide");
   } else {
     document.getElementById("txtNotesArea").classList.remove("hide");
+    document.getElementById("divNotesContainer").classList.remove("hide");
   }
 }
 
@@ -1450,23 +1437,26 @@ function updateDBSelection(elSelected) {
 
 function getdbFilename(path) {
   return new Promise((resolve, reject) => {
-      const options = {
-          defaultPath: path ? path : "./",
-          filters: [{
-                  name: 'Sqlite DB',
-                  extensions: ['db']
-              },
-              {
-                  name: 'All Files',
-                  extensions: ['*']
-              }
-          ]
-      };
-      const result = dialog.showSaveDialogSync(null, options);
-      if (result) {
-          console.log(result);
-          resolve(result);
-      }
+	  (async()=>{
+		  const options = {
+			  defaultPath: path ? path : "./",
+			  filters: [{
+					  name: 'Sqlite DB',
+					  extensions: ['db']
+				  },
+				  {
+					  name: 'All Files',
+					  extensions: ['*']
+				  }
+			  ]
+		  };
+		  let result = await dialog.showSaveDialog(null, options)
+  		  if (result) {
+			  console.log(result);
+			  resolve(result);
+			  return result;
+	  	  }
+	  })()
   });
 }
 

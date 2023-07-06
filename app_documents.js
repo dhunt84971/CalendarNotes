@@ -14,6 +14,7 @@ var app_documents = {
     indentChange: 10,
     draggedPageEl: undefined,
     draggedDocEl: undefined,
+	dbLocked: false,
     //#endregion GLOBAL DECLARATIONS
 
     //#region PAGE RENDER FUNCTIONS
@@ -28,17 +29,20 @@ var app_documents = {
                     if (data.length > 0){
                         let firstPage = {};
                         for (var i = 0; i < data.length; i++) {
-                            let pageBtnEl = addItemtoDiv("lstDocs", data[i].DocName, "btn pageItem", "data-grp=page");
-                            pageBtnEl.setAttribute("draggable", "true");
-                            let marginL = data[i].DocIndentLevel * 5;
-                            pageBtnEl.style.marginLeft = `${marginL}px`;
-                            pageBtnEl.addEventListener("click", (e)=>{
-                                this.btnPage_Clicked(e.target);
-                            });
-                            pageBtnEl.addEventListener("contextmenu", (e)=>{
-                                this.btnPage_RtClicked(e);
-                            });
-                            if (i == 0) firstPage = pageBtnEl;
+							if (data[i].length > 0){
+								let fields = data[i].split("|");
+								let pageBtnEl = addItemtoDiv("lstDocs", fields[0], "btn pageItem", "data-grp=page");
+								pageBtnEl.setAttribute("draggable", "true");
+								let marginL = fields[1] * 5;
+								pageBtnEl.style.marginLeft = `${marginL}px`;
+								pageBtnEl.addEventListener("click", (e)=>{
+									this.btnPage_Clicked(e.target);
+								});
+								pageBtnEl.addEventListener("contextmenu", (e)=>{
+									this.btnPage_RtClicked(e);
+								});
+								if (i == 0) firstPage = pageBtnEl;
+							}
                         }
                         this.selectPage(firstPage);
                         resolve();
@@ -106,16 +110,6 @@ var app_documents = {
     //#endregion PAGE RENDER FUNCTIONS
 
     //#region DATABASE FUNCTIONS
-    getPagesMySQL: function (docFullName) {
-        let sql = `
-            SELECT DocName, DocIndentLevel
-            FROM Docs 
-            WHERE DocLocation = '${docFullName}'
-            ORDER BY PageOrder ASC
-        `;
-        return this.execQueryMySQL(sql);
-    },
-
     getPagesSqlite: function (docFullName) {
         let sql = `
             SELECT DocName, DocIndentLevel
@@ -123,35 +117,7 @@ var app_documents = {
             WHERE DocLocation = '${docFullName}'
             ORDER BY PageOrder ASC
         `;
-        return this.execQuerySqlite(sql);
-    },
-
-    addDocLocationMySQL: function (parentDoc, docName, docOrder) {
-        return new Promise((resolve, reject) => {
-            var docFullName = parentDoc == "" ? docName : parentDoc + "/" + docName;
-            // Make sure the document name is unique.
-            this.getUniqueDocName(docFullName)
-                .then((docNewName) => {
-                    // Add the document name to the database.
-                    showWaitImage();
-                    var connection = mysql.createConnection(_settings);
-                    connection.connect(function (err) {
-                        if (err) throw err;
-                        var sql = `
-                            INSERT INTO Docs 
-                                (DocName, DocLocation, DocColor, DocText, LastModified, DocOrder, PageOrder) 
-                                VALUES ('New Page', '${docNewName}',-1, '', '${getMySQLNow()}', ${docOrder}, 0)
-                        `;
-                        console.log("Executing SQL query = " + sql);
-                        connection.query(sql, function (err, result) {
-                            hideWaitImage();
-                            if (err) reject(err)
-                            else resolve(result);
-                            connection.end();
-                        });
-                    });
-                });
-        });
+        return this.execQuerySqliteRows(sql);
     },
 
     addDocLocationSqlite: function (parentDoc, docName, docOrder) {
@@ -179,19 +145,6 @@ var app_documents = {
         });
     },
 
-    addPageMySQL: function (path, docOrder, pageOrder) {
-        // Get a unique page name.
-        let newPageName = this.getUniquePageName("New Page");
-        // Add the document to the database.
-        var sql = `
-            INSERT INTO Docs 
-            (DocName, DocLocation, DocColor, DocText, LastModified, DocOrder, PageOrder) 
-            VALUES ('${newPageName}', '${path}',
-            -1, '','${getMySQLNow()}', ${docOrder}, ${pageOrder})
-        `;
-        return this.execCommandMySQL(sql);
-    },
-
     addPageSqlite: function (path, docOrder, pageOrder) {
         // Get a unique page name.
         let newPageName = this.getUniquePageName("New Page");
@@ -205,32 +158,7 @@ var app_documents = {
         return this.execCommandSqlite(sql);
     },
 
-    docNameExistsMySQL: function (docFullName) {
-        return new Promise(function (resolve, reject) {
-            var retValue = docFullName;
-            showWaitImage();
-            var connection = mysql.createConnection(_settings);
-            connection.connect();
-            connection.query(
-                "SELECT DocLocation from Docs WHERE DocLocation = '" + docFullName + "'",
-                function (err, rows, fields) {
-                    hideWaitImage();
-                    if (err) {
-                        reject(new Error("DB error occurred!"));
-                    } else {
-                        console.log("Rows found = " + rows.length);
-                        console.log("Returning = " + (rows.length > 0));
-                        retValue = rows.length > 0;
-                        resolve(retValue);
-                    }
-                    connection.end();
-                    return retValue;
-                }
-            );
-        });
-    },
-
-    docNameExistsSqlite: function (docFullName) {
+	docNameExistsSqlite: function (docFullName) {
         return new Promise(function (resolve, reject) {
             var retValue = docFullName;
             let db = new sqlite3.Database(dbFile, (err) => {
@@ -259,26 +187,6 @@ var app_documents = {
         });
     },
 
-    docPageExistsMySQL: function(fullPath, pageName){
-        return new Promise(function (resolve, reject) {
-            let sql = `
-                SELECT DocName
-                FROM Docs 
-                WHERE DocLocation = '${fullPath}'
-                AND DocName =  '${pageName}';
-            `;
-            app_documents.execQueryMySQL(sql)
-            .then((data)=>{
-                let retValue = data.length > 0;
-                resolve(retValue);
-            })
-            .catch((err)=>{
-                console.log(err);
-                reject(err);
-            });
-        });
-    },
-
     docPageExistsSqlite: function(fullPath, pageName){
         return new Promise(function (resolve, reject) {
             let sql = `
@@ -299,26 +207,6 @@ var app_documents = {
         });
     },
 
-    getDocsMySQL: function () {
-        return new Promise((resolve, reject)=>{
-            showWaitImage();
-            var connection = mysql.createConnection(_settings);
-            connection.connect();
-            let sql = `
-                SELECT DISTINCT DocLocation, DocOrder
-                FROM Docs
-                ORDER BY DocOrder ASC
-            `;
-            connection.query( sql, (err, data) => {
-                hideWaitImage();
-                if (err) reject(err);
-                console.log(data);
-                resolve(data);
-                connection.end();
-            });
-        }); 
-    },
-
     getDocsSqlite: function () {
         // Load treeview with the documents.
         let sql = `
@@ -326,25 +214,7 @@ var app_documents = {
             FROM Docs
             ORDER BY DocOrder ASC
         `;
-        return this.execQuerySqlite(sql);
-    },
-
-    updateDocNameMySQL: function (oldName, newName){
-        var sql1 = `
-            UPDATE Docs 
-            SET DocLocation = REPLACE(DocLocation, '${oldName}', '${newName}')
-            WHERE DocLocation = '${oldName}';
-        `;
-        var sql2= `
-            UPDATE Docs 
-            SET DocLocation = CONCAT('${newName}', SUBSTR(DocLocation, LENGTH('${oldName}/')))
-            WHERE INSTR(DocLocation, '${oldName}/') = 1;
-        `;
-        return Promise.all([this.execCommandMySQL(sql1), this.execCommandMySQL(sql2)])
-        .catch((err)=>{
-            console.log(err);
-            ShowWarningMessageBox("Database command failure!");
-        });
+        return this.execQuerySqliteRows(sql);
     },
 
     updateDocNameSqlite: function (oldName, newName){
@@ -365,16 +235,6 @@ var app_documents = {
         });
     },
 
-    updatePageNameMySQL: function (fullPath, oldName, newName){
-        var sql = `
-            UPDATE Docs
-            SET DocName = '${newName}'
-            WHERE DocLocation = '${fullPath}' 
-            AND DocName = '${oldName}';
-        `;
-        return this.execCommandMySQL(sql);
-    },
-
     updatePageNameSqlite: function (fullPath, oldName, newName){
         var sql = `
             UPDATE Docs
@@ -383,22 +243,6 @@ var app_documents = {
             AND DocName = '${oldName}';
         `;
         return this.execCommandSqlite(sql);
-    },
-
-    deleteDocMySQL: function (fullPath){
-        var sql1 = `
-            DELETE FROM Docs 
-            WHERE DocLocation = '${fullPath}';
-        `;
-        var sql2 = `
-            DELETE FROM Docs 
-            WHERE INSTR(DocLocation, '${fullPath}/') = 1;
-        `;
-        return Promise.all([this.execCommandMySQL(sql1), this.execCommandMySQL(sql2)])
-        .catch((err)=>{
-            console.log(err);
-            ShowWarningMessageBox("Database command failure!");
-        });
     },
 
     deleteDocSqlite: function (fullPath){
@@ -411,19 +255,6 @@ var app_documents = {
             WHERE INSTR(DocLocation, '${fullPath}/') = 1;
         `;
         return Promise.all([this.execCommandSqlite(sql1), this.execCommandSqlite(sql2)])
-        .catch((err)=>{
-            console.log(err);
-            ShowWarningMessageBox("Database command failure!");
-        });
-    },
-
-    deletePageMySQL: function(fullPath, pageName){
-        var sql = `
-            DELETE FROM Docs 
-            WHERE DocLocation = '${fullPath}'
-            AND DocName = '${pageName}';
-        `;
-        return this.execCommandMySQL(sql)
         .catch((err)=>{
             console.log(err);
             ShowWarningMessageBox("Database command failure!");
@@ -443,33 +274,13 @@ var app_documents = {
         });
     },
 
-    getPageNoteMySQL: function (fullPath, pageName){
-        let sql = `
-            SELECT DocText FROM Docs
-            WHERE DocLocation = '${fullPath}'
-            AND DocName = '${pageName}';
-        `;
-        return this.execQueryMySQL(sql);
-    },
-
     getPageNoteSqlite: function (fullPath, pageName){
         let sql = `
             SELECT DocText FROM Docs
-            WHERE DocLocation = '${fullPath}'
-            AND DocName = '${pageName}';
+            WHERE DocLocation = "${fullPath}"
+            AND DocName = "${pageName}";
         `;
         return this.execQuerySqlite(sql);
-    },
-
-    updatePageMySQL: function(fullPath, pageName, docText){
-        let sql = `
-            UPDATE Docs
-                SET DocText = '${sqlSafeText(docText)}',
-                LastModified = '${getMySQLNow()}' 
-            WHERE DocLocation = '${fullPath}'
-            AND DocName = '${pageName}';
-        `;
-        return this.execCommandMySQL(sql);
     },
 
     updatePageSqlite: function(fullPath, pageName, docText){
@@ -483,16 +294,6 @@ var app_documents = {
         return this.execCommandSqlite(sql);
     },
 
-    updatePageIndentMySQL: function(fullPath, pageName, indent){
-        let sql = `
-            UPDATE Docs
-                SET DocIndentLevel = ${indent}
-            WHERE DocLocation = '${fullPath}'
-            AND DocName = '${pageName}';
-        `;
-        return this.execCommandMySQL(sql);
-    },
-
     updatePageIndentSqlite: function(fullPath, pageName, indent){
         let sql = `
             UPDATE Docs
@@ -503,79 +304,144 @@ var app_documents = {
         return this.execCommandSqlite(sql);
     },
 
-    execQueryMySQL: function (sql) {
-        return new Promise(function (resolve, reject) {
-            console.log("Executing SQL query = " + sql);
-            showWaitImage();
-            var connection = mysql.createConnection(_settings);
-            connection.connect();
-            connection.query(sql,
-                function (err, rows, fields) {
-                    hideWaitImage();
-                    if (err) {
-                        reject(new Error("DB error occurred!"));
-                    } else {
-                        resolve(rows);
-                    }
-                    connection.end();
-                }
-            );
-        });
-    },
+	sleep: function (millisec) {
+		return new Promise(resolve => {
+			setTimeout(() => { resolve('') }, millised);
+		})
+	},
 
-    execCommandMySQL: function (sql){
-        return new Promise((resolve, reject) => {
-            showWaitImage();
-            var connection = mysql.createConnection(_settings);
-            connection.connect(function (err) {
-                if (err) reject(err);
-                console.log("Executing SQL query = " + sql);
-                connection.query(sql, function (err, result) {
-                    hideWaitImage();
-                    if (err) reject(err)
-                    else resolve(result);
-                    connection.end();
-                });
-            });
-        });
-    },
-
-    execQuerySqlite: function (sql) {
+    execQuerySqlite: function (sql, callback) {
         // Load treeview with the documents.
         return new Promise((resolve, reject)=>{
-            let db = new sqlite3.Database(dbFile, (err) => {
-                if (!err) {
-                    db.all(sql, [], (err, rows) => {
-                        if (!err){
-                            console.log(rows);
-                            resolve(rows);
-                        }
-                        else{
-                            reject(err);
-                        }
-                    });
-                }
-                else{
-                    reject(err);
-                }
-                db.close();
-                return;
-            });
+            (async()=>{
+				while (this.dbLocked){
+					console.log("Waiting");
+					await this.sleep(100);
+				}
+				this.dbLocked = true;
+				console.log("Executing SQL query " + sql);
+				var sqlProcess = spawn("sqlite3", [dbFile, sql]);
+				sqlProcess.stdout.setEncoding("utf-8");
+				var output = "";
+				var err = "";
+				sqlProcess.stdout.on("data", (data) => {
+					console.log("Got back data from sql query.");
+					if (data) output += data;
+				});
+				sqlProcess.stderr.on("data", (data) => {
+					console.log("Got back error from sql query.");
+					if (data) err += data;
+				});
+				// sqlProcess.on("exit", ()=>{
+				// 	console.log("Got back exit from sql command.");
+				// 	dbLocked = false;
+				// 	if (callback){
+				// 		callback(err, output);
+				// 	}
+				// 	resolve(err, output);
+				// 	return(err, output);
+				// });
+				sqlProcess.on("close", ()=>{
+					console.log("Got back close from sql command.");
+					this.dbLocked = false;
+					console.log(output);
+					if (callback){
+						callback(output);
+					}
+					resolve(output);
+					return(output);
+				});
+			})()
+        });
+    },
+    
+    execQuerySqliteRows: function (sql, callback) {
+        // Load treeview with the documents.
+        return new Promise((resolve, reject)=>{
+            (async()=>{
+				while (this.dbLocked){
+					console.log("Waiting");
+					await this.sleep(100);
+				}
+				this.dbLocked = true;
+				console.log("Executing SQL query " + sql);
+				var sqlProcess = spawn("sqlite3", [dbFile, sql]);
+				sqlProcess.stdout.setEncoding("utf-8");
+				var output = "";
+				var err = "";
+				sqlProcess.stdout.on("data", (data) => {
+					console.log("Got back data from sql query.");
+					if (data) output += data;
+				});
+				sqlProcess.stderr.on("data", (data) => {
+					console.log("Got back error from sql query.");
+					if (data) err += data;
+				});
+				// sqlProcess.on("exit", ()=>{
+				// 	console.log("Got back exit from sql command.");
+				// 	dbLocked = false;
+				// 	if (callback){
+				// 		callback(err, output);
+				// 	}
+				// 	resolve(err, output);
+				// 	return(err, output);
+				// });
+				sqlProcess.on("close", ()=>{
+					console.log("Got back close from sql command.");
+					console.log(output);
+					let rows = output.split("\n");
+					console.log(rows);
+					this.dbLocked = false;
+					if (callback){
+						callback(rows);
+					}
+					resolve(rows);
+					return(rows);
+				});
+			})()
         });
     },
 
-    execCommandSqlite: function (sql){
+    execCommandSqlite: function (sql, callback){
         return new Promise((resolve, reject) => {
-            // Add the document name to the database.
-            let db = new sqlite3.Database(dbFile, (err) => {
-                if (err) throw err;
-                console.log("Executing SQL command = " + sql);
-                db.run(sql, (err) => {
-                    if (err) reject(err)
-                    else resolve();
-                });
-                db.close();
-            });
+            (async()=>{
+				while (this.dbLocked){
+					console.log("Waiting");
+					await this.sleep(100);
+				}
+				this.dbLocked = true;
+				console.log("Executing SQL command " + sql);
+				var sqlProcess = spawn("sqlite3", [dbFile, sql]);
+				sqlProcess.stdout.setEncoding("utf-8");
+				var output = "";
+				var err = "";
+				sqlProcess.stdout.on("data", (data) => {
+					console.log("Got back data from sql command.");
+					if (data) output += data;
+				});
+				sqlProcess.stderr.on("data", (data) => {
+					console.log("Got back error from sql command.");
+					if (data) err += data;
+				});
+				// sqlProcess.on("exit", ()=>{
+				// 	console.log("Got back exit from sql command.");
+				// 	dbLocked = false;
+				// 	if (callback){
+				// 		callback(err, output);
+				// 	}
+				// 	resolve(err, output);
+				// 	return(err, output);
+				// });
+				sqlProcess.on("close", ()=>{
+					console.log("Got back close from sql command.");
+					this.dbLocked = false;
+					if (callback){
+						callback(output);
+					}
+					resolve(output);
+					return(output);
+				});
+			})()
         });
     },
 
@@ -583,15 +449,11 @@ var app_documents = {
 
     //#region DATA RETRIEVAL FUNCTIONS
     getPages: function (docFullName) {
-        return (_settings.dbType == "MySql") ?
-            this.getPagesMySQL(docFullName) :
-            this.getPagesSqlite(docFullName);
+        return this.getPagesSqlite(docFullName);
     },
 
     getPageNote: function (docFullName, pageName){
-        return (_settings.dbType == "MySql") ?
-            this.getPageNoteMySQL(docFullName, pageName) :
-            this.getPageNoteSqlite(docFullName, pageName);
+        return this.getPageNoteSqlite(docFullName, pageName);
     },
 
     getUniqueDocName: function (docFullName) {
@@ -614,9 +476,7 @@ var app_documents = {
     },
 
     docNameExists: function (docFullName) {
-        return (_settings.dbType == "MySql") ?
-            this.docNameExistsMySQL(docFullName) :
-            this.docNameExistsSqlite(docFullName);
+        return this.docNameExistsSqlite(docFullName);
     },
 
     getUniquePageDocName: function (path, pageName) {
@@ -639,15 +499,11 @@ var app_documents = {
     },
 
     docPageExists: function (fullPath, pageName){
-        return (_settings.dbType == "MySql") ?
-            this.docPageExistsMySQL(fullPath, pageName) :
-            this.docPageExistsSqlite(fullPath, pageName);
+        return this.docPageExistsSqlite(fullPath, pageName);
     },
 
     getDocs: function (){
-        return (_settings.dbType == "MySql") ?
-            this.getDocsMySQL() :
-            this.getDocsSqlite();
+        return this.getDocsSqlite();
     },
 
     loadDocs: function (selectFirst) {
@@ -660,7 +516,7 @@ var app_documents = {
             .then((data)=>{
                 console.log(data);
                 for (var i = 0; i < data.length; i++) {
-                    this.dvDocuments.addTVItem(this.lstDocuments, data[i].DocLocation, false);
+                    this.dvDocuments.addTVItem(this.lstDocuments, data[i], false);
                 }
                 data.length > 0 ? 
                     document.getElementById("btnAddPage").classList.remove("hide") : 
@@ -681,9 +537,7 @@ var app_documents = {
             let sql = `
             SELECT MAX(DocOrder) AS MaxDocOrder FROM Docs
             `;
-            let data = _settings.dbType == "MySql" ? 
-                await this.execQueryMySQL(sql) : 
-                await this.execQuerySqlite(sql);
+            let data = await this.execQuerySqlite(sql);
             data.length > 0 ? resolve(data[0].MaxDocOrder) : resolve(-1);
         });
     },
@@ -694,10 +548,8 @@ var app_documents = {
             SELECT MAX(PageOrder) AS MaxPageOrder FROM Docs
             WHERE DocLocation = '${docLocation}'
             `;
-            let data = _settings.dbType == "MySql" ? 
-                await this.execQueryMySQL(sql) : 
-                await this.execQuerySqlite(sql);
-            data.length > 0 ? resolve(data[0].MaxPageOrder) : resolve(-1);
+            let data = await this.execQuerySqlite(sql);
+            data.length > 0 ? resolve(data) : resolve(-1);
         });
     },
 
@@ -707,10 +559,8 @@ var app_documents = {
             SELECT DocOrder FROM Docs
             WHERE DocLocation = '${docLocation}'
             `;
-            let data = _settings.dbType == "MySql" ? 
-                await this.execQueryMySQL(sql) : 
-                await this.execQuerySqlite(sql);
-            data.length > 0 ? resolve(data[0].DocOrder) : resolve(0);
+            let data = await this.execQuerySqliteRows(sql);
+            data.length > 0 ? resolve(data) : resolve(0);
         });
     },
 
@@ -721,10 +571,8 @@ var app_documents = {
             WHERE DocLocation LIKE '${path}%'
             AND DocOrder < ${docOrder}
             `;
-            let data = _settings.dbType == "MySql" ? 
-                await this.execQueryMySQL(sql) : 
-                await this.execQuerySqlite(sql);
-            data.length > 0 ? resolve(data[0].UpDocOrder) : resolve();
+            let data = await this.execQuerySqlite(sql);
+            data.length > 0 ? resolve(data) : resolve();
         });
     },
 
@@ -735,10 +583,8 @@ var app_documents = {
             WHERE DocLocation LIKE '${path}%'
             AND DocOrder > ${docOrder}
             `;
-            let data = _settings.dbType == "MySql" ? 
-                await this.execQueryMySQL(sql) : 
-                await this.execQuerySqlite(sql);
-            data.length > 0 ? resolve(data[0].DownDocOrder) : resolve();
+            let data = await this.execQuerySqlite(sql);
+            data.length > 0 ? resolve(data) : resolve();
         });
     },
 
@@ -749,10 +595,8 @@ var app_documents = {
             WHERE DocLocation = '${docLocation}'
             AND DocName = '${pageName}'
             `;
-            let data = _settings.dbType == "MySql" ? 
-                await this.execQueryMySQL(sql) : 
-                await this.execQuerySqlite(sql);
-            resolve(data[0].PageOrder);
+            let data = await this.execQuerySqliteRows(sql);
+            resolve(data[0]);
         });
     },
 
@@ -763,12 +607,7 @@ var app_documents = {
         let path = this.dvDocuments.getSelectedFullPath();
         let docOrder = await this.getMaxDocOrder();
         docOrder ++;
-        if (_settings.dbType == "MySql"){
-            await this.addDocLocationMySQL(parentDoc, docName, docOrder);
-        }
-        else{
-            await this.addDocLocationSqlite(parentDoc, docName, docOrder);
-        }
+        await this.addDocLocationSqlite(parentDoc, docName, docOrder);
         await this.loadDocs();
         (path) ? this.dvDocuments.setSelectedPath(path) : this.dvDocuments.selectFirstItem();
     },
@@ -777,9 +616,7 @@ var app_documents = {
         let pageOrder = await this.getMaxPageOrder(path);
         pageOrder ++;
         let docOrder = await this.getDocOrder(path);
-        return (_settings.dbType == "MySql") ?
-            this.addPageMySQL(path, docOrder, pageOrder) :
-            this.addPageSqlite(path, docOrder, pageOrder);
+        return this.addPageSqlite(path, docOrder, pageOrder);
     },
 
     addPage_Clicked: function(){
@@ -796,15 +633,11 @@ var app_documents = {
     },
 
     updatePage: function(path, pageName, docText){
-        return (_settings.dbType == "MySql") ?
-            this.updatePageMySQL(path, pageName, docText) :
-            this.updatePageSqlite(path, pageName, docText);
+        return this.updatePageSqlite(path, pageName, docText);
     },
 
     updatePageIndent(path, pageName, indent){
-        return (_settings.dbType == "MySql") ?
-            this.updatePageIndentMySQL(path, pageName, indent) :
-            this.updatePageIndentSqlite(path, pageName, indent);
+        return this.updatePageIndentSqlite(path, pageName, indent);
     },
 
     savePage: function(){
@@ -858,27 +691,19 @@ var app_documents = {
     },
 
     updateDocName: function (oldDocFullPath, newDocFullPath) {
-        return (_settings.dbType == "MySql") ?
-            this.updateDocNameMySQL(oldDocFullPath, newDocFullPath) :
-            this.updateDocNameSqlite(oldDocFullPath, newDocFullPath);
+        return this.updateDocNameSqlite(oldDocFullPath, newDocFullPath);
     },
 
     updatePageName: function (fullPath, oldName, newName) {
-        return (_settings.dbType == "MySql") ?
-            this.updatePageNameMySQL(fullPath, oldName, newName) :
-            this.updatePageNameSqlite(fullPath, oldName, newName);
+        return this.updatePageNameSqlite(fullPath, oldName, newName);
     },
 
     deleteDoc: function (fullPath){
-        return (_settings.dbType == "MySql") ?
-            this.deleteDocMySQL(fullPath) :
-            this.deleteDocSqlite(fullPath);
+        return this.deleteDocSqlite(fullPath);
     },
 
     deletePage: function (fullPath, pageName){
-        return (_settings.dbType == "MySql") ?
-            this.deletePageMySQL(fullPath, pageName) :
-            this.deletePageSqlite(fullPath, pageName);
+        return this.deletePageSqlite(fullPath, pageName);
     },
 
     swapPages: function (fullPath, pageOrder1, pageOrder2){
@@ -1056,9 +881,7 @@ var app_documents = {
     },
 
     execCommandSql: function (sql){
-        return (_settings.dbType == "MySql") ?
-            this.execCommandMySQL(sql) :
-            this.execCommandSqlite(sql);
+        return this.execCommandSqlite(sql);
     },
 
     //#endregion DATA TRANSMITTAL FUNCTIONS
@@ -1241,7 +1064,7 @@ var app_documents = {
         this.getPageNote(fullPath, pageName)
         .then((data)=>{
             if (data){
-                this.showPageData(data[0].DocText);
+                this.showPageData(data);
             }
             this.lastFullPath = fullPath;
         })

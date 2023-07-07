@@ -23,7 +23,7 @@ function createWindow() {
   win.setMenu(null);
 
   // Open the DevTools.
-  win.webContents.openDevTools({mode: 'detach'});
+  //win.webContents.openDevTools({mode: 'detach'});
 
   win.on("close", (e) =>{
     if (!settingsSaved){

@@ -306,7 +306,7 @@ var app_documents = {
 
 	sleep: function (millisec) {
 		return new Promise(resolve => {
-			setTimeout(() => { resolve('') }, millised);
+			setTimeout(() => { resolve('') }, millisec);
 		})
 	},
 
@@ -390,6 +390,7 @@ var app_documents = {
 					console.log("Got back close from sql command.");
 					console.log(output);
 					let rows = output.split("\n");
+					if (!rows[rows.length -1]) rows.pop();
 					console.log(rows);
 					this.dbLocked = false;
 					if (callback){
@@ -433,6 +434,7 @@ var app_documents = {
 				// 	return(err, output);
 				// });
 				sqlProcess.on("close", ()=>{
+					console.log(err);
 					console.log("Got back close from sql command.");
 					this.dbLocked = false;
 					if (callback){
@@ -974,22 +976,27 @@ var app_documents = {
     },
 
     removeDoc_Clicked: function (docName) {
-        if (showConfirmationBox("Are you sure?\nNote: Deleting this document deletes all children.")){
-            this.deleteDoc(docName)
-            .then(()=>{
-                this.loadDocs(true);
-            });
-        }
+        showConfirmationBox("Are you sure?\nNote: Deleting this document deletes all children.", (response) =>{
+		    if (response) {
+				this.deleteDoc(docName)
+				.then(()=>{
+					this.loadDocs(true);
+				});
+			}
+			
+		});
     },
 
     removePage_Clicked: function (pageName) {
-        if (showConfirmationBox("Are you sure?")){
-            let fullPath = this.dvDocuments.getSelectedFullPath();
-            this.deletePage(fullPath, pageName)
-            .then(()=>{
-                this.loadPages(this.dvDocuments.getSelectedFullPath());
-            });
-        }
+        showConfirmationBox("Are you sure?", (response) => {
+			if (response) {
+				let fullPath = this.dvDocuments.getSelectedFullPath();
+				this.deletePage(fullPath, pageName)
+				.then(()=>{
+					this.loadPages(this.dvDocuments.getSelectedFullPath());
+				});
+			}
+		});
     },
 
     pageIncIndent_Clicked: function (pageName) {

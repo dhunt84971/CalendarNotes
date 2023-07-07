@@ -139,6 +139,26 @@ var themeWarm = {
     calBorder: "#FFD93F"
   };
   
+  var themeVivTam = {
+    name: "Viv Tam",
+    buttonface: "#A52934",
+    buttontext: "#fff",
+    buttonbordersize: "0px",
+    buttonborder: "none",
+    buttonbordercolor: "#fff",
+    buttonhover: "#DD5279",
+    buttonhovertext: "#fff",
+    titlebar: "#9C55B1",
+    titletext: "#fff",
+    compColor1: "#B37ECF",
+    compColor2: "#C3ACE4",
+    notesBGColor: "#fff", 
+    notesTextColor: "#000",
+    bodyColor: "#888888", 
+    invertSettingsIcon: "false",
+    calBorder: "#9C55B1"
+  };
+  
   var themes = [
     themeDefault,
     themeWarm,
@@ -146,7 +166,8 @@ var themeWarm = {
     themeGreen,
     themePink,
     themeTron,
-    themeClu
+    themeClu,
+    themeVivTam
   ];
 
   var selectedTheme = 0;

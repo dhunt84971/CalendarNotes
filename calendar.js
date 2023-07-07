@@ -1542,7 +1542,7 @@ function ShowWarningMessageBox(message) {
   dialog.showMessageBox(null, options);
 }
 
-function showConfirmationBox(message) {
+function showConfirmationBox(message, callback) {
   const options = {
     type: "info",
     title: "Confirm",
@@ -1550,9 +1550,10 @@ function showConfirmationBox(message) {
     message: message,
   };
 
-  let response = dialog.showMessageBoxSync(null, options);
-
-  return response == 0;
+  dialog.showMessageBox(options, (response) =>{
+	if (callback) callback(response==0);
+	return (response==0);  
+  });
 }
 
 function emptyDiv(divById) {

@@ -30,7 +30,8 @@ function div_treeview(divTVElement, divTVDelimeter) {
             while (i < elements.length && !found) {
                 var newParent = elements[i];
                 if (!newParent.classList.contains("div_treeview_item")) {
-                    if (newParent.children[0].innerText == tvItems[0]) {
+					let childInnerText = newParent.children[0].innerText.replace("\n","");
+                    if (childInnerText == tvItems[0]) {
                         // A match was found.
                         found = true;
                         // Continue if there is a subitem in tvItem.
@@ -150,7 +151,8 @@ function div_treeview(divTVElement, divTVDelimeter) {
             removeAllSelected(divTVElement);
             var firstItem = divTVElement.children[0].children[0];
             firstItem.classList.add("div_treeview_selected");
-            if (onSelect_Callback) onSelect_Callback(firstItem.innerText);
+            let firstItemDocName = firstItem.innerText.replace("\n", "");
+            if (onSelect_Callback) onSelect_Callback(firstItemDocName);
         }
     }
 

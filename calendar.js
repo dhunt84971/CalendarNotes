@@ -492,6 +492,7 @@ function execCommandSql(sql, callback){
 			// });
 			sqlProcess.on("close", ()=>{
 				console.log("Got back close from sql command.");
+				console.log(err);
 				dbLocked = false;
 				if (callback){
 					callback(err, output);
@@ -507,20 +508,23 @@ function createSqliteDB(callback) {
 	return new Promise(async (resolve, reject) => {
 		var sql;
 		var data;
+		//Create the database.
+		sql = ``;
+		data = await execCommandSql(sql);
 		// Create the tables.
-		sql = `'CREATE TABLE Notes (
+		sql = `CREATE TABLE Notes (
 			ID INTEGER PRIMARY KEY,
 			NoteDate TEXT,
 			NoteText TEXT,
 			LastModified TEXT
-		)'`;
+		)`;
 		data = await execCommandSql(sql);
-		sql = `'CREATE TABLE TasksList (
+		sql = `CREATE TABLE TasksList (
             ID INTEGER PRIMARY KEY,
             TasksList TEXT
-        )'`;
+        )`;
         data = await execCommandSql(sql);
-		sql = `'CREATE TABLE Docs (
+		sql = `CREATE TABLE Docs (
             ID INTEGER PRIMARY KEY,
             DocName TEXT,
             DocLocation TEXT,
@@ -530,7 +534,7 @@ function createSqliteDB(callback) {
             DocIndentLevel INTEGER DEFAULT 0,
             DocOrder INTEGER DEFAULT 0,
             PageOrder INTEGER DEFAULT 0
-        )'`;
+        )`;
         data = await execCommandSql(sql);
 		resolve(data);
 	});

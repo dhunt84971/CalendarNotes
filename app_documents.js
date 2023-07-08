@@ -20,7 +20,7 @@ var app_documents = {
     //#region PAGE RENDER FUNCTIONS
     loadPages: function (docFullName) {
         return new Promise((resolve, reject) => {
-            console.log(docFullName);
+            console.log(`"${docFullName}"`);
             this.getPages(docFullName)
             .then((data) => {
                 emptyDiv("lstDocs");
@@ -111,10 +111,11 @@ var app_documents = {
 
     //#region DATABASE FUNCTIONS
     getPagesSqlite: function (docFullName) {
+		console.log(`"-${docFullName}-"`);
         let sql = `
             SELECT DocName, DocIndentLevel
             FROM Docs 
-            WHERE DocLocation = '${docFullName}'
+            WHERE DocLocation = "${docFullName}"
             ORDER BY PageOrder ASC
         `;
         return this.execQuerySqliteRows(sql);
@@ -126,21 +127,15 @@ var app_documents = {
             // Make sure the document name is unique.
             this.getUniqueDocName(docFullName)
                 .then((docNewName) => {
-                    // Add the document name to the database.
-                    let db = new sqlite3.Database(dbFile, (err) => {
-                        if (err) throw err;
-                        var sql = `
-                            INSERT INTO Docs 
-                                (DocName, DocLocation, DocColor, DocText, LastModified, DocOrder, PageOrder) 
-                                VALUES ('New Page', '${docNewName}',-1, '', '${getMySQLNow()}', ${docOrder}, 0)
-                        `;
-                        console.log("Executing SQL query = " + sql);
-                        db.run(sql, (err) => {
-                            if (err) reject(err)
-                            else resolve();
-                        });
-                        db.close();
-                    });
+                    var sql = `
+						INSERT INTO Docs 
+                        (DocName, DocLocation, DocColor, DocText, LastModified, DocOrder, PageOrder) 
+                        VALUES ('New Page', '${docNewName}',-1, '', '${getMySQLNow()}', ${docOrder}, 0)
+                    `;
+                    console.log("Executing SQL query = " + sql);
+                    this.execCommandSqlite(sql, ()=>{
+						resolve();
+					});
                 });
         });
     },
@@ -160,29 +155,19 @@ var app_documents = {
 
 	docNameExistsSqlite: function (docFullName) {
         return new Promise(function (resolve, reject) {
-            var retValue = docFullName;
-            let db = new sqlite3.Database(dbFile, (err) => {
-                if (!err) {
-                    let sql = `
-                        SELECT DocLocation 
-                        FROM Docs 
-                        WHERE DocLocation = '${docFullName}'
-                    `;
-                    db.all(sql, [], (err, rows) => {
-                        if (!err){
-                            retValue = rows.length > 0;
-                            resolve(retValue);
-                        }
-                        else{
-                            reject(err);
-                        }
-                    });
-                }
-                else{
-                    reject(err);
-                }
-                db.close();
-                return;
+			let sql = `
+                SELECT DocLocation 
+				FROM Docs 
+				WHERE DocLocation = '${docFullName}'
+            `;
+            app_documents.execQuerySqlite(sql)
+            .then((data)=>{
+                let retValue = data.length > 0;
+                resolve(retValue);
+            })
+            .catch((err)=>{
+                console.log(err);
+                reject(err);
             });
         });
     },
@@ -509,16 +494,21 @@ var app_documents = {
     },
 
     loadDocs: function (selectFirst) {
+		console.log("Load Docs called.");
         return new Promise((resolve, reject)=>{
             document.getElementById("txtDoc").value = "";
             document.getElementById("txtDocView").value = "";
+            console.log(this.lstDocuments);
+            console.log("Empty Documents List");
             emptyDiv("lstDocuments");
             emptyDiv("lstDocs");
+            console.log(this.lstDocuments);
+            console.log("Get the Docs.");
             this.getDocs()
             .then((data)=>{
                 console.log(data);
                 for (var i = 0; i < data.length; i++) {
-                    this.dvDocuments.addTVItem(this.lstDocuments, data[i], false);
+					this.dvDocuments.addTVItem(this.lstDocuments, data[i], false);
                 }
                 data.length > 0 ? 
                     document.getElementById("btnAddPage").classList.remove("hide") : 
@@ -540,7 +530,7 @@ var app_documents = {
             SELECT MAX(DocOrder) AS MaxDocOrder FROM Docs
             `;
             let data = await this.execQuerySqlite(sql);
-            data.length > 0 ? resolve(data[0].MaxDocOrder) : resolve(-1);
+            data.length > 0 ? resolve(data) : resolve(-1);
         });
     },
 
@@ -562,7 +552,7 @@ var app_documents = {
             WHERE DocLocation = '${docLocation}'
             `;
             let data = await this.execQuerySqliteRows(sql);
-            data.length > 0 ? resolve(data) : resolve(0);
+            data.length > 0 ? resolve(data[0]) : resolve(0);
         });
     },
 
@@ -610,6 +600,7 @@ var app_documents = {
         let docOrder = await this.getMaxDocOrder();
         docOrder ++;
         await this.addDocLocationSqlite(parentDoc, docName, docOrder);
+        console.log("Calling loadDocs.");
         await this.loadDocs();
         (path) ? this.dvDocuments.setSelectedPath(path) : this.dvDocuments.selectFirstItem();
     },

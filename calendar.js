@@ -2398,7 +2398,6 @@ ipc.on("saveSettings", (event, message) => {
       }
     }
     electron.ipcRenderer.send("closeWindow", null);
-    resolve();
   })();
 });
 // #endregion IPC EVENT HANDLERS

@@ -1,23 +1,83 @@
 :root {
     /* Default theme */
-    --buttonface: #a74c00;
-    --buttontext: #fff;
-    --buttonbordersize: 0px;
-    --buttonborder: none;
-    --buttonbordercolor: #fff;
-    --buttonhover: #d96200;
-    --buttonhovertext: #fff;
-    --titlebar: #ff7400;
-    --titletext: #fff;
-    --compColor1: #ffb170;
-    --compColor2: #ffcda4;
-    --notesBGColor: #fff;
-    --notesTextColor: #000;
-    --bodyColor: #e0e0e0;
     --invertSettingsIcon: false;
-    --notesMenuBGColor: #464646;
     --iconhover: white;
-    --calBorder: #a74c00;
+    --appBack: #e0e0e0;
+    --buttonsBack: #a74c00;
+    --buttonsBorder: #a74c00;
+    --buttonsBorderStyle: none;
+    --buttonsBorderSize: 0px;
+    --buttonsHoverBack: #d96200;
+    --buttonsHoverText: #fff;
+    --buttonsSelectedBack: #d96200;
+    --buttonsSelectedText: #fff;
+    --buttonsText: #fff;
+    --calDaysBack: #fff;
+    --calDaysBorder: #a74c00;
+    --calDaysHoverBack: #d96200;
+    --calDaysHoverText: #fff;
+    --calDaysSelectedBack: #d96200;
+    --calDaysSelectedText: #fff;
+    --calDaysText: #000;
+    --calDOWBack: #fff;
+    --calDOWBorder: #a74c00;
+    --calDOWText: #000;
+    --calHeaderBack: #ff7400;
+    --calHeaderBorder: #ff7400;
+    --calHeaderDivider: #ffb170;
+    --calHeaderHoverBack: #d96200;
+    --calHeaderHoverText: #fff;
+    --calHeaderText: #fff;
+    --docBack: #e0e0e0;
+    --docBorder: none;
+    --foundBack: #ffcda4;
+    --foundBorder: lightgray;
+    --foundHoverBack: #d96200;
+    --foundHoverText: #fff;
+    --foundText: #000;
+    --listBack: #fff;
+    --listBorder: #ff7400;
+    --notesBack: #fff;
+    --notesBorder: #ff7400;
+    --notesHeaderBack: #ff7400;
+    --notesHeaderBorder: #ff7400;
+    --notesHeaderText: #fff;
+    --notesSelectedBack: blue;
+    --notesSelectedText: #000;
+    --notesText: #000;
+    --notesHighlightText: #ffcda4;
+    --pagesBack: #fff;
+    --pagesBorder: #ff7400;
+    --pageBack: #a74c00;
+    --pageBorder: lightgray;
+    --pageText: #fff;
+    --searchBack: #fff;
+    --searchBorder: lightgray;
+    --searchText: #000;
+    --settingsBack: #ffcda4;
+    --settingsText: #000;
+    --tabBack: #a74c00;
+    --tabBorder: none;
+    --tabDivider: #a74c00;
+    --tabHoverBack: #d96200;
+    --tabHoverText: #fff;
+    --tabSelectedBack: #ff7400;
+    --tabSelectedText: #fff;
+    --tabText: #fff;
+    --tasksBack: #ffcda4;
+    --tasksBorder: #ff7400;
+    --tasksSelectedBack: blue;
+    --tasksSelectedText: #000;
+    --tasksText: #000;
+    --tvBack: #ffcda4;
+    --tvBorder: lightgray;
+    --tvHoverBack: #d96200;
+    --tvHoverText: #fff;
+    --tvNavBack: #a74c00;
+    --tvNavHover: #d96200;
+    --tvSelectedBack: #d96200;
+    --tvSelectedText: #fff;
+    --tvText: #fff;
 }
 
 /* Stop the highlighting of non-input areas. */
@@ -38,7 +98,7 @@ input, button, textarea, :focus {
 
 html,
 body {
-    background: var(--bodyColor);
+    background: var(--appBack);
     font: 13px/1.5 "Helvetica Neue", Helvetica, Arial, san-serif;
     overflow: hidden;
     height: 100%;
@@ -167,7 +227,7 @@ body {
 }
 
 .border {
-    border: solid 1px var(--buttonbordercolor) !important;
+    border: solid 1px var(--buttonsBorder) !important;
 }
 
 .horizDivider {
@@ -210,14 +270,14 @@ textarea {
     resize: none;
     font: 13px/1.5 "Helvetica Neue", Helvetica, Arial, san-serif;
     margin-top: 1px;
-    border-color: var(--titlebar);
+    border-color: var(--notesBorder);
 }
 
 #txtView {
     resize: none;
     font: 13px/1.5 "Helvetica Neue", Helvetica, Arial, san-serif;
     margin-top: 1px;
-    border-color: var(--titlebar);
+    border-color: var(--notesBorder);
 }
 
 /* #region BUTTONS */
@@ -228,12 +288,12 @@ textarea {
     justify-content: center;
     align-items: center;
     */
-    background-color: var(--buttonface);
-    color: var(--buttontext);
+    background-color: var(--buttonsBack);
+    color: var(--buttonsText);
     padding: 5px;
-    border: var(--buttonbordersize);
-    border-style: var(--buttonborder);
-    border-color: var(--buttonbordercolor);
+    border: var(--buttonsBorderSize);
+    border-style: var(--buttonsBorderStyle);
+    border-color: var(--buttonsBorder);
     text-align: center;
     font-weight: bold;
     border-top-left-radius: 5px;
@@ -248,9 +308,9 @@ textarea {
     background: -webkit-gradient(linear, left top, left bottom, from(#dfe373), to(#a7bb0f));
     border-color: #000;
     */
-    background-color: var(--buttonhover);
+    background-color: var(--buttonsHoverBack);
     cursor: pointer;
-    color: var(--buttonhovertext);
+    color: var(--buttonsHoverText);
 }
 
 .btnSmall {
@@ -268,12 +328,12 @@ textarea {
 /* #region TABS */
 .tab {
     margin-left: 1px;
-    background-color: var(--buttonface);
-    color: var(--buttontext);
+    background-color: var(--tabBack);
+    color: var(--tabText);
     padding: 5px;
-    border: var(--buttonbordersize);
-    border-style: var(--buttonborder);
-    border-color: var(--buttonbordercolor);
+    border: var(--buttonsBorderSize);
+    border-style: var(--buttonsBorderStyle);
+    border-color: var(--tabBorder);
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
     border-bottom: 0px;
@@ -282,26 +342,26 @@ textarea {
 }
 
 .tab:hover {
-    background-color: var(--buttonhover);
+    background-color: var(--tabHoverBack);
     cursor: pointer;
-    color: var(--buttonhovertext);
+    color: var(--tabHoverText);
 }
 
 .tabSelected {
-    background-color: var(--titlebar);
-    color: var(--titletext);
+    background-color: var(--tabSelectedBack);
+    color: var(--tabSelectedText);
 }
 
 .tabFooter {
-    background-color: var(--titlebar);
+    background-color: var(--tabDivider);
     padding: 0px;
     min-height: 5px;
 }
 /* #endregion TABS */
 
 .header {
-    background-color: var(--titlebar);
-    color: var(--titletext);
+    background-color: var(--notesHeaderBack);
+    color: var(--notesHeaderText);
     text-align: center;
     font-weight: bold;
 }
@@ -327,12 +387,12 @@ textarea {
 /* #region RESIZING STYLES */
 .vsplit {
     min-width:5px;
-    background: var(--bodyColor);
+    background: var(--appBack);
     cursor: ew-resize;
 }
 
 .vsplit:hover {
-background: var(--buttonhover);
+background: var(--buttonsHoverBack);
 }
 /* #endregion RESIZING STYLES  
 
@@ -359,7 +419,7 @@ background: var(--buttonhover);
     width: 0 !important; 
     height: 0!important; 
     border-top: 5px solid transparent;
-    border-right: 10px solid var(--buttonface);
+    border-right: 10px solid var(--tvNavBack);
     border-bottom: 5px solid transparent;
     background-color: transparent !important;
     margin-top: 7px;
@@ -374,7 +434,7 @@ background: var(--buttonhover);
     width: 0 !important; 
     height: 0 !important; 
     border-top: 5px solid transparent;
-    border-left: 10px solid var(--buttonface);
+    border-left: 10px solid var(--tvNavBack);
     border-bottom: 5px solid transparent;
     background-color: transparent !important;
     margin-top: 7px;
@@ -404,21 +464,16 @@ background: var(--buttonhover);
 }
 
 #cal .dateSelected {
-    background-color: var(--titlebar);
-    color: var(--titletext);
+    background-color: var(--calDaysSelectedBack);
+    color: var(--calDaysSelectedText);
 }
 
 #cal .header {
-    cursor: var(--titletext);
-    background-color: var(--titlebar);
-    /*
-	background: var(--titlebar);
-	background: -moz-linear-gradient(top, #b32b0c, var(--titlebar));
-	background: -webkit-gradient(linear, left top, left bottom, from(#b32b0c), to(var(--titlebar)));
-    */
+    cursor: var(--calHeaderText);
+    background-color: var(--calHeaderBack);
     height: 34px;
     position: relative;
-    color: var(--titletext);
+    color: var(--calHeaderText);
     -webkit-border-top-left-radius: 5px;
     -webkit-border-top-right-radius: 5px;
     -moz-border-radius-topleft: 5px;
@@ -446,14 +501,14 @@ background: var(--buttonhover);
     background: -moz-linear-gradient(top, #d94215, #bb330f);
 	background: -webkit-gradient(linear, left top, left bottom, from(#d94215), to(#bb330f));
     */
-    background-color: var(--buttonhover);
+    background-color: var(--calHeaderHoverBack);
     cursor: pointer;
 }
 
 #cal .header .right.button {
     right: 0;
     top: 0;
-    border-left: 1px solid var(--compColor1);
+    border-left: 1px solid var(--calHeaderDivider);
     border-top-right-radius: 5px;
     -moz-border-radius-topright: 5px;
     -webkit-border-top-right-radius: 5px;
@@ -465,7 +520,7 @@ background: var(--buttonhover);
     background: -moz-linear-gradient(top, #d94215, #bb330f);
 	background: -webkit-gradient(linear, left top, left bottom, from(#d94215), to(#bb330f));
     */
-    background-color: var(--buttonhover);
+    background-color: var(--calHeaderHoverBack);
     cursor: pointer;
 }
 
@@ -474,7 +529,7 @@ background: var(--buttonhover);
     width: 24px;
     right: 24px;
     top: 0;
-    border-left: 1px solid var(--compColor1);
+    border-left: 1px solid var(--calHeaderDivider);
     border-top-right-radius: 5px;
     -moz-border-radius-topright: 5px;
     -webkit-border-top-right-radius: 5px;
@@ -482,7 +537,7 @@ background: var(--buttonhover);
 
 #cal .header .left.button {
     left: 0;
-    border-right: 1px solid var(--compColor1);
+    border-right: 1px solid var(--calHeaderDivider);
     border-top-left-radius: 5px;
     -moz-border-radius-topleft: 5px;
     -webkit-border-top-left-radius: 5px;
@@ -496,7 +551,7 @@ background: var(--buttonhover);
 }
 
 #cal table {
-    background: var(--notesBGColor);
+    background: var(--calDaysBack);
     border-collapse: collapse;
 }
 
@@ -505,9 +560,9 @@ background: var(--buttonhover);
     height: 30px;
     line-height: 30px;
     text-align: center;
-    border: 1px solid var(--calBorder);
+    border: 1px solid var(--calDaysBorder);
     cursor: default;
-    color: var(--notesTextColor);
+    color: var(--calDaysText);
 }
 
 #cal #day td {
@@ -515,7 +570,7 @@ background: var(--buttonhover);
     line-height: 26px;
     text-transform: uppercase;
     font-size: 90%;
-    color: var(--notesBGColor);
+    color: var(--calDaysSelectedText);
 }
 
 #cal #days {
@@ -523,7 +578,7 @@ background: var(--buttonhover);
 }
 
 #cal #days td:not(:last-child) {
-    border-right: 1px var(--buttonbordercolor);
+    border-right: 1px var(--calDaysBorder);
 }
 
 /*
@@ -541,14 +596,9 @@ background: var(--buttonhover);
 }
 
 #cal #cal-frame td:not(.nil):hover {
-    color: var(--titletext);
+    color: var(--calDaysHoverText);
     /*text-shadow:#6c1a07 0px -1px;*/
-    background-color: var(--titlebar);
-    /*
-	background:var(--titlebar);
-	background: -moz-linear-gradient(top, #b32b0c, var(--titlebar));
-	background: -webkit-gradient(linear, left top, left bottom, from(#b32b0c), to(var(--titlebar)));
-    */
+    background-color: var(--calDaysHoverBack);
     box-shadow: 0px 0px 0px;
     -moz-box-shadow: 0px 0px 0px;
     -webkit-box-shadow: 0px 0px 0px;
@@ -577,11 +627,11 @@ background: var(--buttonhover);
 }
 
 #selectedDate {
-    background: var(--titlebar);
+    background: var(--calDaysSelectedBack);
 }
 
 #notSelectedDate {
-    background: var(--notesBGColor);
+    background: var(--calDaysBack);
 }
 
 /* #endregion CAL DIV STYLES */
@@ -589,8 +639,8 @@ background: var(--buttonhover);
 /* #region NOTES DIV STYLES */
 
 .notesHeader {
-    background-color: var(--titlebar);
-    color: var(--titletext);
+    background-color: var(--notesHeaderBack);
+    color: var(--notesHeaderText);
     text-align: center;
     font-weight: bold;
     padding-left: 5px;
@@ -602,8 +652,8 @@ background: var(--buttonhover);
     height: 100%;
     padding: 10px;
     box-sizing: border-box;
-    background-color: var(--notesBGColor);
-    color: var(--notesTextColor);
+    background-color: var(--notesBack);
+    color: var(--notesText);
     box-shadow: none;
 }
 
@@ -625,10 +675,10 @@ background: var(--buttonhover);
 
 .markd th {
     border: 1px solid;
-    border-color: var(--compColor2);
+    border-color: var(--notesHighlightText);
     padding: 5px;
-    background-color: var(--titlebar);
-    color: var(--titletext);
+    background-color: var(--notesHeaderBack);
+    color: var(--notesText);
     font-weight: bold;
 }
 
@@ -638,17 +688,17 @@ background: var(--buttonhover);
 }
 
 .markd blockquote {
-    background-color: var(--buttonhover);
-    color: var(--buttonhovertext);
+    background-color: var(--buttonsHoverBack);
+    color: var(--buttonsHoverText);
 }
 
 .markd pre {
-    background-color: var(--buttonhover);
-    color: var(--buttonhovertext);
+    background-color: var(--buttonsHoverBack);
+    color: var(--buttonsHoverText);
 }
 
 .markd a {
-    color: var(--compColor2);
+    color: var(--notesHighlightText);
 }
 
 .markd p {
@@ -691,7 +741,7 @@ background: var(--buttonhover);
 
 #divTasks textarea {
     padding: 3px;
-    background-color: var(--compColor2);
+    background-color: var(--tasksBack);
 }
 
 .taskSearch {
@@ -700,13 +750,13 @@ background: var(--buttonhover);
 }
 
 .btnSelected {
-    background-color: var(--buttonhover);
-    color: var(--buttonhovertext);
+    background-color: var(--buttonsSelectedBack);
+    color: var(--buttonsSelectedText);
 }
 
 .selected {
-    background-color: var(--buttonhover) !important;
-    color: var(--buttonhovertext) !important;
+    background-color: var(--buttonsSelectedBack) !important;
+    color: var(--buttonsSelectedText) !important;
 }
 
 .tasksButton {
@@ -717,23 +767,10 @@ background: var(--buttonhover);
     min-width: 70px;
 }
 
-.tasksHeader {
-    background-color: var(--titlebar);
-    color: var(--titletext);
-    text-align: center;
-    font-weight: bold;
-}
-
 #txtTasks {
     display: flex;
     font: 13px/1.1 "Helvetica Neue", Helvetica, Arial, san-serif;
     height: 100%;
-}
-
-#tasksLabel {
-    background: var(--titlebar);
-    color: #fff;
-    font-weight: bold;
 }
 
 /* #endregion TASKS DIV STYLES */
@@ -741,12 +778,6 @@ background: var(--buttonhover);
 /* #region SEARCH DIV STYLES */
 .searchGoBox {
     padding: 2px 0px 2px 0px;
-}
-.searchHeader {
-    background-color: var(--titlebar);
-    color: var(--titletext);
-    text-align: center;
-    font-weight: bold;
 }
 
 #btnGo {
@@ -758,10 +789,10 @@ background: var(--buttonhover);
     height: 25px;
     width: 165px;
     border: 1px;
-    background-color: var(--notesBGColor);
-    color: var(--notesTextColor);
+    background-color: var(--searchBack);
+    color: var(--searchText);
     border-style: solid;
-    border-color: lightgray;
+    border-color: var(--searchBorder);
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
     border-bottom-left-radius: 5px;
@@ -773,29 +804,29 @@ background: var(--buttonhover);
     overflow: auto;
     border-style: solid;
     border-width: 1px;
-    border-color: var(--titlebar);
-    background-color: var(--notesBGColor);
+    border-color: var(--listBorder);
+    background-color: var(--listBack);
     height: 100%;
-    color: var(--notesTextColor);
+    color: var(--foundText);
 }
 
 .docsList {
     overflow: auto;
     border-style: solid;
     border-width: 1px;
-    border-color: var(--titlebar);
-    background-color: var(--notesBGColor);
+    border-color: var(--docBorder);
+    background-color: var(--docBack);
     height: 100%;
     margin-top: 1px;
 }
 
 .srchResultItem {
-    background-color: var(--compColor2);
+    background-color: var(--foundBack);
     color: #000;
     padding: 5px;
     text-align: center;
     border-style: solid;
-    border-color: lightgray;
+    border-color: var(--foundBorder);
     border-width: 1px;
     min-height: 30px;
     overflow: hidden;
@@ -826,7 +857,7 @@ background: var(--buttonhover);
     left: 50%;
     margin-left: -250px;
     margin-top: -125px;
-    background-color: var(--compColor2);
+    background-color: var(--settingsBack);
     display: none;
     padding: 1px;
     border: 1px;
@@ -883,7 +914,7 @@ background: var(--buttonhover);
     width: 200px;
     overflow: auto;
     padding: 6px;
-    background-color: var(--compColor2);
+    background-color: var(--settingsBack);
     box-shadow: 5px 10px;
     box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.25);
     -moz-box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.25);
@@ -916,12 +947,12 @@ background: var(--buttonhover);
 
 /* #region SEARCH RESULT PREVIEW */
 .searchPreview {
-    color: var(--notesTextColor);
-    background-color: var(--notesBGColor);
+    color: var(--notesText);
+    background-color: var(--notesBack);
     padding: 10px;
     border: 1px;
     border-style: solid;
-    border-color: var(--notesTextColor);
+    border-color: var(--notesText);
     overflow-y: auto;
     overflow-x: hidden;
     width: 100%;
@@ -932,7 +963,7 @@ background: var(--buttonhover);
 
 /* #region CONTEXT MENU */
 .notesMenu {
-    background-color: var(--notesMenuBGColor);
+    background-color: var(--appBack);
     position: fixed;
     width: 200px;
     padding: 5px 5px 5px 5px;
@@ -940,7 +971,7 @@ background: var(--buttonhover);
 }
 
 .docsMenu {
-    background-color: var(--notesMenuBGColor);
+    background-color: var(--appBack);
     position: fixed;
     width: 200px;
     padding: 5px 5px 5px 5px;
@@ -948,7 +979,7 @@ background: var(--buttonhover);
 }
 
 .pagesMenu {
-    background-color: var(--notesMenuBGColor);
+    background-color: var(--appBack);
     position: fixed;
     width: 200px;
     padding: 5px 5px 5px 5px;
@@ -956,8 +987,8 @@ background: var(--buttonhover);
 }
 
 .btnMenu {
-    background-color: var(--buttonface);
-    color: var(--buttontext);
+    background-color: var(--buttonsBack);
+    color: var(--buttonsText);
     font: 13px/0.9 "Helvetica Neue", Helvetica, Arial, san-serif;
     padding: 5px;
     text-align: left;
@@ -975,9 +1006,9 @@ background: var(--buttonhover);
     background: -webkit-gradient(linear, left top, left bottom, from(#dfe373), to(#a7bb0f));
     border-color: #000;
     */
-    background-color: var(--buttonhover);
+    background-color: var(--buttonsSelectedBack);
     cursor: pointer;
-    color: var(--buttonhovertext);
+    color: var(--buttonsSelectedText);
 }
 /* #endregion CONTEXT MENU */
 
@@ -986,8 +1017,8 @@ background: var(--buttonhover);
 #txtRename {
     position: fixed;
     border: 1px;
-    background-color: var(--notesBGColor);
-    color: var(--notesTextColor);
+    background-color: var(--notesBack);
+    color: var(--notesText);
     border-style: solid;
     border-color: lightgray;
     border-top-left-radius: 5px;
@@ -998,12 +1029,12 @@ background: var(--buttonhover);
 }
 
 .pageItem {
-    background-color: var(--compColor2);
-    color: #000;
+    background-color: var(--pageBack);
+    color: var(--pageText);
     padding: 5px;
     text-align: center;
     border-style: solid;
-    border-color: lightgray;
+    border-color: var(--pageBorder);
     border-width: 1px;
     min-height: 30px;
     white-space: nowrap;
@@ -1012,7 +1043,7 @@ background: var(--buttonhover);
 }
 
 .dragTarget {
-    background-color: var(--buttonhover) !important;
+    background-color: var(--buttonsHoverBack) !important;
 }
 
 .dropNotAllowed {

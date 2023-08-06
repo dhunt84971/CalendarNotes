@@ -12,13 +12,13 @@
     align-items: center;
     flex: 0 0 auto;
     padding: 5px;
-    background-color: var(--compColor2);
+    background-color: var(--tvBack);
     min-height: 30px;
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
-    border: var(--buttonbordersize);
+    border: var(--buttonsBorderSize);
     border-style: solid;
     border-color: lightgray;
 }
@@ -36,9 +36,9 @@
 }
 
 .div_treeview_item:hover {
-    background-color: var(--buttonhover);
+    background-color: var(--tvHoverBack);
     cursor: pointer;
-    color: var(--buttonhovertext);
+    color: var(--tvHoverText);
 }
 
 .div_treeview_text {
@@ -51,8 +51,8 @@
 }
 
 .div_treeview_selected {
-    background-color: var(--buttonhover);
-    color: black;
+    background-color: var(--tvSelectedBack);
+    color: var(--tvSelectedText);
 }
 
 .div_treeview_collapsed {
@@ -70,7 +70,7 @@
     width: 0px;
     min-width: 0px;
     height: 10px;
-    background-color: var(--buttonface);
+    background-color: var(--tvBack);
 }
 
 .div_treeview_marker:hover {
@@ -82,7 +82,7 @@
     height: 0!important; 
     border-left: 5px solid transparent;
     border-right: 5px solid transparent;
-    border-bottom: 10px solid var(--notesTextColor);
+    border-bottom: 10px solid var(--tvNavBack);
     background-color: transparent !important;
 }
 
@@ -91,7 +91,7 @@
     height: 0 !important; 
     border-left: 5px solid transparent;
     border-right: 5px solid transparent;
-    border-top: 10px solid var(--notesTextColor);
+    border-top: 10px solid var(--tvNavBack);
     background-color: transparent !important;
 }
 
@@ -99,26 +99,26 @@
     width: 0 !important; 
     height: 0!important; 
     border-left: 10px solid transparent;
-    border-right: 0px solid var(--buttonface);
-    border-bottom: 10px solid var(--buttonface);
+    border-right: 0px solid var(--tvNavBack);
+    border-bottom: 10px solid var(--tvNavBack);
     background-color: transparent !important;
 }
 .div_treeview_arrow_dnrt:hover {
     cursor: pointer;
-    border-right: 0px solid var(--buttonhover);
-    border-bottom: 10px solid var(--buttonhover);
+    border-right: 0px solid var(--tvNavHover);
+    border-bottom: 10px solid var(--tvNavHover);
 }
 
 .div_treeview_arrow_right {
     width: 0 !important; 
     height: 0!important; 
     border-top: 5px solid transparent;
-    border-left: 10px solid var(--buttonface);
+    border-left: 10px solid var(--tvNavBack);
     border-right: 0px solid transparent;
     border-bottom: 5px solid transparent;
     background-color: transparent !important;
 }
 .div_treeview_arrow_right:hover {
     cursor: pointer;
-    border-left: 10px solid var(--buttonhover);
+    border-left: 10px solid var(--tvNavHover);
 }

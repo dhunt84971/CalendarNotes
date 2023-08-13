@@ -678,7 +678,7 @@ background: var(--buttonsHoverBack);
     border-color: var(--notesHighlightText);
     padding: 5px;
     background-color: var(--notesHeaderBack);
-    color: var(--notesText);
+    color: var(--notesHeaderText);
     font-weight: bold;
 }
 

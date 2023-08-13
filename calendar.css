@@ -271,6 +271,7 @@ textarea {
     font: 13px/1.5 "Helvetica Neue", Helvetica, Arial, san-serif;
     margin-top: 1px;
     border-color: var(--notesBorder);
+    border-image: var(--titlebarborder);
 }
 
 #txtView {
@@ -278,6 +279,7 @@ textarea {
     font: 13px/1.5 "Helvetica Neue", Helvetica, Arial, san-serif;
     margin-top: 1px;
     border-color: var(--notesBorder);
+    border-image: var(--titlebarborder);
 }
 
 /* #region BUTTONS */
@@ -470,7 +472,7 @@ background: var(--buttonsHoverBack);
 
 #cal .header {
     cursor: var(--calHeaderText);
-    background-color: var(--calHeaderBack);
+    background: var(--calHeaderBack);
     height: 34px;
     position: relative;
     color: var(--calHeaderText);
@@ -563,6 +565,7 @@ background: var(--buttonsHoverBack);
     border: 1px solid var(--calDaysBorder);
     cursor: default;
     color: var(--calDaysText);
+    border-image: var(--calBorder);
 }
 
 #cal #day td {
@@ -639,7 +642,7 @@ background: var(--buttonsHoverBack);
 /* #region NOTES DIV STYLES */
 
 .notesHeader {
-    background-color: var(--notesHeaderBack);
+    background: var(--notesHeaderBack);
     color: var(--notesHeaderText);
     text-align: center;
     font-weight: bold;

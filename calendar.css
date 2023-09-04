@@ -290,6 +290,12 @@ body {
     color: var(--buttonsHoverText);
 }
 
+.pageItem.btn:hover {
+    background-color: var(--pageHoverBack);
+    cursor: pointer;
+    color: var(--pageHoverText);
+}
+
 .btnSmall {
     width: 20px;
 }

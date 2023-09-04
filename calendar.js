@@ -861,6 +861,11 @@ function showNoteMarkdown() {
   // |X| = <img src="./images/chk_x.png" width="12px">
   var checkedSrc = "<img src='./images/chk_x_blk.png' width='12px'>";
   var uncheckedSrc = "<img src='./images/chkmt_blk.png' width='12px'>";
+  // Set the checkbox icon to white if the settings icon is inverted. 
+  if (themes[_settings.themeIndex].invertSettingsIcon == "true"){
+    checkedSrc = "<img src='./images/chk_x_w.png' width='12px'>";
+    uncheckedSrc = "<img src='./images/chkmt_w.png' width='12px'>";
+  }
   if (_settings.themeIndex == 5) {
     checkedSrc = "<img src='./images/chk_x.png' width='12px'>";
     uncheckedSrc = "<img src='./images/chkmt.png' width='12px'>"
@@ -889,6 +894,11 @@ function showPageMarkdown() {
   // |X| = <img src="./images/chk_x.png" width="12px">
   var checkedSrc = "<img src='./images/chk_x_blk.png' width='12px'>";
   var uncheckedSrc = "<img src='./images/chkmt_blk.png' width='12px'>";
+  // Set the checkbox icon to white if the settings icon is inverted.
+  if (themes[_settings.themeIndex].invertSettingsIcon == "true"){
+    checkedSrc = "<img src='./images/chk_x_w.png' width='12px'>";
+    uncheckedSrc = "<img src='./images/chkmt_w.png' width='12px'>";
+  }
   if (_settings.themeIndex == 5) {
     checkedSrc = "<img src='./images/chk_x.png' width='12px'>";
     uncheckedSrc = "<img src='./images/chkmt.png' width='12px'>"
@@ -2398,7 +2408,6 @@ ipc.on("saveSettings", (event, message) => {
       }
     }
     electron.ipcRenderer.send("closeWindow", null);
-    resolve();
   })();
 });
 // #endregion IPC EVENT HANDLERS

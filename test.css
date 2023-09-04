@@ -1,86 +1,27 @@
-:root {
-    /* Default theme */
-    --invertSettingsIcon: false;
-    --iconhover: white;
-    --appBack: #e0e0e0;
-    --buttonsBack: #a74c00;
-    --buttonsBorder: #a74c00;
-    --buttonsBorderStyle: none;
-    --buttonsBorderSize: 0px;
-    --buttonsHoverBack: #d96200;
-    --buttonsHoverText: #fff;
-    --buttonsSelectedBack: #d96200;
-    --buttonsSelectedText: #fff;
-    --buttonsText: #fff;
-    --calDaysBack: #fff;
-    --calDaysBorder: #a74c00;
-    --calDaysHoverBack: #d96200;
-    --calDaysHoverText: #fff;
-    --calDaysSelectedBack: #d96200;
-    --calDaysSelectedText: #fff;
-    --calDaysText: #000;
-    --calDOWBack: #fff;
-    --calDOWBorder: #a74c00;
-    --calDOWText: #000;
-    --calHeaderBack: #ff7400;
-    --calHeaderBorder: #ff7400;
-    --calHeaderDivider: #ffb170;
-    --calHeaderHoverBack: #d96200;
-    --calHeaderHoverText: #fff;
-    --calHeaderText: #fff;
-    --docBack: #e0e0e0;
-    --docBorder: none;
-    --foundBack: #ffcda4;
-    --foundBorder: lightgray;
-    --foundHoverBack: #d96200;
-    --foundHoverText: #fff;
-    --foundText: #000;
-    --listBack: #fff;
-    --listBorder: #ff7400;
-    --notesBack: #fff;
-    --notesBorder: #ff7400;
-    --notesHeaderBack: #ff7400;
-    --notesHeaderBorder: #ff7400;
-    --notesHeaderText: #fff;
-    --notesSelectedBack: blue;
-    --notesSelectedText: #000;
-    --notesText: #000;
-    --notesHighlightText: #ffcda4;
-    --pagesBack: #fff;
-    --pagesBorder: #ff7400;
-    --pageBack: #a74c00;
-    --pageBorder: lightgray;
-    --pageText: #fff;
-    --searchBack: #fff;
-    --searchBorder: lightgray;
-    --searchText: #000;
-    --settingsBack: #ffcda4;
-    --settingsText: #000;
-    --tabBack: #a74c00;
-    --tabBorder: none;
-    --tabDivider: #a74c00;
-    --tabHoverBack: #d96200;
-    --tabHoverText: #fff;
-    --tabSelectedBack: #ff7400;
-    --tabSelectedText: #fff;
-    --tabText: #fff;
-    --tasksBack: #ffcda4;
-    --tasksBorder: #ff7400;
-    --tasksSelectedBack: blue;
-    --tasksSelectedText: #000;
-    --tasksText: #000;
-    --tvBack: #ffcda4;
-    --tvBorder: lightgray;
-    --tvHoverBack: #d96200;
-    --tvHoverText: #fff;
-    --tvNavBack: #a74c00;
-    --tvNavHover: #d96200;
-    --tvSelectedBack: #d96200;
-    --tvSelectedText: #fff;
-    --tvText: #fff;
+:root  {
+    --buttonface: #272727;
+    --buttontext: rgba(255,218,0,1);
+    --buttonbordersize: 1px;
+    --buttonborder: solid;
+    --buttonbordercolor: linear-gradient(90deg, rgba(255,218,0,1) 0%, rgba(253,93,0,1) 100%) 1;
+    --buttonhover: #ff9d00;
+    --buttonhovertext: #000;
+    --titlebar: linear-gradient(90deg, rgba(255,218,0,1) 0%, rgba(253,93,0,1) 100%);
+    --titlebarborder: linear-gradient(90deg, rgba(255,218,0,1) 0%, rgba(253,93,0,1) 100%) 1;
+    --titletext: #272727;
+    --compColor1: #d005ca;
+    --compColor2: #161925;
+    --notesBGColor: #1a1d2b;
+    --notesTextColor: rgba(255,218,0,1);
+    --bodyColor: #272727;
+    --invertSettingsIcon: true;
+    --calBorder: rgba(130,28,226,1);
+    --calBackground: #060606;
+    --calText: rgba(208,5,202,1);
+    --calTitleBackground: linear-gradient(90deg, rgba(208,5,202,1) 0%, rgba(130,28,226,1) 100%);
+    --calButtonHover: #d005ca;
 }
 
-/* #region GLOBAL STYLES */
 /* Stop the highlighting of non-input areas. */
 .unselectable :not(input):not(textarea) {
     -webkit-user-select: none;
@@ -99,14 +40,13 @@ input, button, textarea, :focus {
 
 html,
 body {
-    background: var(--appBack);
+    background: var(--bodyColor);
     font: 13px/1.5 "Helvetica Neue", Helvetica, Arial, san-serif;
     overflow: hidden;
     height: 100%;
 }
-/*#endregion GLOBAL STYLES */
 
-/* #region LAYOUT STYLES */
+/*#region LAYOUT STYLES */
 .container {
     height: 100%;
     min-height: 100%;
@@ -229,7 +169,7 @@ body {
 }
 
 .border {
-    border: solid 1px var(--buttonsBorder) !important;
+    border: solid 1px var(--buttonbordercolor) !important;
 }
 
 .horizDivider {
@@ -268,14 +208,36 @@ body {
 
 /*#endregion LAYOUT STYLES */
 
+textarea {
+    resize: none;
+    font: 13px/1.5 "Helvetica Neue", Helvetica, Arial, san-serif;
+    margin-top: 1px;
+    border-color: var(--titlebarborder);
+    border-image: var(--titlebarborder);
+}
+
+#txtView {
+    resize: none;
+    font: 13px/1.5 "Helvetica Neue", Helvetica, Arial, san-serif;
+    margin-top: 1px;
+    border-color: var(--titlebarborder);
+    border-image: var(--titlebarborder);
+}
+
 /* #region BUTTONS */
 .btn {
-    background-color: var(--buttonsBack);
-    color: var(--buttonsText);
+    /*
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    */
+    background-color: var(--buttonface);
+    color: var(--buttontext);
     padding: 5px;
-    border: var(--buttonsBorderSize);
-    border-style: var(--buttonsBorderStyle);
-    border-color: var(--buttonsBorder);
+    border: var(--buttonbordersize);
+    border-style: var(--buttonborder);
+    border-color: var(--buttonbordercolor);
     text-align: center;
     font-weight: bold;
     border-top-left-radius: 5px;
@@ -285,9 +247,14 @@ body {
 }
 
 .btn:hover {
-    background-color: var(--buttonsHoverBack);
+    /*
+    background: -moz-linear-gradient(top, #d94215, #bb330f);
+    background: -webkit-gradient(linear, left top, left bottom, from(#dfe373), to(#a7bb0f));
+    border-color: #000;
+    */
+    background-color: var(--buttonhover);
     cursor: pointer;
-    color: var(--buttonsHoverText);
+    color: var(--buttonhovertext);
 }
 
 .btnSmall {
@@ -305,12 +272,12 @@ body {
 /* #region TABS */
 .tab {
     margin-left: 1px;
-    background-color: var(--tabBack);
-    color: var(--tabText);
+    background-color: var(--buttonface);
+    color: var(--buttontext);
     padding: 5px;
-    border: var(--buttonsBorderSize);
-    border-style: var(--buttonsBorderStyle);
-    border-color: var(--tabBorder);
+    border: var(--buttonbordersize);
+    border-style: var(--buttonborder);
+    border-color: var(--buttonbordercolor);
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
     border-bottom: 0px;
@@ -319,24 +286,34 @@ body {
 }
 
 .tab:hover {
-    background-color: var(--tabHoverBack);
+    background-color: var(--buttonhover);
     cursor: pointer;
-    color: var(--tabHoverText);
+    color: var(--buttonhovertext);
 }
 
 .tabSelected {
-    background-color: var(--tabSelectedBack);
-    background-image: var(--tabSelectedBack);
-    color: var(--tabSelectedText);
+    background-image: var(--titlebar);
+    color: var(--titletext);
 }
 
 .tabFooter {
-    background-color: var(--tabDivider);
-    background-image: var(--tabDivider);
+    background-image: var(--titlebar);
     padding: 0px;
     min-height: 5px;
 }
 /* #endregion TABS */
+
+.header {
+    background: var(--calTitleBackground);
+    color: var(--titletext);
+    text-align: center;
+    font-weight: bold;
+}
+
+
+.hide {
+    display: none !important;
+}
 
 /* #region SCROLLBAR */
 ::-webkit-scrollbar {
@@ -354,12 +331,12 @@ body {
 /* #region RESIZING STYLES */
 .vsplit {
     min-width:5px;
-    background: var(--appBack);
+    background: var(--bodyColor);
     cursor: ew-resize;
 }
 
 .vsplit:hover {
-background: var(--buttonsHoverBack);
+background: var(--buttonhover);
 }
 /* #endregion RESIZING STYLES  
 
@@ -386,7 +363,7 @@ background: var(--buttonsHoverBack);
     width: 0 !important; 
     height: 0!important; 
     border-top: 5px solid transparent;
-    border-right: 10px solid var(--tvNavBack);
+    border-right: 10px solid var(--buttonface);
     border-bottom: 5px solid transparent;
     background-color: transparent !important;
     margin-top: 7px;
@@ -401,7 +378,7 @@ background: var(--buttonsHoverBack);
     width: 0 !important; 
     height: 0 !important; 
     border-top: 5px solid transparent;
-    border-left: 10px solid var(--tvNavBack);
+    border-left: 10px solid var(--buttonface);
     border-bottom: 5px solid transparent;
     background-color: transparent !important;
     margin-top: 7px;
@@ -427,20 +404,22 @@ background: var(--buttonsHoverBack);
     box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.25);
     -moz-box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.25);
     -webkit-box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.25);
+  border-collapse: separate;
+   
     width: 100%;
 }
 
 #cal .dateSelected {
-    background-color: var(--calDaysSelectedBack);
-    color: var(--calDaysSelectedText);
+    background-color: var(--calButtonHover);
+    color: var(--titletext);
 }
 
 #cal .header {
-    cursor: var(--calHeaderText);
-    background: var(--calHeaderBack);
+    cursor: var(--titletext);
+    background: var(--calTitleBackground);
     height: 34px;
     position: relative;
-    color: var(--calHeaderText);
+    color: var(--titletext);
     -webkit-border-top-left-radius: 5px;
     -webkit-border-top-right-radius: 5px;
     -moz-border-radius-topleft: 5px;
@@ -468,14 +447,14 @@ background: var(--buttonsHoverBack);
     background: -moz-linear-gradient(top, #d94215, #bb330f);
 	background: -webkit-gradient(linear, left top, left bottom, from(#d94215), to(#bb330f));
     */
-    background-color: var(--calHeaderHoverBack);
+    background-color: var(--calButtonHover);
     cursor: pointer;
 }
 
 #cal .header .right.button {
     right: 0;
     top: 0;
-    border-left: 1px solid var(--calHeaderDivider);
+    border-left: 1px solid var(--compColor1);
     border-top-right-radius: 5px;
     -moz-border-radius-topright: 5px;
     -webkit-border-top-right-radius: 5px;
@@ -487,7 +466,7 @@ background: var(--buttonsHoverBack);
     background: -moz-linear-gradient(top, #d94215, #bb330f);
 	background: -webkit-gradient(linear, left top, left bottom, from(#d94215), to(#bb330f));
     */
-    background-color: var(--calHeaderHoverBack);
+    background-color: var(--calButtonHover);
     cursor: pointer;
 }
 
@@ -496,7 +475,7 @@ background: var(--buttonsHoverBack);
     width: 24px;
     right: 24px;
     top: 0;
-    border-left: 1px solid var(--calHeaderDivider);
+    border-left: 1px solid var(--compColor1);
     border-top-right-radius: 5px;
     -moz-border-radius-topright: 5px;
     -webkit-border-top-right-radius: 5px;
@@ -504,7 +483,7 @@ background: var(--buttonsHoverBack);
 
 #cal .header .left.button {
     left: 0;
-    border-right: 1px solid var(--calHeaderDivider);
+    border-right: 1px solid var(--compColor1);
     border-top-left-radius: 5px;
     -moz-border-radius-topleft: 5px;
     -webkit-border-top-left-radius: 5px;
@@ -518,7 +497,7 @@ background: var(--buttonsHoverBack);
 }
 
 #cal table {
-    background: var(--calDaysBack);
+    background: var(--calBackground);
     border-collapse: collapse;
 }
 
@@ -527,10 +506,10 @@ background: var(--buttonsHoverBack);
     height: 30px;
     line-height: 30px;
     text-align: center;
-    border: 1px solid var(--calDaysBorder);
-    cursor: default;
-    color: var(--calDaysText);
+    border: 1px solid var(--calBorder);
     border-image: var(--calBorder);
+    cursor: default;
+    color: var(--calText);
 }
 
 #cal #day td {
@@ -538,7 +517,7 @@ background: var(--buttonsHoverBack);
     line-height: 26px;
     text-transform: uppercase;
     font-size: 90%;
-    color: var(--calDaysSelectedText);
+    color: var(--notesBGColor);
 }
 
 #cal #days {
@@ -546,7 +525,7 @@ background: var(--buttonsHoverBack);
 }
 
 #cal #days td:not(:last-child) {
-    border-right: 1px var(--calDaysBorder);
+    border-right: 1px var(--buttonbordercolor);
 }
 
 /*
@@ -564,9 +543,14 @@ background: var(--buttonsHoverBack);
 }
 
 #cal #cal-frame td:not(.nil):hover {
-    color: var(--calDaysHoverText);
+    color: var(--titletext);
     /*text-shadow:#6c1a07 0px -1px;*/
-    background-color: var(--calDaysHoverBack);
+    background-color: var(--calButtonHover);
+    /*
+	background:var(--titlebar);
+	background: -moz-linear-gradient(top, #b32b0c, var(--titlebar));
+	background: -webkit-gradient(linear, left top, left bottom, from(#b32b0c), to(var(--titlebar)));
+    */
     box-shadow: 0px 0px 0px;
     -moz-box-shadow: 0px 0px 0px;
     -webkit-box-shadow: 0px 0px 0px;
@@ -595,47 +579,20 @@ background: var(--buttonsHoverBack);
 }
 
 #selectedDate {
-    background: var(--calDaysSelectedBack);
+    background: var(--titlebar);
 }
 
 #notSelectedDate {
-    background: var(--calDaysBack);
+    background: var(--notesBGColor);
 }
 
 /* #endregion CAL DIV STYLES */
 
 /* #region NOTES DIV STYLES */
 
-.header {
-    background-color: var(--notesHeaderBack);
-    color: var(--notesHeaderText);
-    text-align: center;
-    font-weight: bold;
-}
-
-.hide {
-    display: none !important;
-}
-
-textarea {
-    resize: none;
-    font: 13px/1.5 "Helvetica Neue", Helvetica, Arial, san-serif;
-    margin-top: 1px;
-    border-color: var(--notesBorder);
-    border-image: var(--titlebarborder);
-}
-
-#txtView {
-    resize: none;
-    font: 13px/1.5 "Helvetica Neue", Helvetica, Arial, san-serif;
-    margin-top: 1px;
-    border-color: var(--notesBorder);
-    border-image: var(--titlebarborder);
-}
-
 .notesHeader {
-    background: var(--notesHeaderBack);
-    color: var(--notesHeaderText);
+    background: var(--titlebar);
+    color: var(--titletext);
     text-align: center;
     font-weight: bold;
     padding-left: 5px;
@@ -647,8 +604,8 @@ textarea {
     height: 100%;
     padding: 10px;
     box-sizing: border-box;
-    background-color: var(--notesBack);
-    color: var(--notesText);
+    background-color: var(--notesBGColor);
+    color: var(--notesTextColor);
     box-shadow: none;
 }
 
@@ -670,10 +627,10 @@ textarea {
 
 .markd th {
     border: 1px solid;
-    border-color: var(--notesHighlightText);
+    border-color: var(--compColor2);
     padding: 5px;
-    background: var(--notesHeaderBack);
-    color: var(--notesHeaderText);
+    background-color: var(--titlebar);
+    color: var(--titletext);
     font-weight: bold;
 }
 
@@ -683,17 +640,17 @@ textarea {
 }
 
 .markd blockquote {
-    background-color: var(--buttonsHoverBack);
-    color: var(--buttonsHoverText);
+    background-color: var(--buttonhover);
+    color: var(--buttonhovertext);
 }
 
 .markd pre {
-    background-color: var(--buttonsHoverBack);
-    color: var(--buttonsHoverText);
+    background-color: var(--buttonhover);
+    color: var(--buttonhovertext);
 }
 
 .markd a {
-    color: var(--notesHighlightText);
+    color: var(--compColor2);
 }
 
 .markd p {
@@ -736,7 +693,7 @@ textarea {
 
 #divTasks textarea {
     padding: 3px;
-    background-color: var(--tasksBack);
+    background-color: var(--compColor2);
 }
 
 .taskSearch {
@@ -745,20 +702,13 @@ textarea {
 }
 
 .btnSelected {
-    background: var(--buttonsSelectedBack);
-    color: var(--buttonsSelectedText);
+    background-image: var(--titlebar);
+    color: var(--buttonhovertext);
 }
 
 .selected {
-    background-color: var(--buttonsSelectedBack) !important;
-    background-image: var(--buttonsSelectedBack) !important;
-    color: var(--buttonsSelectedText) !important;
-}
-
-.pageItem.selected {
-    background-color: var(--pageSelectedBack) !important;
-    background-image: var(--pageSelectedBack) !important;
-    color: var(--pageSelectedText) !important;
+    background-color: var(--buttonhover) !important;
+    color: var(--buttonhovertext) !important;
 }
 
 .tasksButton {
@@ -769,10 +719,23 @@ textarea {
     min-width: 70px;
 }
 
+.tasksHeader {
+    background-color: var(--titlebar);
+    color: var(--titletext);
+    text-align: center;
+    font-weight: bold;
+}
+
 #txtTasks {
     display: flex;
     font: 13px/1.1 "Helvetica Neue", Helvetica, Arial, san-serif;
     height: 100%;
+}
+
+#tasksLabel {
+    background: var(--titlebar);
+    color: #fff;
+    font-weight: bold;
 }
 
 /* #endregion TASKS DIV STYLES */
@@ -780,6 +743,12 @@ textarea {
 /* #region SEARCH DIV STYLES */
 .searchGoBox {
     padding: 2px 0px 2px 0px;
+}
+.searchHeader {
+    background-color: var(--titlebar);
+    color: var(--titletext);
+    text-align: center;
+    font-weight: bold;
 }
 
 #btnGo {
@@ -791,10 +760,10 @@ textarea {
     height: 25px;
     width: 165px;
     border: 1px;
-    background-color: var(--searchBack);
-    color: var(--searchText);
+    background-color: var(--notesBGColor);
+    color: var(--notesTextColor);
     border-style: solid;
-    border-color: var(--searchBorder);
+    border-color: lightgray;
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
     border-bottom-left-radius: 5px;
@@ -806,29 +775,29 @@ textarea {
     overflow: auto;
     border-style: solid;
     border-width: 1px;
-    border-color: var(--listBorder);
-    background-color: var(--listBack);
+    border-color: var(--titlebar);
+    background-color: var(--notesBGColor);
     height: 100%;
-    color: var(--foundText);
+    color: var(--notesTextColor);
 }
 
 .docsList {
     overflow: auto;
     border-style: solid;
     border-width: 1px;
-    border-color: var(--docBorder);
-    background-color: var(--docBack);
+    border-color: var(--titlebar);
+    background-color: var(--notesBGColor);
     height: 100%;
     margin-top: 1px;
 }
 
 .srchResultItem {
-    background-color: var(--foundBack);
+    background-color: var(--compColor2);
     color: #000;
     padding: 5px;
     text-align: center;
     border-style: solid;
-    border-color: var(--foundBorder);
+    border-color: lightgray;
     border-width: 1px;
     min-height: 30px;
     overflow: hidden;
@@ -859,7 +828,7 @@ textarea {
     left: 50%;
     margin-left: -250px;
     margin-top: -125px;
-    background: var(--settingsBack);
+    background-color: var(--compColor2);
     display: none;
     padding: 1px;
     border: 1px;
@@ -916,7 +885,7 @@ textarea {
     width: 200px;
     overflow: auto;
     padding: 6px;
-    background: var(--settingsBack);
+    background-color: var(--compColor2);
     box-shadow: 5px 10px;
     box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.25);
     -moz-box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.25);
@@ -949,12 +918,12 @@ textarea {
 
 /* #region SEARCH RESULT PREVIEW */
 .searchPreview {
-    color: var(--notesText);
-    background-color: var(--notesBack);
+    color: var(--notesTextColor);
+    background-color: var(--notesBGColor);
     padding: 10px;
     border: 1px;
     border-style: solid;
-    border-color: var(--notesText);
+    border-color: var(--notesTextColor);
     overflow-y: auto;
     overflow-x: hidden;
     width: 100%;
@@ -965,7 +934,7 @@ textarea {
 
 /* #region CONTEXT MENU */
 .notesMenu {
-    background-color: var(--appBack);
+    background-color: var(--notesMenuBGColor);
     position: fixed;
     width: 200px;
     padding: 5px 5px 5px 5px;
@@ -973,7 +942,7 @@ textarea {
 }
 
 .docsMenu {
-    background-color: var(--appBack);
+    background-color: var(--notesMenuBGColor);
     position: fixed;
     width: 200px;
     padding: 5px 5px 5px 5px;
@@ -981,7 +950,7 @@ textarea {
 }
 
 .pagesMenu {
-    background-color: var(--appBack);
+    background-color: var(--notesMenuBGColor);
     position: fixed;
     width: 200px;
     padding: 5px 5px 5px 5px;
@@ -989,8 +958,8 @@ textarea {
 }
 
 .btnMenu {
-    background-color: var(--buttonsBack);
-    color: var(--buttonsText);
+    background-color: var(--buttonface);
+    color: var(--buttontext);
     font: 13px/0.9 "Helvetica Neue", Helvetica, Arial, san-serif;
     padding: 5px;
     text-align: left;
@@ -1008,9 +977,9 @@ textarea {
     background: -webkit-gradient(linear, left top, left bottom, from(#dfe373), to(#a7bb0f));
     border-color: #000;
     */
-    background-color: var(--buttonsSelectedBack);
+    background-color: var(--buttonhover);
     cursor: pointer;
-    color: var(--buttonsSelectedText);
+    color: var(--buttonhovertext);
 }
 /* #endregion CONTEXT MENU */
 
@@ -1019,8 +988,8 @@ textarea {
 #txtRename {
     position: fixed;
     border: 1px;
-    background-color: var(--notesBack);
-    color: var(--notesText);
+    background-color: var(--notesBGColor);
+    color: var(--notesTextColor);
     border-style: solid;
     border-color: lightgray;
     border-top-left-radius: 5px;
@@ -1031,12 +1000,12 @@ textarea {
 }
 
 .pageItem {
-    background-color: var(--pageBack);
-    color: var(--pageText);
+    background-color: var(--compColor2);
+    color: #000;
     padding: 5px;
     text-align: center;
     border-style: solid;
-    border-color: var(--pageBorder);
+    border-color: lightgray;
     border-width: 1px;
     min-height: 30px;
     white-space: nowrap;
@@ -1045,7 +1014,7 @@ textarea {
 }
 
 .dragTarget {
-    background-color: var(--buttonsHoverBack) !important;
+    background-color: var(--buttonhover) !important;
 }
 
 .dropNotAllowed {

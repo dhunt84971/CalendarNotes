@@ -672,7 +672,7 @@ textarea {
     border: 1px solid;
     border-color: var(--notesHighlightText);
     padding: 5px;
-    background-color: var(--notesHeaderBack);
+    background: var(--notesHeaderBack);
     color: var(--notesHeaderText);
     font-weight: bold;
 }
@@ -753,6 +753,12 @@ textarea {
     background-color: var(--buttonsSelectedBack) !important;
     background-image: var(--buttonsSelectedBack) !important;
     color: var(--buttonsSelectedText) !important;
+}
+
+.pageItem.selected {
+    background-color: var(--pageSelectedBack) !important;
+    background-image: var(--pageSelectedBack) !important;
+    color: var(--pageSelectedText) !important;
 }
 
 .tasksButton {

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<title>Calendar Notes</title>
+	<link rel="stylesheet" href="test.css" />
+	<link rel="stylesheet" href="div_treeview.css" />
+</head>
+
+<body>
+
+	<div class="container">
+		<div class="boxFillHor">
+			<div class="vbox noPadding" id="leftSideBar">
+				<!--#region CALENDAR -->
+				<div class="unselectable" id="cal">
+					<div class="header">
+						<span class="left button" id="prev"> ⟨ </span>
+						<!--<span class="left hook"></span> -->
+						<span class="month-year" id="label">August 2023</span>
+						<!--<span class="right hook" id=""></span> -->
+						<span class="right now" id="next"> ⟩ </span>
+						<span class="right button" id="btnNow"> ⟩ ⟩ </span>
+					</div>
+					<table id="days">
+						<tbody><tr>
+							<td>sun</td>
+							<td>mon</td>
+							<td>tue</td>
+							<td>wed</td>
+							<td>thu</td>
+							<td>fri</td>
+							<td>sat</td>
+						</tr>
+					</tbody></table>
+					<div id="cal-frame"><table class="curr"><tbody><tr>
+                        <td class="nil"></td><td class="nil"></td>
+                        <td id="day01" onclick="dateSelected(01)">1</td>
+                        <td id="day02" onclick="dateSelected(02)">2</td>
+                        <td id="day03" onclick="dateSelected(03)">3</td>
+                        <td id="day04" onclick="dateSelected(04)">4</td>
+                        <td id="day05" onclick="dateSelected(05)">5</td></tr><tr><td id="day06" onclick="dateSelected(06)" class="dateSelected">6</td><td id="day07" onclick="dateSelected(07)">7</td><td id="day08" onclick="dateSelected(08)">8</td><td id="day09" onclick="dateSelected(09)">9</td><td id="day10" onclick="dateSelected(10)">10</td><td id="day11" onclick="dateSelected(11)">11</td><td id="day12" onclick="dateSelected(12)">12</td></tr><tr><td id="day13" onclick="dateSelected(13)">13</td><td id="day14" onclick="dateSelected(14)">14</td><td id="day15" onclick="dateSelected(15)">15</td><td id="day16" onclick="dateSelected(16)">16</td><td id="day17" onclick="dateSelected(17)">17</td><td id="day18" onclick="dateSelected(18)">18</td><td id="day19" onclick="dateSelected(19)">19</td></tr><tr><td id="day20" onclick="dateSelected(20)">20</td><td id="day21" onclick="dateSelected(21)">21</td><td id="day22" onclick="dateSelected(22)">22</td><td id="day23" onclick="dateSelected(23)">23</td><td id="day24" onclick="dateSelected(24)">24</td><td id="day25" onclick="dateSelected(25)">25</td><td id="day26" onclick="dateSelected(26)">26</td></tr><tr><td id="day27" onclick="dateSelected(27)">27</td><td id="day28" onclick="dateSelected(28)">28</td><td id="day29" onclick="dateSelected(29)">29</td><td id="day30" onclick="dateSelected(30)">30</td><td id="day31" onclick="dateSelected(31)">31</td><td class="nil"></td><td class="nil"></td></tr></tbody></table>
+						
+					</div>
+				</div>
+				<!-- #endregion CALENDAR -->
+				
+				<!--#region LEFT SIDE PANEL-->
+				<div class="vbox vertDivider"></div>
+				<div class="vboxFill noPadding">
+					<div class="hbox noPadding unselectable">
+						<div class="tasksButton tab tabSelected" id="btnTasks">TASKS</div>
+						<div class="searchButton tab hide" id="btnDocs">DOCS</div>
+						<div class="searchButton tab" id="btnSearch">SEARCH</div>
+						<div class="hboxFill"></div>
+					</div>
+					<div class="vboxFill noPadding" id="divTasks">
+						<div class="tabFooter"></div>
+						<div class="vboxFill noPadding"><textarea id="txtTasks" spellcheck="false"></textarea></div>
+					</div>
+					<div class="vboxFill noPadding unselectable hide" id="divSearch">
+						<div class="tabFooter"></div>
+						<div class="hbox searchGoBox">
+							<input class="hboxFill" id="txtSearch">
+							<div class="horizDivider"></div>
+							<div class="btn" id="btnGo">GO</div>
+						</div>
+						<div class="vboxFill searchList" id="lstSearch"></div>
+					</div>
+					<div class="vboxFill noPadding hide unselectable" id="divDocs">
+						<div class="tabFooter"></div>
+						<div class="vboxFill border overflowHidden">
+							<div class="hbox noPadding noMargin">
+								<div class="hboxFill btn" id="btnAddDoc">+ ADD DOC</div>
+								<div class="horizDivider"></div>
+								<div class="btn btnSmall" id="btnExpandAll" title="Expand all documents.">+</div>
+								<div class="horizDivider"></div>
+								<div class="btn btnSmall" id="btnCollapseAll" title="Collapse all documents.">-</div>
+							</div>
+							<div class="vbox vertDivider"></div>
+							<div class="vboxFill noPadding noMargin overflowAuto">
+								<div id="lstDocuments"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!--#endregion LEFT SIDE PANEL-->
+			</div>
+			<!--<div class="vbox horizDivider"></div>-->
+			<div class="vsplit" id="vSplitter"></div>
+			<div class="vboxFill noPadding">
+				<!--#region NOTES AND TASKS BOXES -->
+				<div class="vboxFill notes noPadding">
+
+					<div class="hboxFill notesHeader noPadding unselectable">
+						<div class="div_arrow_collapse" id="btnHideLeft"></div>
+						<div class="hboxFill noPadding flexCenterVert" id="txtNotesTitle">NOTES</div>
+						<div class="hboxFill"></div>
+						<img id="btnSettings" src="settingsIconWht.png" width="23px" height="23px">
+					</div>
+					<div class="vboxFill noPadding">
+						<div class="hboxFill noPadding noMargin" id="divNotesContainer">
+							<div class="vboxFill noPadding" id="txtNotesArea">
+								<textarea id="txtNotes" spellcheck="false"></textarea>
+							</div>
+							<div class="vsplit hide" id="vSplitterNotes"></div>
+							<div class="vboxFill noPadding hide" id="txtViewArea">
+								<div class="vboxFill searchPreview markd" id="txtView"></div>
+							</div>
+						</div>
+						<div class="vboxFill searchPreview hide markd" id="txtSearchPreview"></div>
+						<div class="vboxFill noPadding hide" id="divDocsView">
+							<div class="boxFillHor noPadding noMargin">
+								<div class="hboxFill noPadding noMargin" id="divDocsContainer">
+									<div class="vboxFill noPadding hide" id="txtDocArea">
+										<textarea id="txtDoc" spellcheck="false"></textarea>
+									</div>
+									<div class="vsplit hide" id="vSplitterDocs"></div>
+									<div class="vboxFill noPadding hide" id="txtDocViewArea">
+										<div class="vboxFill searchPreview markd" id="txtDocView"></div>
+									</div>
+								</div>
+								<div class="vsplit" id="vSplitterDoc"></div>
+								<div class="vbox noPadding unselectable" id="docsSideBar">
+									<div class="vboxFill docsList">
+										<div class="btn hide" id="btnAddPage">+ ADD PAGE</div>
+										<div class="vbox vertDivider"></div>
+										<div class="vboxFill noPadding noMargin overflowAuto">
+											<div id="lstDocs"></div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="vbox vertDivider"></div>
+					<div class="hboxFill noPadding unselectable">
+						<div class="btn botButton flushLeft" id="btnSave"> SAVE </div>
+						<div class="btn botButton btnSelected" id="btnViewText">EDIT</div>
+						<div class="btn botButton" id="btnViewMD">MARKDOWN</div>
+						<div class="btn botButton" id="btnViewSideBySide">SIDE-BY-SIDE</div>
+						<div class="hboxFill"></div>
+						<div class="btn botButton flushRight" id="btnRevert">REVERT</div>
+					</div>
+
+				</div>
+				<!-- #endregion NOTES AND TASKS BOXES -->
+			</div>
+		</div>
+	</div>
+
+	<!--#region SETTINGS BOX -->
+	<div class="vbox overflowAuto hide" id="settingsSlider">
+		<table>
+			<tbody><tr>
+				<td class="entryLabelTitle">DATABASE -</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="hboxAuto noPadding noMargin">
+						<div class="inputRadio"><input type="radio" id="optSqlite"></div>
+						<div class="labelRadio">SQL Lite (Local DB)</div>
+					</div>
+				</td> 
+			</tr>
+			<tr db="sqlite">
+				<td>
+					<div class="hbox noPadding noMargin">
+						<div class="boxedValue" id="lbldbFile" title="./.calendarNotes.db">.calendarNotes.db</div>
+						<div class="btn browseButton" id="btnBrowsedbFile">...</div>
+					</div>
+				</td> 
+			</tr>
+			<tr>
+				<td>
+					<div class="hboxAuto noPadding noMargin">
+						<div class="inputRadio"><input type="radio" id="optMySql"></div>
+						<div class="labelRadio">MySQL DB Server</div>
+					</div>
+				</td> 
+			</tr>
+			<tr db="mysql" class="hide">
+				<td class="entryLabel">HOST</td>
+			</tr>
+			<tr db="mysql" class="hide">
+				<td><input class="entryField" id="txtHost"></td>
+			</tr>
+			<tr db="mysql" class="hide">
+				<td class="entryLabel">PORT</td>
+			</tr>
+			<tr db="mysql" class="hide">
+				<td><input class="entryField" id="txtPort"></td>
+			</tr>
+			<tr db="mysql" class="hide">
+				<td class="entryLabel">DATABASE</td>
+			</tr>
+			<tr db="mysql" class="hide">
+				<td><input class="entryField" id="txtDatabase"></td>
+			</tr>
+			<tr db="mysql" class="hide">
+				<td class="entryLabel">USERNAME</td>
+			</tr>
+			<tr db="mysql" class="hide">
+				<td><input class="entryField" id="txtUsername"></td>
+			</tr>
+			<tr db="mysql" class="hide">
+				<td class="entryLabel">PASSWORD</td>
+			</tr>
+			<tr db="mysql" class="hide">
+				<td><input class="entryField" id="txtPassword" type="password"></td>
+			</tr>
+			<tr height="10px" db="mysql" class="hide"></tr>
+			<tr db="mysql" class="hide">
+				<td>
+					<div class="btn" id="btnTestConnection">TEST CONNECTION</div>
+				</td>
+			</tr>
+			<tr db="mysql" class="hide">
+				<td>
+					<div class="btn" id="btnCreateDB">CREATE DATABASE</div>
+				</td>
+			</tr>
+			<tr db="mysql" class="hide">
+				<td>
+					<div class="btn" id="btnCreateTables">CREATE TABLES</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<hr>
+				</td>
+			</tr>
+			<tr>
+				<td class="entryLabelTitle">THEMES -</td>
+			</tr>
+			<tr>
+					<td class="entryList"><select class="entryField" id="selThemes"><option value="0">Default</option><option value="1">Warm</option><option value="2">Cool</option><option value="3">Green</option><option value="4">Pink</option><option value="5">Tron</option><option value="6">Clu</option></select></td>
+			</tr>
+			<tr>
+				<td class="entryLabelTitle">EDITOR -</td>
+			</tr>
+			<tr>
+				<td><div class="hbox"><div class="vbox flexMiddle"><input type="checkbox" id="chkSpelling"></div>
+					<div class="vbox" title="Highlights words that are not in the dictionary.">Spell Checking</div></div></td>
+			</tr>
+			<tr>
+				<td>
+					<hr>
+				</td>
+			</tr>
+			<tr>
+				<td class="entryLabelTitle">EXPERIMENTAL -</td>
+			</tr>
+			<tr>
+				<td><div class="hbox"><div class="vbox flexMiddle"><input type="checkbox" id="chkDocuments"></div><div class="vbox">Documents</div></div></td>
+			</tr>
+		</tbody></table>
+		<div class="vboxFill"></div>
+		<div class="hbox">
+			<div class="vbox">
+				<div class="vboxFill"></div>
+				<div class="version">v1.1.16</div>
+			</div>
+			<div class="hboxFill"></div>
+			<div class="btn" id="btnSettingsClose" title="Changes are saved on close.">APPLY/CLOSE</div>
+		</div>
+
+	</div>
+	<!-- #endregion SETTINGS BOX -->
+	
+	<!--#region CONTEXT MENUS -->
+	<div class="notesMenu hide">
+		<div class="btnMenu" id="btnInsertTable">INSERT TABLE</div>
+		<div class="btnMenu" id="btnCopy">COPY</div>
+		<div class="btnMenu" id="btnPaste">PASTE</div>
+	</div>
+
+	<div class="docsMenu hide">
+		<div class="btnMenu" id="btnAddSubDoc">ADD DOC</div>
+		<div class="btnMenu" id="btnRenameDoc">RENAME</div>
+		<div class="btnMenu" id="btnRemoveDoc">REMOVE</div>
+		<div class="btnMenu" id="btnMoveUpDoc">MOVE UP</div>
+		<div class="btnMenu" id="btnMoveDownDoc">MOVE DOWN</div>
+	</div>
+	<div class="pagesMenu hide">
+		<div class="btnMenu" id="btnPageRenameDoc">RENAME</div>
+		<div class="btnMenu" id="btnPageRemoveDoc">REMOVE</div>
+		<div class="btnMenu" id="btnPageIncIndent">INCREASE INDENT</div>
+		<div class="btnMenu" id="btnPageDecIndent">DECREASE INDENT</div>
+		<div class="btnMenu" id="btnPageMoveUp">MOVE UP</div>
+		<div class="btnMenu" id="btnPageMoveDown">MOVE DOWN</div>
+	</div>
+	<!--#endregion CONTEXT MENUS -->
+
+	<!--#region RENAME INPUT BOX -->
+		<input class="hide" id="txtRename">
+
+	<!--#endregion RENAME INPUT BOX -->
+
+
+</body>

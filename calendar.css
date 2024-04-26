@@ -761,9 +761,10 @@ textarea {
     color: var(--buttonsSelectedText) !important;
 }
 
-.pageItem.selected {
+.pageSelected {
     background-color: var(--pageSelectedBack) !important;
     background-image: var(--pageSelectedBack) !important;
+    border-color: var(--pageSelectedBorder) !important;
     color: var(--pageSelectedText) !important;
 }
 
@@ -819,12 +820,12 @@ textarea {
     color: var(--foundText);
 }
 
-.docsList {
+.pagesList {
     overflow: auto;
     border-style: solid;
     border-width: 1px;
-    border-color: var(--docBorder);
-    background-color: var(--docBack);
+    border-color: var(--pagesBorder);
+    background-color: var(--pagesBack);
     height: 100%;
     margin-top: 1px;
 }
@@ -993,6 +994,12 @@ textarea {
     width: 200px;
     padding: 5px 5px 5px 5px;
     margin: 5px 5px 5px 2px;
+}
+
+.docsBorder {
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--docBorder);
 }
 
 .pagesMenu {

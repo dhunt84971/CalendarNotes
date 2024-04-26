@@ -41,6 +41,10 @@
     color: var(--tvHoverText);
 }
 
+.div_treeview_item:hover .div_treeview_text {
+    color: var(--tvHoverText);
+}
+
 .div_treeview_text {
     color: var(--tvText);
     padding: 2px 2px 2px 2px;
@@ -50,8 +54,11 @@
     pointer-events: none;
 }
 
-.div_treeview_selected {
+.div_treeview_selected{
     background-color: var(--tvSelectedBack);
+}
+
+.div_treeview_selected .div_treeview_text{
     color: var(--tvSelectedText);
 }
 

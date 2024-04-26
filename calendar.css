@@ -779,6 +779,7 @@ textarea {
     display: flex;
     font: 13px/1.1 "Helvetica Neue", Helvetica, Arial, san-serif;
     height: 100%;
+    color: var(--tasksText);
 }
 
 /* #endregion TASKS DIV STYLES */
@@ -830,7 +831,7 @@ textarea {
 
 .srchResultItem {
     background-color: var(--foundBack);
-    color: #000;
+    color: var(--foundText);
     padding: 5px;
     text-align: center;
     border-style: solid;

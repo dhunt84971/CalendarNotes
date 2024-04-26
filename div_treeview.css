@@ -42,7 +42,7 @@
 }
 
 .div_treeview_text {
-    color: #000;
+    color: var(--tvText);
     padding: 2px 2px 2px 2px;
     white-space: nowrap;
     overflow: hidden;

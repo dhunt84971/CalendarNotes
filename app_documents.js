@@ -30,7 +30,7 @@ var app_documents = {
                         for (var i = 0; i < data.length; i++) {
                             let pageBtnEl = addItemtoDiv("lstDocs", data[i].DocName, "btn pageItem", "data-grp=page");
                             pageBtnEl.setAttribute("draggable", "true");
-                            let marginL = data[i].DocIndentLevel * 5;
+                            let marginL = data[i].DocIndentLevel * 10;
                             pageBtnEl.style.marginLeft = `${marginL}px`;
                             pageBtnEl.addEventListener("click", (e)=>{
                                 this.btnPage_Clicked(e.target);

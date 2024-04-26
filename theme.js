@@ -1,4 +1,6 @@
 // #region THEMES
+
+// #region Warm
 var themeWarm = {
   name: "Warm",
   invertSettingsIcon: "false",
@@ -84,7 +86,9 @@ var themeWarm = {
   tvSelectedText: "#fff",
   tvText: "#fff"
 };
-  
+// #endregion Warm
+
+// #region Cool
   var themeCool = {
     name: "Cool",
     invertSettingsIcon: "false",
@@ -170,7 +174,9 @@ var themeWarm = {
     tvSelectedText: "#fff",
     tvText: "#fff"
   };
-  
+// #endregion Cool
+
+// #region Green
   var themeGreen = {
     name: "Green",
     invertSettingsIcon: "false",
@@ -256,7 +262,9 @@ var themeWarm = {
     tvSelectedText: "#fff",
     tvText: "#fff"
   };
-  
+// #endregion Warm
+
+// #region Pink
   var themePink = {
     name: "Pink",
     invertSettingsIcon: "false",
@@ -342,7 +350,9 @@ var themeWarm = {
     tvSelectedText: "#fff",
     tvText: "#fff"
   };
+// #endregion Pink
   
+// #region Default
   var themeDefault = {
     name: "Default",
     invertSettingsIcon: "false",
@@ -428,7 +438,9 @@ var themeWarm = {
     tvSelectedText: "#fff",
     tvText: "#fff"
   };
-  
+// #endregion Default
+
+// #region Tron
   var themeTron = {
     name: "Tron",
     invertSettingsIcon: "true",
@@ -503,7 +515,7 @@ var themeWarm = {
     tasksBorder: "rgb(0, 255, 234)",
     tasksSelectedBack: "blue",
     tasksSelectedText: "#000",
-    tasksText: "rgb(0, 255, 234)",
+    tasksText: "rgb(0, 0, 0)",
     tvBack: "#ade0dc",
     tvBorder: "lightgray",
     tvHoverBack: "rgb(0, 207, 190)",
@@ -512,9 +524,11 @@ var themeWarm = {
     tvNavHover: "rgb(0, 207, 190)",
     tvSelectedBack: "rgb(0, 207, 190)",
     tvSelectedText: "#fff",
-    tvText: "#fff"
+    tvText: "#000"
   };
+// #endregion Tron
 
+// #region OrangeWave
   var themeOrangeWave = {
     name: "OrangeWave",
     invertSettingsIcon: "true",
@@ -600,7 +614,9 @@ var themeWarm = {
     tvSelectedText: "#fff",
     tvText: "#fff"
 };
-  
+// #endregion OrangeWave
+
+// #region Clu
   var themeClu = {
     name: "Clu",
     invertSettingsIcon: "true",
@@ -686,7 +702,9 @@ var themeWarm = {
     tvSelectedText: "#fff",
     tvText: "#fff"
   };
-  
+// #endregion Clu
+
+// #region Metal
   var themeMetal = {
     name: "Metal",
     invertSettingsIcon: "false",
@@ -772,7 +790,9 @@ var themeWarm = {
     tvSelectedText: "#fff",
     tvText: "#fff"
 };
+// #endregion Metal
 
+// #region BeautyLines
 var themeBeautyLines = {
   name: "BeautyLines",
   invertSettingsIcon: "true",
@@ -858,7 +878,9 @@ var themeBeautyLines = {
   tvSelectedText: "#fff",
   tvText: "#fff"
 }
+// #endregion BeautyLines
 
+// #region BurntBlue
 var themeBurntBlue = {
   name: "BurntBlue",
   invertSettingsIcon: "true",
@@ -944,8 +966,9 @@ var themeBurntBlue = {
   tvSelectedText: "#272727",
   tvText: "#fff"
 }
+// #endregion BurntBlue
 
-
+// #region Theme List
   var themes = [
     themeDefault,
     themeWarm,
@@ -959,7 +982,9 @@ var themeBurntBlue = {
     themeBeautyLines,
     themeBurntBlue
   ];
+// #endregion Theme List
 
+// #region Themes Code
   var selectedTheme = 0;
   
   function changeTheme(themeIndex, callback) {
@@ -1049,4 +1074,4 @@ var themeBurntBlue = {
     selectedTheme = themeIndex;
     if (callback) callback();
   }
-  
+  // #endregion Themes Code

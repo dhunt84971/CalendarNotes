@@ -876,6 +876,7 @@ textarea {
 .entryLabel {
     text-align: left;
     padding-right: 5px;
+    color: var(--settingsText);
 }
 
 .entryLabelTitle {
@@ -883,6 +884,7 @@ textarea {
     padding-right: 5px;
     text-decoration: underline;
     font-weight: bold;
+    color: var(--settingsText);
 }
 
 .entryField {
@@ -915,6 +917,12 @@ textarea {
     box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.25);
     -moz-box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.25);
     -webkit-box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.25);
+    color: var(--settingsText);
+}
+
+#lbldbFile {
+    color: #000;
+
 }
 
 .boxedValue {

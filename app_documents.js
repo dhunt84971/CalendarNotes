@@ -89,13 +89,13 @@ var app_documents = {
     unselectPageButtons: function () {
         let pages = document.querySelectorAll("div[data-grp='page']");
         for (let el of pages){
-            el.classList.remove("selected");
+            el.classList.remove("pageSelected");
         }
     },
 
     selectPageButton: function (el) {
         this.unselectPageButtons();
-        el.classList.add("selected");
+        el.classList.add("pageSelected");
     },
 
     showPageData: function (data) {

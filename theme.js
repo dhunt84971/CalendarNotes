@@ -436,7 +436,7 @@ var themeWarm = {
     tvNavHover: "#d96200",
     tvSelectedBack: "#d96200",
     tvSelectedText: "#fff",
-    tvText: "#fff"
+    tvText: "#000"
   };
 // #endregion Default
 
@@ -523,7 +523,7 @@ var themeWarm = {
     tvNavBack: "#272727",
     tvNavHover: "rgb(0, 207, 190)",
     tvSelectedBack: "rgb(0, 207, 190)",
-    tvSelectedText: "#fff",
+    tvSelectedText: "#000",
     tvText: "#000"
   };
 // #endregion Tron
@@ -735,7 +735,7 @@ var themeWarm = {
     calHeaderHoverText: "#fff",
     calHeaderText: "#fff",
     docBack: "#2b2b2b",
-    docBorder: "none",
+    docBorder: "#6b6b6b",
     foundBack: "#4d4d4d",
     foundBorder: "lightgray",
     foundHoverBack: "#6b6b6b",
@@ -755,13 +755,13 @@ var themeWarm = {
     pagesBack: "#2b2b2b",
     pagesBorder: "#6b6b6b",
     pageBack: "#4d4d4d",
-    pageBorder: "lightgray",
+    pageBorder: "#4d4d4d",
     pageText: "#fff",
     pageHoverBack: "#6b6b6b",
     pageHoverText: "#fff",
     pageSelectedBack: "#6b6b6b",
     pageSelectedText: "#fff",
-    pageSelectedBorder: "lightgray",
+    pageSelectedBorder: "#fff",
     searchBack: "#2b2b2b",
     searchBorder: "lightgray",
     searchText: "#fff",
@@ -784,8 +784,8 @@ var themeWarm = {
     tvBorder: "lightgray",
     tvHoverBack: "#6b6b6b",
     tvHoverText: "#fff",
-    tvNavBack: "#545454",
-    tvNavHover: "#6b6b6b",
+    tvNavBack: "#000",
+    tvNavHover: "#fff",
     tvSelectedBack: "#6b6b6b",
     tvSelectedText: "#fff",
     tvText: "#fff"

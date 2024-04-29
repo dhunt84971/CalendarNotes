@@ -1280,7 +1280,7 @@ var app_documents = {
     },
 
     getSelectedPageElement: function(){
-        return document.querySelector("#lstDocs .selected");
+        return document.querySelector("#lstDocs .pageSelected");
     },
     //#endregion HELPER FUNCTIONS
 

@@ -547,6 +547,11 @@ background: var(--buttonsHoverBack);
     color: var(--calDaysSelectedText);
 }
 
+.highlightDay {
+    background-color: var(--calDaysHighlightedBack);
+    color: var(--calDaysHighlightedText) !important;
+}
+
 #cal #days {
     width: 100%;
 }

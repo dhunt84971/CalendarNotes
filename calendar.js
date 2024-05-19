@@ -390,6 +390,16 @@ var CALENDAR = function () {
     createCal: createCal
   };
 };
+
+function highlightDays(days) {
+  // This function highlights the days that have notes.
+  for (i = 0; i < days.length; i++) {
+    console.log(days[i].NoteDate);
+    let id = "day" + days[i].NoteDate.split("-")[2];
+    let calDay = document.getElementById(id);
+    calDay.classList.add("highlightDay");
+  }
+}
 // #endregion CALENDAR OBJECT CODE
 
 // #region DATABASE CODE
@@ -438,6 +448,47 @@ function getRowsSqlite(sql, callback) {
       }
       db.close();
     });
+  });
+}
+
+function getNotedDaysofMonthSqlite(dateForDay, callback) {
+  console.log(dbFile);
+  console.log(dateForDay);
+  console.log(formatDateSqlite(dateForDay));
+  let sqliteDay = formatDateSqlite(dateForDay);
+  let startMonthDay = sqliteDay.split("-")[0] + "-" + sqliteDay.split("-")[1] + "-01";
+  let endMonthDay = sqliteDay.split("-")[0] + "-" + sqliteDay.split("-")[1] + "-31";
+  let sql = "SELECT NoteDate FROM Notes WHERE NoteDate BETWEEN '" + startMonthDay + "' AND '" + endMonthDay + "'";
+  console.log(sql);
+  let db = new sqlite3.Database(dbFile, (err) => {
+    if (!err) {
+      db.all(sql, [], (err, rows) => {
+        if (!err) {
+          if (rows.length > 0) {
+            if (callback) {
+              callback(err, rows);
+            }
+          } else {
+            if (callback) {
+              callback(err, " ");
+            }
+            return;
+          }
+        } else {
+          if (callback) {
+            callback(err);
+          }
+          return;
+        }
+        db.close();
+      });
+    } else {
+      console.error(err.message);
+      if (callback) {
+        callback(err);
+      }
+      return;
+    }
   });
 }
 
@@ -676,6 +727,27 @@ function getNotes(dateForDay, callback) {
           reject(err);
         }
         resolve();
+      });
+    }
+  });
+}
+
+function getNotedDaysofMonth(dateForDay, callback) {
+  return new Promise(function (resolve, reject) {
+    // Block the interface from acting on any input.
+    if (_settings.dbType == "MySql") {
+      resolve();
+    } else { //if (dbType == "Sqlite")
+      getNotedDaysofMonthSqlite(dateForDay, (err, days) => {
+        if (!err) {
+          console.log(days);
+        } else {
+          alert("Error querying database.  Check settings.");
+          console.log("Error while performing query.");
+          console.log(_settings);
+          reject(err);
+        }
+        resolve(days);
       });
     }
   });
@@ -2075,6 +2147,9 @@ async function dateSelected(dayNum) {
     }
   }
   await getNotes(getSelectedDate());
+  let days = await getNotedDaysofMonth(getSelectedDate());
+  console.log("highlighting days");
+  highlightDays(days);
   blockInterface = false;
   getTasks();
   lastDaySelected = getSelectedDate();

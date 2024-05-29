@@ -2149,7 +2149,7 @@ async function dateSelected(dayNum) {
   await getNotes(getSelectedDate());
   let days = await getNotedDaysofMonth(getSelectedDate());
   console.log("highlighting days");
-  highlightDays(days);
+  if (days != " ") highlightDays(days);
   blockInterface = false;
   getTasks();
   lastDaySelected = getSelectedDate();

@@ -2,7 +2,7 @@
 An Electron application for daily notes (or journal) entries saved to a SQLite or MySQL DB and searchable by words.
 
 Current release:
-<br/>https://github.com/dhunt84971/CalendarNotes/releases/tag/v1.1.20
+<br/>https://github.com/dhunt84971/CalendarNotes/releases/tag/v1.1.21
 
 
 This is a port of an application originally written in Gambas.  Much of the code for the calendar component came from a 
@@ -33,7 +33,7 @@ The deb file is suitable for all debian based distros include Ubuntu, however th
 ```
 sudo apt update
 sudo apt install gdebi
-sudo gdebi calendarNotes_1.1.20_amd64.deb
+sudo gdebi calendarNotes_1.1.21_amd64.deb
 ```
 NOTE: Substitute the example deb file name with the version that was downloaded.
 

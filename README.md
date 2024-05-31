@@ -31,9 +31,9 @@ The appimage is probably the easiest to install, but does not typically result i
 The deb file is suitable for all debian based distros include Ubuntu, however there is an additional dependency that is not included in the deb file that needs to be installed manually.  To install the deb file use the following commands from a terminal in the folder where the package was downloaded:
 
 ```
-sudo apt-get update
-sudo apt-get install nodejs npm python3 sqlite3 libappindicator1 gconf2 gconf-service
-sudo dpkg -i calendarNotes_1.1.16_amd64.deb
+sudo apt update
+sudo apt install gdebi
+sudo gdebi calendarNotes_1.1.20_amd64.deb
 ```
 NOTE: Substitute the example deb file name with the version that was downloaded.
 

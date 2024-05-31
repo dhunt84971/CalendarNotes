@@ -247,6 +247,10 @@ var CALENDAR = function () {
 
     monthDisplayed = month + 1;
     yearDisplayed = year;
+    let days = getNotedDaysofMonth(getSelectedDate(), (days) => {
+      console.log("highlighting days");
+      if (days != " ") highlightDays(days);
+    });
   }
 
   function changeDate(month, year, callback) {
@@ -746,6 +750,9 @@ function getNotedDaysofMonth(dateForDay, callback) {
           console.log("Error while performing query.");
           console.log(_settings);
           reject(err);
+        }
+        if (callback){
+          callback(days);
         }
         resolve(days);
       });

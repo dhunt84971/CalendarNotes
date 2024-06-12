@@ -2143,7 +2143,7 @@ async function dateSelected(dayNum) {
   daySelected = dayNum;
   console.log(getSelectedDate());
   // Save the notes for the last selected date.
-  if (lastDaySelected != getSelectedDate() && !initialLoad) {
+  if (!initialLoad) {
     if (getDocChanged() == true) {
       let notes = document.getElementById("txtNotes").value;
       let tasks = document.getElementById("txtTasks").value;

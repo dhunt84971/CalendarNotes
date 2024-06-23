@@ -396,12 +396,14 @@ var CALENDAR = function () {
 };
 
 function highlightDays(days) {
-  // This function highlights the days that have notes.
-  for (i = 0; i < days.length; i++) {
-    console.log(days[i].NoteDate);
-    let id = "day" + days[i].NoteDate.split("-")[2];
-    let calDay = document.getElementById(id);
-    calDay.classList.add("highlightDay");
+  if (days){
+    // This function highlights the days that have notes.
+    for (i = 0; i < days.length; i++) {
+      console.log(days[i].NoteDate);
+      let id = "day" + days[i].NoteDate.split("-")[2];
+      let calDay = document.getElementById(id);
+      calDay.classList.add("highlightDay");
+    }
   }
 }
 // #endregion CALENDAR OBJECT CODE

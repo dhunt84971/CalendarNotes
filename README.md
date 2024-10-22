@@ -39,6 +39,21 @@ NOTE: Substitute the example deb file name with the version that was downloaded.
 
 This should result in the Calendar Notes application becoming available from the launcher menu.  This will depend on the distro being used.
 
+### Backing Up Notes
+If the default notes file .calendar.db is being used and has not been relocated, it is imperative that this file be relocated before running the installation to update the application.  **NOT BACKING UP THE .calendarNotes.db FILE WILL RESULT IN ALL NOTES BEING LOST DURING AN UPDATE INSTALLATION.**
+
+### Windows
+Using Windows File Explorer go to the C:\Users\<username>\AppData\Local\Programs\calendarNotes folder.
+
+![image](https://user-images.githubusercontent.com/674065/155982833-0253f758-096c-4128-a96c-fb847c94a603.png)
+
+Copy the .calendarNotes.db file to another folder, such as your Documents folder.  Then perform the installation of the new version as usual and when the installation is done it is recommended that you point the new version of CalendarNotes to the relocated .calendarNotes.db file from the settings.
+![image](https://user-images.githubusercontent.com/674065/155983909-b85a3d57-6698-4806-8c46-e679c9deb20d.png)
+
+Once the .calendarNotes.db file has been relocated to the folder of your choice, it will only be necessary to select this file following each update installation.
+
+### Linux
+Copy the .calendarNotes.db file from your home directory and rename it or save it somewhere else, such as your Documents directory.  Then perform the installation as usual.  Once the installation is complete, open the CalendarNotes application and from the settings browse to the relocated/renamed .calendarNotes.db file.  (NOTE: The default file .calendarNotes.db is hidden.  Most file browsers can be configured to show hidden files from View menu or by pressing Ctrl-h.)
 
 ## Configuration
 When the application is first run it will display a warning that no settings file was found.
@@ -47,7 +62,7 @@ When the application is first run it will display a warning that no settings fil
 
 After clicking OK the application is ready to use with the default settings.  This includes using the default theme and a local SQLite database file.
 
-### MySQL Configuration
+### MySQL Configuration (WARNING, THIS OPTION WILL BE REMOVED IN A FUTURE VERSION)
 The Calendar Notes application can be configured to store all notes and tasks in a MySQL database.  Click on the gear icon in the upper right corner to display the settings and tick the MySQL DB Server radio button.  This will display additional settings for making a connection to a MySQL database.  
 
 <img src="./screenshots/mysql_settings.png">

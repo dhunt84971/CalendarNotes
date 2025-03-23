@@ -2059,9 +2059,8 @@ document.getElementById("btnNow").addEventListener("click", function () {
 document.getElementById("btnSave").addEventListener("click", function () {
   if (document.getElementById("btnDocs").classList.contains("tabSelected")) {
     app_documents.savePage();
-  } else {
-    saveNotes(lastDaySelected, document.getElementById("txtNotes").value);
   }
+  saveNotes(lastDaySelected, document.getElementById("txtNotes").value);
   saveTasks(document.getElementById("txtTasks").value);
 });
 
@@ -2398,6 +2397,15 @@ document.querySelector("#txtNotes").addEventListener('keydown', function (e) {
     e.preventDefault();
   }
 }, false);
+
+// Grab the Ctrl+s to save the current note.
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+    e.preventDefault();
+    saveNotes(lastDaySelected, document.getElementById("txtNotes").value);
+    saveTasks(document.getElementById("txtTasks").value);
+  }
+});
 
 document.onmouseup = document.onkeyup = document.onselectionchange = function() {
   let txtNotes = document.getElementById("txtNotes");

@@ -198,3 +198,10 @@ For Debian based Linux systems run:
 sudo apt-get update
 sudo apt-get install python
 ```
+
+### Building the Install Package
+The install package is built using electron-builder.  Electron-builder must be run on the target operating system.  To build the install package run the following command:
+```
+npm run dist
+```
+The installation package will be written to the dist folder.

@@ -1430,7 +1430,7 @@ async function searchNotes(srchText, callback) {
 
   if (!notesFound && !docsFound) {
     var listResults = document.getElementById("lstSearch");
-    listResults.innerHTML = "Not found";
+    listResults.innerHTML = "<div class='tasksText'>Nothing found</div>";
   }
 
   if (callback) callback();
@@ -1476,7 +1476,7 @@ function addSearchResultItem(srchSource) {
   element.innerHTML = srchSource;
   element.title = srchSource;
   element.value = srchSource;
-  element.className = "srchResultItem btn";
+  element.className = "srchResultItem";
   if (srchSource.includes(DOCNAMEDELIMETER)){
     element.setAttribute("onclick", "gotoDoc('" + srchSource + "')");
   }

@@ -822,7 +822,7 @@ textarea {
     border-color: var(--listBorder);
     background-color: var(--listBack);
     height: 100%;
-    color: var(--foundText);
+    color: var(--searchText);
 }
 
 .pagesList {
@@ -847,6 +847,11 @@ textarea {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    font-weight: bold;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
     /*
     border-style: solid;
     border-color: lightgray;
@@ -855,6 +860,12 @@ textarea {
     border-bottom-left-radius:2px;
     border-bottom-right-radius:2px;
     */
+}
+
+.srchResultItem:hover {
+    color: var(--foundHoverText);
+    background-color: var(--foundHoverBack);
+    border-color: var(--foundBorder);
 }
 
 /* #endregion SEARCHDIV STYLES */
@@ -1016,28 +1027,8 @@ textarea {
 }
 
 .btnMenu {
-    background-color: var(--buttonsBack);
-    color: var(--buttonsText);
-    font: 13px/0.9 "Helvetica Neue", Helvetica, Arial, san-serif;
-    padding: 5px;
     text-align: left;
-    font-weight: bold;
-    border-top-left-radius:5px;
-    border-top-right-radius:5px;
-    border-bottom-left-radius:5px;
-    border-bottom-right-radius:5px;
     margin-bottom: 1px;
-}
-
-.btnMenu:hover {
-    /*
-    background: -moz-linear-gradient(top, #d94215, #bb330f);
-    background: -webkit-gradient(linear, left top, left bottom, from(#dfe373), to(#a7bb0f));
-    border-color: #000;
-    */
-    background-color: var(--buttonsSelectedBack);
-    cursor: pointer;
-    color: var(--buttonsSelectedText);
 }
 /* #endregion CONTEXT MENU */
 

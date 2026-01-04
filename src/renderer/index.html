@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; script-src 'self'">
+  <title>Calendar Notes</title>
+  <link rel="stylesheet" href="./styles/main.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Left Sidebar -->
+    <aside id="sidebar" class="sidebar">
+      <!-- Calendar -->
+      <div id="calendar" class="calendar-container"></div>
+
+      <!-- Panel Tabs -->
+      <div class="panel-tabs">
+        <button class="panel-tab active" data-panel="tasks">TASKS</button>
+        <button class="panel-tab" data-panel="docs">DOCS</button>
+        <button class="panel-tab" data-panel="search">SEARCH</button>
+        <div class="tab-filler"></div>
+      </div>
+
+      <!-- Side Panels -->
+      <div class="panels-container">
+        <!-- Tasks Panel -->
+        <div id="tasks-panel" class="side-panel active">
+          <div class="tab-footer"></div>
+        </div>
+
+        <!-- Documents Panel -->
+        <div id="docs-panel" class="side-panel">
+          <div class="tab-footer"></div>
+          <div class="docs-placeholder">Documents feature coming soon...</div>
+        </div>
+
+        <!-- Search Panel -->
+        <div id="search-panel" class="side-panel">
+          <div class="tab-footer"></div>
+          <div class="search-header">
+            <input type="text" id="search-input" class="search-input" placeholder="Search notes...">
+            <button id="search-btn" class="btn btn-search">GO</button>
+          </div>
+          <div id="search-results" class="search-results"></div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Sidebar Splitter -->
+    <div id="sidebar-splitter" class="splitter vertical"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Notes Editor -->
+      <div id="notes-editor" class="notes-editor-container"></div>
+    </main>
+
+    <!-- Pages Sidebar (for documents) -->
+    <div id="pages-splitter" class="splitter vertical hidden"></div>
+    <aside id="pages-sidebar" class="pages-sidebar hidden">
+      <div class="pages-header">
+        <button class="btn btn-add-page" id="btn-add-page">+ ADD PAGE</button>
+      </div>
+      <div id="pages-list" class="pages-list"></div>
+    </aside>
+
+    <!-- Settings Panel (hidden by default) -->
+    <div id="settings-panel" class="settings-overlay hidden">
+      <div class="settings-dialog">
+        <div class="settings-header">
+          <h2>Settings</h2>
+          <button id="settings-close" class="btn-close">&times;</button>
+        </div>
+        <div class="settings-content">
+          <div class="settings-group">
+            <label>Database File</label>
+            <div class="input-group">
+              <input type="text" id="db-path" class="input" readonly>
+              <button id="browse-db" class="btn">Browse</button>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <label>Theme</label>
+            <select id="theme-select" class="select">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+
+          <div class="settings-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="spell-check">
+              Enable Spell Checking
+            </label>
+          </div>
+
+          <div class="settings-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="docs-enabled">
+              Enable Documents Feature
+            </label>
+          </div>
+        </div>
+        <div class="settings-footer">
+          <button id="settings-save" class="btn btn-primary">Save</button>
+          <div class="version-info" id="version-info"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./index.js"></script>
+</body>
+</html>

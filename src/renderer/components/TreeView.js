@@ -278,6 +278,19 @@ export class TreeView {
   }
 
   /**
+   * Select an item visually without triggering the onSelect callback
+   * @param {string} path - Item path to select
+   */
+  selectVisual(path) {
+    this.selectedPath = path;
+
+    // Update visual selection only
+    $$('.tree-item', this.container).forEach(el => {
+      toggleClass(el, 'selected', el.dataset.path === path);
+    });
+  }
+
+  /**
    * Toggle expand/collapse
    * @param {string} path - Item path
    */

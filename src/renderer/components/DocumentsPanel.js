@@ -6,6 +6,7 @@ import { createElement, $, addEvent, clearChildren, showConfirmDialog } from '..
 import { eventBus, Events } from '../core/EventBus.js';
 import { state } from '../core/State.js';
 import { documentsService } from '../services/DocumentsService.js';
+import { settingsService } from '../services/SettingsService.js';
 import { TreeView } from './TreeView.js';
 import { contextMenu } from './ContextMenu.js';
 import { markdownRenderer } from './MarkdownRenderer.js';
@@ -20,6 +21,8 @@ export class DocumentsPanel {
     this.treeView = null;
     this.currentDoc = null;
     this.currentPage = null;
+    this.lastDoc = null;
+    this.lastPage = null;
     this.isDirty = false;
     this.isDocumentMode = false;
     this.lastSavedText = '';
@@ -81,6 +84,9 @@ export class DocumentsPanel {
     if (this.addPageBtn) {
       addEvent(this.addPageBtn, 'click', () => this.addPage());
     }
+
+    // Set up pages sidebar resizing
+    this.initPagesSidebarResize();
 
     // Make + ADD DOC button a drop target for moving docs to root
     const addDocBtn = $('.btn-add-doc', this.container);
@@ -178,16 +184,68 @@ export class DocumentsPanel {
   }
 
   /**
+   * Initialize pages sidebar resizing
+   */
+  initPagesSidebarResize() {
+    if (!this.pagesSplitter || !this.pagesSidebar) return;
+
+    let startX, startWidth;
+
+    const onMouseMove = (e) => {
+      // Moving left increases width, moving right decreases
+      const newWidth = startWidth - (e.clientX - startX);
+      if (newWidth >= 100 && newWidth <= 400) {
+        this.pagesSidebar.style.width = `${newWidth}px`;
+      }
+    };
+
+    const onMouseUp = async () => {
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+
+      // Save the width to settings
+      const width = parseInt(this.pagesSidebar.style.width);
+      const { left } = await settingsService.getSidebarWidths();
+      await settingsService.saveSidebarWidths(left, width);
+    };
+
+    this.pagesSplitter.addEventListener('mousedown', (e) => {
+      startX = e.clientX;
+      startWidth = parseInt(getComputedStyle(this.pagesSidebar).width);
+
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+    });
+
+    // Restore saved width
+    const savedWidths = settingsService.getSidebarWidths();
+    if (savedWidths.docs) {
+      this.pagesSidebar.style.width = `${savedWidths.docs}px`;
+    }
+  }
+
+  /**
    * Populate the pages list for a document
    * @param {string} docPath - Document path
+   * @param {string} selectPageName - Optional page name to select (defaults to first page)
    */
-  async populatePagesList(docPath) {
+  async populatePagesList(docPath, selectPageName = null) {
     if (!this.pagesList) return;
 
     clearChildren(this.pagesList);
     const pages = await documentsService.getPages(docPath);
 
-    pages.forEach((page, index) => {
+    let pageToSelect = selectPageName;
+    // If no specific page requested, select the first one
+    if (!pageToSelect && pages.length > 0) {
+      pageToSelect = pages[0].name;
+    }
+
+    pages.forEach((page) => {
       const pageEl = createElement('div', {
         classes: ['page-item'],
         text: page.name,
@@ -258,8 +316,8 @@ export class DocumentsPanel {
 
       this.pagesList.appendChild(pageEl);
 
-      // Select first page by default
-      if (index === 0) {
+      // Select the target page
+      if (page.name === pageToSelect) {
         pageEl.classList.add('selected');
         this.loadPage(docPath, page.name);
       }
@@ -302,11 +360,32 @@ export class DocumentsPanel {
       })
     );
 
-    // Hide pages sidebar when switching to different panel or selecting a date
+    // Handle panel switching
     this.cleanups.push(
       eventBus.on(Events.PANEL_SWITCHED, ({ panel }) => {
         if (panel !== 'docs') {
           this.hidePagesSidebar();
+          // Remember selection but switch to notes view
+          if (this.isDocumentMode) {
+            // Store the current selection before clearing
+            this.lastDoc = this.currentDoc;
+            this.lastPage = this.currentPage;
+            this.clearDocumentMode();
+            const selectedDate = state.get('selectedDate');
+            if (selectedDate) {
+              eventBus.emit(Events.DATE_SELECTED, { date: selectedDate });
+            }
+          }
+        } else {
+          // Switching back to docs - restore previous selection if any
+          if (this.lastDoc) {
+            this.showPagesSidebar();
+            this.currentDoc = this.lastDoc;
+            this.isDocumentMode = true;
+            // Use selectVisual to avoid triggering handleSelect callback
+            this.treeView.selectVisual(this.lastDoc);
+            this.populatePagesList(this.lastDoc, this.lastPage);
+          }
         }
       })
     );
@@ -315,6 +394,8 @@ export class DocumentsPanel {
       eventBus.on(Events.DATE_SELECTED, () => {
         this.hidePagesSidebar();
         this.clearDocumentMode();
+        // Only clear remembered selection when user explicitly selects a date from calendar
+        // (not when we emit DATE_SELECTED due to panel switching)
       })
     );
   }
@@ -442,8 +523,31 @@ export class DocumentsPanel {
    * @param {string} pageName - Page name
    */
   async selectPage(docPath, pageName) {
-    await this.loadPage(docPath, pageName);
-    this.treeView.select(docPath);
+    // Set the document/page selection
+    this.currentDoc = docPath;
+    this.lastDoc = docPath;
+    this.lastPage = pageName;
+    this.isDocumentMode = true;
+
+    // Switch to the Docs panel if not already there
+    const docsTab = document.querySelector('.panel-tab[data-panel="docs"]');
+    const tabs = document.querySelectorAll('.panel-tab');
+    const panels = document.querySelectorAll('.side-panel');
+
+    if (docsTab && !docsTab.classList.contains('active')) {
+      // Update tab states manually to avoid PANEL_SWITCHED handler interference
+      tabs.forEach(t => t.classList.toggle('active', t === docsTab));
+      panels.forEach(p => p.classList.toggle('active', p.id === 'docs-panel'));
+      // Update state so Calendar knows docs panel is active
+      state.set('activePanel', 'docs');
+    }
+
+    // Show pages sidebar and populate
+    this.showPagesSidebar();
+    await this.populatePagesList(docPath, pageName);
+
+    // Select the document in the tree visually only (don't trigger onSelect callback)
+    this.treeView.selectVisual(docPath);
   }
 
   /**

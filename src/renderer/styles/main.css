@@ -174,10 +174,6 @@ html, body {
   color: var(--buttonsSelectedText);
 }
 
-.btn.dirty {
-  color: yellow;
-}
-
 /* ============ Calendar ============ */
 .calendar-container {
   width: 100%;
@@ -255,7 +251,6 @@ html, body {
   height: 26px;
   line-height: 26px;
   text-align: center;
-  text-transform: uppercase;
   font-size: 90%;
   color: var(--calDaysText);
   border-right: 1px solid var(--calDaysBorder);
@@ -274,8 +269,10 @@ html, body {
 }
 
 .calendar-day {
-  height: 30px;
-  line-height: 30px;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   border-right: 1px solid var(--calDaysBorder);
   border-bottom: 1px solid var(--calDaysBorder);
@@ -312,9 +309,15 @@ html, body {
   color: var(--calDaysHighlightedText);
 }
 
-.calendar-day.has-notes:hover:not(.other-month) {
-  background-color: var(--calDaysHoverBack);
-  color: var(--calDaysHoverText);
+.calendar-day.selected.has-notes {
+  background-color: var(--calDaysSelectedBack);
+  color: var(--calDaysSelectedText);
+}
+
+.calendar-day.has-notes:hover:not(.other-month):not(.selected) {
+  background-color: var(--calDaysHighlightedBack);
+  color: var(--calDaysHighlightedText);
+  filter: brightness(1.2);
 }
 
 /* ============ Panel Tabs ============ */
@@ -366,6 +369,7 @@ html, body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  padding-bottom: 5px; /* Align with notes toolbar/SAVE button */
 }
 
 .side-panel {
@@ -504,6 +508,7 @@ html, body {
   flex-direction: column;
   background-color: var(--pagesBack);
   border: 1px solid var(--pagesBorder);
+  margin-bottom: 5px; /* Align with notes toolbar/SAVE button */
 }
 
 .pages-sidebar.hidden {
@@ -573,9 +578,11 @@ html, body {
   min-height: 23px;
 }
 
-.notes-date {
+.notes-date,
+.notes-label {
   flex: 1;
   text-align: center;
+  font-weight: bold;
 }
 
 .notes-header .header-btn {

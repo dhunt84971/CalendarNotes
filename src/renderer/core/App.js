@@ -243,6 +243,8 @@ export class App {
     const maximizeArrows = $('#maximize-arrows');
     const sidebar = $('#sidebar');
     const splitter = $('#sidebar-splitter');
+    const notesLabel = $('#notes-label');
+    const notesDate = $('#notes-date');
 
     if (!maximizeBtn || !sidebar) return;
 
@@ -254,11 +256,17 @@ export class App {
       if (this.sidebarHidden) {
         sidebar.classList.add('hidden');
         splitter?.classList.add('hidden');
-        if (maximizeArrows) maximizeArrows.textContent = '»';
+        if (maximizeArrows) maximizeArrows.textContent = '▶';
+        // Show date, hide NOTES label
+        notesLabel?.classList.add('hidden');
+        notesDate?.classList.remove('hidden');
       } else {
         sidebar.classList.remove('hidden');
         splitter?.classList.remove('hidden');
-        if (maximizeArrows) maximizeArrows.textContent = '«';
+        if (maximizeArrows) maximizeArrows.textContent = '◀';
+        // Show NOTES label, hide date
+        notesLabel?.classList.remove('hidden');
+        notesDate?.classList.add('hidden');
       }
 
       state.set('sidebarHidden', this.sidebarHidden);

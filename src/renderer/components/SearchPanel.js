@@ -267,7 +267,9 @@ export class SearchPanel {
   handleResultClick(result) {
     if (result.type === 'note') {
       // Navigate to the note date
-      const date = new Date(result.date);
+      // Parse date string as local time to avoid timezone issues
+      const [year, month, day] = result.date.split('-');
+      const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
       eventBus.emit(Events.DATE_CHANGED, { date });
       eventBus.emit(Events.DATE_SELECTED, { date });
     } else if (result.type === 'document') {

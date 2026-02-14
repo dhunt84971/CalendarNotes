@@ -7,6 +7,7 @@ import { eventBus, Events } from '../core/EventBus.js';
 import { state } from '../core/State.js';
 import { notesService } from '../services/NotesService.js';
 import { markdownRenderer } from './MarkdownRenderer.js';
+import { contextMenu } from './ContextMenu.js';
 
 export class NotesEditor {
   /**
@@ -40,9 +41,10 @@ export class NotesEditor {
       <div class="notes-editor">
         <div class="notes-header">
           <button class="header-btn maximize-btn" id="maximize-btn" title="Toggle Sidebar">
-            <span class="maximize-arrows" id="maximize-arrows">«</span>
+            <span class="maximize-arrows" id="maximize-arrows">◀</span>
           </button>
-          <span class="notes-date"></span>
+          <span class="notes-label" id="notes-label">NOTES</span>
+          <span class="notes-date hidden" id="notes-date"></span>
           <button class="header-btn settings-btn" id="settings-btn" title="Settings">
             <img src="./images/settingsIconWht.png" alt="Settings" class="header-icon settings-icon" id="settings-icon">
           </button>
@@ -68,7 +70,8 @@ export class NotesEditor {
     `;
 
     // Store references
-    this.dateEl = $('.notes-date', this.container);
+    this.dateEl = $('#notes-date', this.container);
+    this.labelEl = $('#notes-label', this.container);
     this.textareaEl = $('.notes-textarea', this.container);
     this.editAreaEl = $('.notes-edit-area', this.container);
     this.previewAreaEl = $('.notes-preview-area', this.container);
@@ -131,6 +134,14 @@ export class NotesEditor {
     const debouncedSync = debounce(() => this.syncScroll(), 16);
     this.cleanups.push(
       addEvent(this.textareaEl, 'scroll', debouncedSync)
+    );
+
+    // Context menu for notes
+    this.cleanups.push(
+      addEvent(this.textareaEl, 'contextmenu', (e) => {
+        e.preventDefault();
+        this.showNotesContextMenu(e.clientX, e.clientY);
+      })
     );
 
     // Listen for date selection
@@ -323,7 +334,6 @@ export class NotesEditor {
     if (!this.isDirty) {
       this.isDirty = true;
       this.saveBtn.textContent = '*SAVE*';
-      this.saveBtn.classList.add('dirty');
       state.set('noteDirty', true);
     }
   }
@@ -334,7 +344,6 @@ export class NotesEditor {
   clearDirty() {
     this.isDirty = false;
     this.saveBtn.textContent = 'SAVE';
-    this.saveBtn.classList.remove('dirty');
     state.set('noteDirty', false);
   }
 
@@ -408,6 +417,81 @@ export class NotesEditor {
    */
   focus() {
     this.textareaEl?.focus();
+  }
+
+  /**
+   * Show the notes context menu
+   * @param {number} x - X position
+   * @param {number} y - Y position
+   */
+  showNotesContextMenu(x, y) {
+    contextMenu.show(x, y, [
+      {
+        label: 'INSERT TABLE',
+        action: () => this.insertTable()
+      },
+      {
+        label: 'COPY',
+        action: () => this.copySelection()
+      },
+      {
+        label: 'PASTE',
+        action: () => this.pasteFromClipboard()
+      }
+    ]);
+  }
+
+  /**
+   * Insert a markdown table template at cursor position
+   */
+  insertTable() {
+    const tableTemplate = '| header1 | header2 | header3 |\n| --- | --- | --- |\n|  |  |  |';
+    const start = this.textareaEl.selectionStart;
+    const text = this.textareaEl.value;
+
+    this.textareaEl.value = text.substring(0, start) + tableTemplate + text.substring(start);
+    this.textareaEl.selectionStart = this.textareaEl.selectionEnd = start + tableTemplate.length;
+
+    this.markDirty();
+    this.textareaEl.focus();
+  }
+
+  /**
+   * Copy selected text to clipboard
+   */
+  async copySelection() {
+    const start = this.textareaEl.selectionStart;
+    const end = this.textareaEl.selectionEnd;
+
+    if (start !== end) {
+      const selectedText = this.textareaEl.value.substring(start, end);
+      try {
+        await navigator.clipboard.writeText(selectedText);
+      } catch (error) {
+        console.error('Failed to copy:', error);
+      }
+    }
+    this.textareaEl.focus();
+  }
+
+  /**
+   * Paste from clipboard at cursor position
+   */
+  async pasteFromClipboard() {
+    try {
+      const clipText = await navigator.clipboard.readText();
+      const start = this.textareaEl.selectionStart;
+      const end = this.textareaEl.selectionEnd;
+      const text = this.textareaEl.value;
+
+      this.textareaEl.value = text.substring(0, start) + clipText + text.substring(end);
+      this.textareaEl.selectionStart = this.textareaEl.selectionEnd = start + clipText.length;
+
+      this.markDirty();
+    } catch (error) {
+      console.error('Failed to paste:', error);
+    }
+    this.textareaEl.focus();
   }
 
   /**

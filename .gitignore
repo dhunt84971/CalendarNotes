@@ -6,3 +6,7 @@ dist/
 *.log
 *.ico~
 *.bkp
+
+# Claude Code
+.claude/
+CLAUDE.md

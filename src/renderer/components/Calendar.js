@@ -266,6 +266,22 @@ export class Calendar {
   selectDay(day) {
     this.selectedDate = new Date(this.currentYear, this.currentMonth, day);
     state.setSelectedDate(this.selectedDate);
+
+    // If Docs panel is active, switch to Tasks panel
+    const activePanel = state.get('activePanel');
+    if (activePanel === 'docs') {
+      const tabs = document.querySelectorAll('.panel-tab');
+      const panels = document.querySelectorAll('.side-panel');
+      const tasksTab = document.querySelector('.panel-tab[data-panel="tasks"]');
+
+      if (tasksTab) {
+        tabs.forEach(t => t.classList.toggle('active', t === tasksTab));
+        panels.forEach(p => p.classList.toggle('active', p.id === 'tasks-panel'));
+        state.set('activePanel', 'tasks');
+        eventBus.emit(Events.PANEL_SWITCHED, { panel: 'tasks' });
+      }
+    }
+
     eventBus.emit(Events.DATE_SELECTED, { date: this.selectedDate });
     this.updateCalendar();
   }

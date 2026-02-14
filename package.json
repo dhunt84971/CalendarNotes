@@ -43,24 +43,38 @@
     },
     "files": [
       "dist/**/*",
-      "assets/**/*"
+      "build/icons/**/*"
     ],
     "linux": {
-      "target": ["AppImage", "deb"],
+      "target": ["deb"],
       "category": "Office",
-      "maintainer": "Dave Hunt"
+      "maintainer": "Dave Hunt <dhuntlinux@gmail.com>",
+      "icon": "build/icons",
+      "desktop": {
+        "Name": "Calendar Notes",
+        "Comment": "A daily notes application with markdown support",
+        "Categories": "Office;Utility;TextEditor"
+      }
+    },
+    "deb": {
+      "depends": ["libgtk-3-0", "libnotify4", "libnss3", "libxss1", "libxtst6", "xdg-utils", "libatspi2.0-0", "libuuid1", "libsecret-1-0"]
     },
     "win": {
-      "target": "nsis",
-      "icon": "assets/icons/win/calendarNotes.ico"
-    },
-    "mac": {
-      "target": "dmg",
-      "icon": "assets/icons/mac/icon.icns"
+      "target": {
+        "target": "nsis",
+        "arch": ["x64"]
+      },
+      "icon": "build/calendarNotes.ico"
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "build/calendarNotes.ico",
+      "uninstallerIcon": "build/calendarNotes.ico",
+      "installerHeaderIcon": "build/calendarNotes.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Calendar Notes"
     }
   }
 }

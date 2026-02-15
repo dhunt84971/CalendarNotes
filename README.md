@@ -2,7 +2,7 @@
 An Electron application for daily notes (or journal) entries saved to a SQLite or MySQL DB and searchable by words.
 
 Current release:
-<br/>https://github.com/dhunt84971/CalendarNotes/releases/tag/v1.1.23
+<br/>https://github.com/dhunt84971/CalendarNotes/releases/tag/v2.1.0
 
 
 This is a port of an application originally written in Gambas.  Much of the code for the calendar component came from a 
@@ -181,27 +181,62 @@ Use the document and page context menus to modify the selected item.
 ### Drag and Drop
 Documents and pages can be moved by dragging and dropping.  Dragging a document will move all sub-documents under that document.  Pages can be dragged from one document to another. 
 
-## Development Setup
-VS Code is the recommended IDE.  Install VS Code using the instructions from the VS Code website.  Install nodejs and npm:
+## Development
 
-For Debian based Linux systems run:
+### Prerequisites
+- **Node.js** v18 or later (v20 recommended)
+- **npm** (included with Node.js)
+- **VS Code** (recommended IDE)
+
+**Debian/Ubuntu:**
 ```
 sudo apt-get update
 sudo apt-get install nodejs npm
 ```
 
-### Development SQLite Dependencies
-To setup a session for development it may be necessary to install python and make sure it is in the path.  This is because if a SQLite binary cannot be found for the installed version of Electron it will need to be built from source and the source includes python code.
-
-For Debian based Linux systems run:
+It may also be necessary to install Python and build tools if the `better-sqlite3` native module needs to be compiled from source:
 ```
-sudo apt-get update
-sudo apt-get install python
+sudo apt-get install python3 build-essential
 ```
 
-### Building the Install Package
-The install package is built using electron-builder.  Electron-builder must be run on the target operating system.  To build the install package run the following command:
+### Getting Started
+Clone the repository and install dependencies:
+```
+git clone https://github.com/dhunt84971/CalendarNotes.git
+cd CalendarNotes
+npm install
+```
+
+### Running for Development
+To launch the application in development mode with hot-reload for the renderer process:
+```
+npm start
+```
+This runs `electron-vite dev`, which builds the main and preload scripts, starts a Vite dev server for the renderer, and launches the Electron app. Changes to renderer files will hot-reload automatically. Changes to main process or preload files require restarting the command.
+
+### Building Install Packages
+Install packages are built using `electron-builder` via `electron-vite build`. The output is written to the `release/` folder.
+
+**Linux (deb):**
+```
+npm run dist:linux
+```
+Produces: `release/calendar-notes_<version>_amd64.deb`
+
+**Windows (NSIS installer):**
+```
+npm run dist:win
+```
+Produces: `release/CalendarNotes Setup <version>.exe`
+
+**macOS:**
+```
+npm run dist:mac
+```
+
+**All platforms (current OS):**
 ```
 npm run dist
 ```
-The installation package will be written to the dist folder.
+
+**Note:** Cross-compilation has limited support. Building Windows packages on Linux requires `wine` and `mono` to be installed. It is generally recommended to build on the target operating system.

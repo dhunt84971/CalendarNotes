@@ -860,7 +860,8 @@ html, body {
   gap: 5px;
 }
 
-.input-group .input {
+.input-group .input,
+.input-group .select {
   flex: 1;
 }
 

@@ -38,8 +38,9 @@ export class App {
       await settingsService.init();
       const settings = settingsService.get();
 
-      // Apply theme
-      themeManager.setTheme(settings.themeIndex);
+      // Initialize and apply theme
+      await themeManager.init();
+      themeManager.setThemeByName(settings.themeName || 'Default');
 
       // Connect to database
       const dbPath = settingsService.getDbPath();

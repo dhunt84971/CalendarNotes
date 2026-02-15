@@ -162,9 +162,9 @@ export class NotesEditor {
 
     // Listen for theme changes to update markdown icons
     this.cleanups.push(
-      eventBus.on(Events.THEME_CHANGED, ({ themeIndex }) => {
-        // Themes 5 and 6 (Tron, Clu) use white icons
-        markdownRenderer.setWhiteIcons(themeIndex >= 5);
+      eventBus.on(Events.THEME_CHANGED, ({ invertSettingsIcon }) => {
+        // Dark themes with inverted icons need white checkbox icons
+        markdownRenderer.setWhiteIcons(invertSettingsIcon);
         if (this.mode !== 'edit') {
           this.updatePreview();
         }

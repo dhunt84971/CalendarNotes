@@ -16,6 +16,7 @@ export class SettingsPanel {
   constructor(overlay) {
     this.overlay = overlay;
     this.cleanups = [];
+    this._dialogOpen = false;
 
     this.init();
   }
@@ -53,6 +54,8 @@ export class SettingsPanel {
     this.dbPathInput = $('#db-path', this.overlay);
     this.browseBtn = $('#browse-db', this.overlay);
     this.themeSelect = $('#theme-select', this.overlay);
+    this.importBtn = $('#import-theme', this.overlay);
+    this.exportBtn = $('#export-theme', this.overlay);
     this.spellCheckInput = $('#spell-check', this.overlay);
     this.docsEnabledInput = $('#docs-enabled', this.overlay);
     this.closeBtn = $('#settings-close', this.overlay);
@@ -68,8 +71,8 @@ export class SettingsPanel {
     if (!this.themeSelect) return;
 
     const themes = themeManager.getThemes();
-    this.themeSelect.innerHTML = themes.map((theme, index) =>
-      `<option value="${index}">${theme.name}</option>`
+    this.themeSelect.innerHTML = themes.map(theme =>
+      `<option value="${theme.name}">${theme.name}</option>`
     ).join('');
   }
 
@@ -84,7 +87,7 @@ export class SettingsPanel {
     }
 
     if (this.themeSelect) {
-      this.themeSelect.value = String(settings.themeIndex);
+      this.themeSelect.value = settings.themeName || 'Default';
     }
 
     if (this.spellCheckInput) {
@@ -127,7 +130,7 @@ export class SettingsPanel {
     // Escape key to close
     this.cleanups.push(
       addEvent(document, 'keydown', (e) => {
-        if (e.key === 'Escape' && !this.overlay.classList.contains('hidden')) {
+        if (e.key === 'Escape' && !this._dialogOpen && !this.overlay.classList.contains('hidden')) {
           this.close();
         }
       })
@@ -136,7 +139,14 @@ export class SettingsPanel {
     // Browse button
     if (this.browseBtn) {
       this.cleanups.push(
-        addEvent(this.browseBtn, 'click', () => this.browseDatabase())
+        addEvent(this.browseBtn, 'click', async () => {
+          this._dialogOpen = true;
+          try {
+            await this.browseDatabase();
+          } finally {
+            this._dialogOpen = false;
+          }
+        })
       );
     }
 
@@ -144,8 +154,48 @@ export class SettingsPanel {
     if (this.themeSelect) {
       this.cleanups.push(
         addEvent(this.themeSelect, 'change', () => {
-          const index = parseInt(this.themeSelect.value, 10);
-          themeManager.setTheme(index);
+          themeManager.setThemeByName(this.themeSelect.value);
+        })
+      );
+    }
+
+    // Import theme button
+    if (this.importBtn) {
+      this.cleanups.push(
+        addEvent(this.importBtn, 'click', async () => {
+          this._dialogOpen = true;
+          try {
+            const result = await themeManager.importTheme();
+            this._dialogOpen = false;
+            if (result.success && result.theme) {
+              this.populateThemes();
+              this.themeSelect.value = result.theme.name;
+              themeManager.setThemeByName(result.theme.name);
+            } else if (!result.canceled && result.error) {
+              await window.api.dialog.showMessage({
+                type: 'error',
+                title: 'Import Failed',
+                message: result.error
+              });
+            }
+          } catch (error) {
+            this._dialogOpen = false;
+            console.error('Failed to import theme:', error);
+          }
+        })
+      );
+    }
+
+    // Export theme button
+    if (this.exportBtn) {
+      this.cleanups.push(
+        addEvent(this.exportBtn, 'click', async () => {
+          this._dialogOpen = true;
+          try {
+            await themeManager.exportTheme(themeManager.getCurrentTheme());
+          } finally {
+            this._dialogOpen = false;
+          }
         })
       );
     }
@@ -162,6 +212,7 @@ export class SettingsPanel {
    * Open the settings panel
    */
   open() {
+    this.populateThemes();
     this.loadSettings();
     this.overlay.classList.remove('hidden');
     eventBus.emit(Events.SETTINGS_OPENED);
@@ -171,6 +222,7 @@ export class SettingsPanel {
    * Close the settings panel
    */
   close() {
+    if (this._dialogOpen) return;
     this.overlay.classList.add('hidden');
     eventBus.emit(Events.SETTINGS_CLOSED);
   }
@@ -189,9 +241,10 @@ export class SettingsPanel {
    * Save settings
    */
   async save() {
+    const themeName = this.themeSelect?.value || 'Default';
     const newSettings = {
       dbFile: this.dbPathInput?.value || null,
-      themeIndex: parseInt(this.themeSelect?.value || '0', 10),
+      themeName: themeName,
       spellChecking: this.spellCheckInput?.checked ?? true,
       documents: this.docsEnabledInput?.checked ?? false
     };

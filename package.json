@@ -1,7 +1,7 @@
 {
   "name": "calendar-notes",
   "productName": "Calendar Notes",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Calendar Notes - A daily notes application with markdown support",
   "type": "module",
   "main": "dist/main/main.js",

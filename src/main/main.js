@@ -39,9 +39,13 @@ class CalendarNotesApp {
     this.ipcHandler = new IPCHandler();
     this.ipcHandler.registerHandlers();
 
+    // Load saved window state from settings
+    const savedSettings = this.ipcHandler.loadSettings();
+    const windowState = savedSettings?.success ? savedSettings.settings?.windowState : null;
+
     // Create and show the main window
     this.windowManager = new WindowManager(this.ipcHandler);
-    this.windowManager.createMainWindow();
+    this.windowManager.createMainWindow(windowState);
   }
 
   onAllWindowsClosed() {

@@ -11,14 +11,39 @@ export class WindowManager {
     this.settingsSaved = false;
   }
 
-  createMainWindow() {
+  createMainWindow(savedWindowState) {
     // Get primary display dimensions for reasonable defaults
     const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize;
 
-    // Create the browser window with secure settings
-    this.mainWindow = new BrowserWindow({
+    // Determine window bounds from saved state or defaults
+    const defaults = {
       width: Math.min(1200, screenWidth),
       height: Math.min(800, screenHeight),
+    };
+
+    const windowOptions = { ...defaults };
+
+    if (savedWindowState && !savedWindowState.isMaximized) {
+      if (savedWindowState.width) windowOptions.width = savedWindowState.width;
+      if (savedWindowState.height) windowOptions.height = savedWindowState.height;
+
+      // Only restore position if it's visible on a connected display
+      if (savedWindowState.x != null && savedWindowState.y != null) {
+        const visible = screen.getAllDisplays().some(display => {
+          const { x, y, width, height } = display.bounds;
+          return savedWindowState.x >= x && savedWindowState.x < x + width &&
+                 savedWindowState.y >= y && savedWindowState.y < y + height;
+        });
+        if (visible) {
+          windowOptions.x = savedWindowState.x;
+          windowOptions.y = savedWindowState.y;
+        }
+      }
+    }
+
+    // Create the browser window with secure settings
+    this.mainWindow = new BrowserWindow({
+      ...windowOptions,
       minWidth: 800,
       minHeight: 600,
       show: false,
@@ -43,8 +68,11 @@ export class WindowManager {
       this.mainWindow.loadFile(join(__dirname, '../renderer/index.html'));
     }
 
-    // Show window when ready
+    // Show window when ready, restoring maximized state if needed
     this.mainWindow.once('ready-to-show', () => {
+      if (savedWindowState?.isMaximized) {
+        this.mainWindow.maximize();
+      }
       this.mainWindow.show();
     });
 

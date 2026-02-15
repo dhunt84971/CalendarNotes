@@ -5,8 +5,8 @@
 
 import { eventBus, Events } from '../core/EventBus.js';
 
-// Theme definitions matching original theme.js
-const themes = [
+// Built-in theme definitions (used for seeding the themes directory)
+const builtInThemes = [
   {
     name: "Default",
     invertSettingsIcon: false,
@@ -817,6 +817,34 @@ const themeProperties = [
 export class ThemeManager {
   constructor() {
     this.currentThemeIndex = 0;
+    this.themes = [...builtInThemes];
+  }
+
+  /**
+   * Initialize theme system - seed files and load from disk
+   */
+  async init() {
+    try {
+      await window.api.themes.init(builtInThemes);
+      await this.reloadThemes();
+    } catch (error) {
+      console.error('Failed to init themes, using built-in fallback:', error);
+      this.themes = [...builtInThemes];
+    }
+  }
+
+  /**
+   * Reload themes from disk
+   */
+  async reloadThemes() {
+    try {
+      const result = await window.api.themes.list();
+      if (result.success && result.themes && result.themes.length > 0) {
+        this.themes = result.themes;
+      }
+    } catch (error) {
+      console.error('Failed to reload themes:', error);
+    }
   }
 
   /**
@@ -824,7 +852,7 @@ export class ThemeManager {
    * @returns {Array<{name: string, invertSettingsIcon: boolean}>}
    */
   getThemes() {
-    return themes.map(t => ({
+    return this.themes.map(t => ({
       name: t.name,
       invertSettingsIcon: t.invertSettingsIcon
     }));
@@ -843,7 +871,15 @@ export class ThemeManager {
    * @returns {Object}
    */
   getCurrentTheme() {
-    return themes[this.currentThemeIndex];
+    return this.themes[this.currentThemeIndex];
+  }
+
+  /**
+   * Get the current theme name
+   * @returns {string}
+   */
+  getCurrentThemeName() {
+    return this.themes[this.currentThemeIndex]?.name || 'Default';
   }
 
   /**
@@ -851,12 +887,12 @@ export class ThemeManager {
    * @param {number} index - Theme index
    */
   setTheme(index) {
-    if (index < 0 || index >= themes.length) {
+    if (index < 0 || index >= this.themes.length) {
       index = 0;
     }
 
     this.currentThemeIndex = index;
-    const theme = themes[index];
+    const theme = this.themes[index];
     const d = document.documentElement.style;
 
     // Apply all theme properties as CSS variables
@@ -871,9 +907,19 @@ export class ThemeManager {
 
     eventBus.emit(Events.THEME_CHANGED, {
       themeIndex: index,
+      themeName: theme.name,
       theme: theme.name,
       invertSettingsIcon: theme.invertSettingsIcon
     });
+  }
+
+  /**
+   * Set theme by name
+   * @param {string} name - Theme name
+   */
+  setThemeByName(name) {
+    const index = this.themes.findIndex(t => t.name === name);
+    this.setTheme(index >= 0 ? index : 0);
   }
 
   /**
@@ -881,7 +927,7 @@ export class ThemeManager {
    * @returns {number} New theme index
    */
   nextTheme() {
-    const newIndex = (this.currentThemeIndex + 1) % themes.length;
+    const newIndex = (this.currentThemeIndex + 1) % this.themes.length;
     this.setTheme(newIndex);
     return newIndex;
   }
@@ -891,7 +937,7 @@ export class ThemeManager {
    * @returns {number}
    */
   getThemeCount() {
-    return themes.length;
+    return this.themes.length;
   }
 
   /**
@@ -900,7 +946,28 @@ export class ThemeManager {
    * @returns {Object|null}
    */
   getTheme(index) {
-    return themes[index] || null;
+    return this.themes[index] || null;
+  }
+
+  /**
+   * Import a theme via file dialog
+   * @returns {Promise<Object>} Result with success flag and theme
+   */
+  async importTheme() {
+    const result = await window.api.themes.import();
+    if (result.success) {
+      await this.reloadThemes();
+    }
+    return result;
+  }
+
+  /**
+   * Export a theme via save dialog
+   * @param {Object} theme - Theme object to export
+   * @returns {Promise<Object>} Result with success flag
+   */
+  async exportTheme(theme) {
+    return await window.api.themes.export(theme);
   }
 
   /**
@@ -908,7 +975,7 @@ export class ThemeManager {
    * @returns {boolean}
    */
   usesInvertedIcons() {
-    return themes[this.currentThemeIndex]?.invertSettingsIcon || false;
+    return this.themes[this.currentThemeIndex]?.invertSettingsIcon || false;
   }
 }
 

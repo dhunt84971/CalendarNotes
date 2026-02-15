@@ -124,6 +124,24 @@ export class SettingsService {
   }
 
   /**
+   * Get theme name
+   * @returns {string}
+   */
+  getThemeName() {
+    return this.settings?.themeName || 'Default';
+  }
+
+  /**
+   * Set theme name
+   * @param {string} name - Theme name
+   * @returns {Promise<boolean>}
+   */
+  async setThemeName(name) {
+    await this.update({ themeName: name });
+    return true;
+  }
+
+  /**
    * Get documents feature enabled state
    * @returns {boolean}
    */

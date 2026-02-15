@@ -1,6 +1,6 @@
 import { ipcMain, dialog, app } from 'electron';
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
-import { join, dirname } from 'path';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'fs';
+import { join, dirname, basename } from 'path';
 import Database from 'better-sqlite3';
 
 export class IPCHandler {
@@ -9,6 +9,7 @@ export class IPCHandler {
     this.windowManager = null;
     this.db = null;
     this.settingsPath = join(app.getPath('userData'), 'settings.json');
+    this.themesDir = join(app.getPath('userData'), 'themes');
   }
 
   setMainWindow(window) {
@@ -44,6 +45,12 @@ export class IPCHandler {
     ipcMain.handle('window:setState', (event, state) => this.windowManager?.restoreWindowState(state));
     ipcMain.on('window:close', () => this.windowManager?.closeWindow());
     ipcMain.on('window:settingsSaved', () => this.windowManager?.markSettingsSaved());
+
+    // Themes
+    ipcMain.handle('themes:init', (event, builtInThemes) => this.initThemes(builtInThemes));
+    ipcMain.handle('themes:list', () => this.listThemes());
+    ipcMain.handle('themes:import', () => this.importTheme());
+    ipcMain.handle('themes:export', (event, theme) => this.exportTheme(theme));
 
     // App info
     ipcMain.handle('app:getPath', (event, name) => app.getPath(name));
@@ -188,6 +195,124 @@ export class IPCHandler {
       return { success: true };
     } catch (error) {
       console.error('Failed to save settings:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Theme methods
+  initThemes(builtInThemes) {
+    try {
+      if (!existsSync(this.themesDir)) {
+        mkdirSync(this.themesDir, { recursive: true });
+      }
+
+      for (const theme of builtInThemes) {
+        const filePath = join(this.themesDir, `${theme.name}.json`);
+        if (!existsSync(filePath)) {
+          writeFileSync(filePath, JSON.stringify(theme, null, 2));
+        }
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error('Failed to init themes:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  listThemes() {
+    try {
+      if (!existsSync(this.themesDir)) {
+        return { success: true, themes: [] };
+      }
+
+      const files = readdirSync(this.themesDir).filter(f => f.endsWith('.json'));
+      const themes = [];
+
+      for (const file of files) {
+        try {
+          const data = readFileSync(join(this.themesDir, file), 'utf-8');
+          themes.push(JSON.parse(data));
+        } catch (e) {
+          console.error(`Failed to parse theme file ${file}:`, e);
+        }
+      }
+
+      themes.sort((a, b) => a.name.localeCompare(b.name));
+      return { success: true, themes };
+    } catch (error) {
+      console.error('Failed to list themes:', error);
+      return { success: false, error: error.message, themes: [] };
+    }
+  }
+
+  async importTheme() {
+    try {
+      const result = await dialog.showOpenDialog(this.mainWindow, {
+        title: 'Import Theme',
+        properties: ['openFile'],
+        filters: [{ name: 'JSON Files', extensions: ['json'] }]
+      });
+
+      if (result.canceled || result.filePaths.length === 0) {
+        return { success: false, canceled: true };
+      }
+
+      const data = readFileSync(result.filePaths[0], 'utf-8');
+      const theme = JSON.parse(data);
+
+      if (!theme.name || !theme.appBack) {
+        return { success: false, error: 'Invalid theme file: missing required properties' };
+      }
+
+      // Check if filename differs from the name property inside the JSON
+      const fileName = basename(result.filePaths[0], '.json');
+      if (fileName !== theme.name) {
+        const choice = await dialog.showMessageBox(this.mainWindow, {
+          type: 'question',
+          title: 'Theme Name Mismatch',
+          message: `The filename "${fileName}" does not match the theme name "${theme.name}" inside the file.`,
+          detail: `Would you like to rename the theme to "${fileName}"?`,
+          buttons: ['Use Filename', 'Keep Original', 'Cancel'],
+          defaultId: 0,
+          cancelId: 2
+        });
+
+        if (choice.response === 2) {
+          return { success: false, canceled: true };
+        }
+
+        if (choice.response === 0) {
+          theme.name = fileName;
+        }
+      }
+
+      const destPath = join(this.themesDir, `${theme.name}.json`);
+      writeFileSync(destPath, JSON.stringify(theme, null, 2));
+
+      return { success: true, theme };
+    } catch (error) {
+      console.error('Failed to import theme:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async exportTheme(theme) {
+    try {
+      const result = await dialog.showSaveDialog(this.mainWindow, {
+        title: 'Export Theme',
+        defaultPath: `${theme.name}.json`,
+        filters: [{ name: 'JSON Files', extensions: ['json'] }]
+      });
+
+      if (result.canceled) {
+        return { success: false, canceled: true };
+      }
+
+      writeFileSync(result.filePath, JSON.stringify(theme, null, 2));
+      return { success: true };
+    } catch (error) {
+      console.error('Failed to export theme:', error);
       return { success: false, error: error.message };
     }
   }

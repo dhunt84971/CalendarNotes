@@ -40,6 +40,14 @@ contextBridge.exposeInMainWorld('api', {
     }
   },
 
+  // Theme operations
+  themes: {
+    init: (builtInThemes) => ipcRenderer.invoke('themes:init', builtInThemes),
+    list: () => ipcRenderer.invoke('themes:list'),
+    import: () => ipcRenderer.invoke('themes:import'),
+    export: (theme) => ipcRenderer.invoke('themes:export', theme),
+  },
+
   // App information
   app: {
     getPath: (name) => ipcRenderer.invoke('app:getPath', name),

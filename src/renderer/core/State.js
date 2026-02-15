@@ -39,6 +39,7 @@ export class State {
       settings: {
         dbFile: null,
         themeIndex: 0,
+        themeName: 'Default',
         documents: false,
         spellChecking: true,
         windowState: null,

@@ -2,6 +2,9 @@
  * Settings - Data model for application settings
  */
 
+// Maps old themeIndex values to built-in theme names for backward compatibility
+const builtInThemeNames = ['Default','Warm','Cool','Green','Pink','Tron','Clu','Metal','OrangeWave'];
+
 export class Settings {
   constructor(data = {}) {
     // Database settings (SQLite only)
@@ -11,6 +14,15 @@ export class Settings {
     this.themeIndex = data.themeIndex ?? 0;
     this.documents = data.documents ?? false;
     this.spellChecking = data.spellChecking ?? true;
+
+    // Migrate themeIndex to themeName if needed
+    if (data.themeName) {
+      this.themeName = data.themeName;
+    } else if (data.themeIndex != null && data.themeIndex >= 0 && data.themeIndex < builtInThemeNames.length) {
+      this.themeName = builtInThemeNames[data.themeIndex];
+    } else {
+      this.themeName = 'Default';
+    }
 
     // Window state
     this.windowState = data.windowState || null;
@@ -40,6 +52,7 @@ export class Settings {
     return {
       dbFile: this.dbFile,
       themeIndex: this.themeIndex,
+      themeName: this.themeName,
       documents: this.documents,
       spellChecking: this.spellChecking,
       windowState: this.windowState,
@@ -59,6 +72,7 @@ export class Settings {
     return new Settings({
       dbFile: defaultDbPath,
       themeIndex: 0,
+      themeName: 'Default',
       documents: false,
       spellChecking: true,
       leftSideBarWidth: 300,

@@ -37,7 +37,7 @@
   },
   "build": {
     "appId": "com.calendarnotes.app",
-    "productName": "Calendar Notes",
+    "productName": "CalendarNotes",
     "directories": {
       "output": "release"
     },
@@ -47,6 +47,7 @@
     ],
     "linux": {
       "target": ["deb"],
+      "executableName": "calendar-notes",
       "category": "Office",
       "maintainer": "Dave Hunt <dhuntlinux@gmail.com>",
       "icon": "build/icons",

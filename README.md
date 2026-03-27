@@ -2,7 +2,7 @@
 An Electron application for daily notes (or journal) entries saved to a SQLite or MySQL DB and searchable by words.
 
 Current release:
-<br/>https://github.com/dhunt84971/CalendarNotes/releases/tag/v2.1.0
+<br/>https://github.com/dhunt84971/CalendarNotes/releases/tag/v2.2.0
 
 
 This is a port of an application originally written in Gambas.  Much of the code for the calendar component came from a 

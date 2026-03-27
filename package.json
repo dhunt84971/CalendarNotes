@@ -43,7 +43,8 @@
     },
     "files": [
       "dist/**/*",
-      "build/icons/**/*"
+      "build/icons/**/*",
+      "build/calendarNotes.ico"
     ],
     "linux": {
       "target": ["deb"],

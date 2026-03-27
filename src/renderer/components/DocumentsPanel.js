@@ -398,6 +398,13 @@ export class DocumentsPanel {
         // (not when we emit DATE_SELECTED due to panel switching)
       })
     );
+
+    // Reload documents when settings change (e.g. database switched)
+    this.cleanups.push(
+      eventBus.on(Events.SETTINGS_SAVED, () => {
+        this.loadDocuments();
+      })
+    );
   }
 
   /**

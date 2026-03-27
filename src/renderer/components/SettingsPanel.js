@@ -4,6 +4,7 @@
 
 import { $, addEvent, hide, show } from '../ui/DOMHelper.js';
 import { eventBus, Events } from '../core/EventBus.js';
+import { state } from '../core/State.js';
 import { settingsService } from '../services/SettingsService.js';
 import { themeManager } from '../ui/ThemeManager.js';
 import { database } from '../database/Database.js';
@@ -262,8 +263,14 @@ export class SettingsPanel {
         await database.open(newSettings.dbFile);
       }
 
-      // Apply spell checking
+      // Notify components of settings change
       eventBus.emit(Events.SETTINGS_SAVED, newSettings);
+
+      // If database changed, reload all data for the current date
+      if (dbChanged) {
+        const selectedDate = state.get('selectedDate') || new Date();
+        eventBus.emit(Events.DATE_SELECTED, { date: selectedDate });
+      }
 
       this.close();
 

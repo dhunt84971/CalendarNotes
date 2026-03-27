@@ -73,6 +73,13 @@ export class TasksPanel {
         }
       })
     );
+
+    // Reload tasks when settings change (e.g. database switched)
+    this.cleanups.push(
+      eventBus.on(Events.SETTINGS_SAVED, () => {
+        this.loadTasks();
+      })
+    );
   }
 
   /**

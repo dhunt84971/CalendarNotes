@@ -48,6 +48,7 @@ export class WindowManager {
       minWidth: 800,
       minHeight: 600,
       show: false,
+      icon: join(__dirname, '../../build/calendarNotes.ico'),
       backgroundColor: '#1a1a2e',
       webPreferences: {
         nodeIntegration: false,

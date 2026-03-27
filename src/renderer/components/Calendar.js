@@ -207,6 +207,13 @@ export class Calendar {
         this.loadNotedDays();
       })
     );
+
+    // Reload noted days when settings change (e.g. database switched)
+    this.cleanups.push(
+      eventBus.on(Events.SETTINGS_SAVED, () => {
+        this.loadNotedDays();
+      })
+    );
   }
 
   /**

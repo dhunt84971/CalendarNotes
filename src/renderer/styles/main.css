@@ -417,6 +417,7 @@ html, body {
 
 .search-input {
   flex: 1;
+  min-width: 0;
   border: 1px solid var(--searchBorder);
   background-color: var(--searchBack);
   color: var(--searchText);

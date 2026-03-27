@@ -151,6 +151,15 @@ export class NotesEditor {
       })
     );
 
+    // Listen for panel switching - save unsaved notes before textarea may be overwritten
+    this.cleanups.push(
+      eventBus.on(Events.PANEL_SWITCHED, async ({ panel }) => {
+        if (panel === 'docs' && this.isDirty && this.currentDate) {
+          await this.save();
+        }
+      })
+    );
+
     // Listen for app close
     this.cleanups.push(
       eventBus.on(Events.APP_BEFORE_CLOSE, async () => {

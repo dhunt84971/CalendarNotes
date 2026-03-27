@@ -2,6 +2,7 @@ import { ipcMain, dialog, app } from 'electron';
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'fs';
 import { join, dirname, basename } from 'path';
 import Database from 'better-sqlite3';
+import { logger } from './Logger.js';
 
 export class IPCHandler {
   constructor() {
@@ -55,6 +56,12 @@ export class IPCHandler {
     // App info
     ipcMain.handle('app:getPath', (event, name) => app.getPath(name));
     ipcMain.handle('app:getVersion', () => app.getVersion());
+
+    // Logging
+    ipcMain.handle('log:getPath', () => logger.getLogPath());
+    ipcMain.on('log:error', (event, message) => logger.error('[Renderer]', message));
+    ipcMain.on('log:info', (event, message) => logger.info('[Renderer]', message));
+    ipcMain.on('log:warn', (event, message) => logger.warn('[Renderer]', message));
   }
 
   // Database methods
@@ -70,7 +77,7 @@ export class IPCHandler {
       this.db.pragma('journal_mode = WAL');
       return { success: true };
     } catch (error) {
-      console.error('Failed to open database:', error);
+      logger.error('Failed to open database:', error);
       return { success: false, error: error.message };
     }
   }
@@ -90,7 +97,7 @@ export class IPCHandler {
       const rows = stmt.all(...params);
       return { success: true, rows };
     } catch (error) {
-      console.error('Query error:', error);
+      logger.error('Query error:', error);
       return { success: false, error: error.message, rows: [] };
     }
   }
@@ -106,7 +113,7 @@ export class IPCHandler {
         lastInsertRowid: result.lastInsertRowid
       };
     } catch (error) {
-      console.error('Run error:', error);
+      logger.error('Run error:', error);
       return { success: false, error: error.message };
     }
   }
@@ -118,7 +125,7 @@ export class IPCHandler {
       const row = stmt.get(...params);
       return { success: true, row };
     } catch (error) {
-      console.error('Get error:', error);
+      logger.error('Get error:', error);
       return { success: false, error: error.message, row: null };
     }
   }
@@ -129,7 +136,7 @@ export class IPCHandler {
       this.db.exec(sql);
       return { success: true };
     } catch (error) {
-      console.error('Exec error:', error);
+      logger.error('Exec error:', error);
       return { success: false, error: error.message };
     }
   }
@@ -184,7 +191,7 @@ export class IPCHandler {
       }
       return { success: true, settings: null };
     } catch (error) {
-      console.error('Failed to load settings:', error);
+      logger.error('Failed to load settings:', error);
       return { success: false, error: error.message, settings: null };
     }
   }
@@ -194,7 +201,7 @@ export class IPCHandler {
       writeFileSync(this.settingsPath, JSON.stringify(settings, null, 2));
       return { success: true };
     } catch (error) {
-      console.error('Failed to save settings:', error);
+      logger.error('Failed to save settings:', error);
       return { success: false, error: error.message };
     }
   }
@@ -215,7 +222,7 @@ export class IPCHandler {
 
       return { success: true };
     } catch (error) {
-      console.error('Failed to init themes:', error);
+      logger.error('Failed to init themes:', error);
       return { success: false, error: error.message };
     }
   }
@@ -234,14 +241,14 @@ export class IPCHandler {
           const data = readFileSync(join(this.themesDir, file), 'utf-8');
           themes.push(JSON.parse(data));
         } catch (e) {
-          console.error(`Failed to parse theme file ${file}:`, e);
+          logger.error(`Failed to parse theme file ${file}:`, e);
         }
       }
 
       themes.sort((a, b) => a.name.localeCompare(b.name));
       return { success: true, themes };
     } catch (error) {
-      console.error('Failed to list themes:', error);
+      logger.error('Failed to list themes:', error);
       return { success: false, error: error.message, themes: [] };
     }
   }
@@ -292,7 +299,7 @@ export class IPCHandler {
 
       return { success: true, theme };
     } catch (error) {
-      console.error('Failed to import theme:', error);
+      logger.error('Failed to import theme:', error);
       return { success: false, error: error.message };
     }
   }
@@ -312,7 +319,7 @@ export class IPCHandler {
       writeFileSync(result.filePath, JSON.stringify(theme, null, 2));
       return { success: true };
     } catch (error) {
-      console.error('Failed to export theme:', error);
+      logger.error('Failed to export theme:', error);
       return { success: false, error: error.message };
     }
   }

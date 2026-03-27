@@ -1,6 +1,7 @@
 import { BrowserWindow, screen } from 'electron';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { logger } from './Logger.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -60,6 +61,9 @@ export class WindowManager {
     // Remove the default menu
     this.mainWindow.setMenu(null);
 
+    // Track whether the renderer loaded successfully
+    this.rendererReady = false;
+
     // Load the renderer
     if (process.env.NODE_ENV === 'development') {
       this.mainWindow.loadURL('http://localhost:5173');
@@ -67,6 +71,27 @@ export class WindowManager {
     } else {
       this.mainWindow.loadFile(join(__dirname, '../renderer/index.html'));
     }
+
+    this.mainWindow.webContents.on('did-finish-load', () => {
+      this.rendererReady = true;
+      logger.info('Renderer finished loading');
+    });
+
+    this.mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+      logger.error('Renderer failed to load:', errorDescription, `(code: ${errorCode})`);
+    });
+
+    this.mainWindow.webContents.on('render-process-gone', (event, details) => {
+      logger.error('Render process gone:', details.reason, `exitCode: ${details.exitCode}`);
+    });
+
+    this.mainWindow.on('unresponsive', () => {
+      logger.warn('Window became unresponsive');
+    });
+
+    this.mainWindow.on('responsive', () => {
+      logger.info('Window became responsive again');
+    });
 
     // Show window when ready, restoring maximized state if needed
     this.mainWindow.once('ready-to-show', () => {
@@ -78,7 +103,7 @@ export class WindowManager {
 
     // Handle close event - prompt to save if needed
     this.mainWindow.on('close', (event) => {
-      if (!this.settingsSaved) {
+      if (!this.settingsSaved && this.rendererReady) {
         event.preventDefault();
         this.mainWindow.webContents.send('app:beforeClose');
       }

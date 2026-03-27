@@ -1,7 +1,7 @@
 {
   "name": "calendar-notes",
   "productName": "Calendar Notes",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Calendar Notes - A daily notes application with markdown support",
   "type": "module",
   "main": "dist/main/main.js",
@@ -58,7 +58,7 @@
       }
     },
     "deb": {
-      "depends": ["libgtk-3-0", "libnotify4", "libnss3", "libxss1", "libxtst6", "xdg-utils", "libatspi2.0-0", "libuuid1", "libsecret-1-0"]
+      "depends": ["libgtk-3-0 | libgtk-3-0t64", "libnotify4", "libnss3", "libxss1", "libxtst6", "xdg-utils", "libatspi2.0-0 | libatspi2.0-0t64", "libuuid1", "libsecret-1-0"]
     },
     "win": {
       "target": {

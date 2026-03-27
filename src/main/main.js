@@ -2,6 +2,7 @@ import { app, BrowserWindow, shell } from 'electron';
 import { join } from 'path';
 import { WindowManager } from './WindowManager.js';
 import { IPCHandler } from './IPCHandler.js';
+import { logger } from './Logger.js';
 
 class CalendarNotesApp {
   constructor() {
@@ -32,20 +33,36 @@ class CalendarNotesApp {
         return { action: 'deny' };
       });
     });
+
+    // Capture uncaught exceptions and unhandled rejections
+    process.on('uncaughtException', (error) => {
+      logger.error('Uncaught exception:', error);
+    });
+
+    process.on('unhandledRejection', (reason) => {
+      logger.error('Unhandled rejection:', reason);
+    });
   }
 
   onReady() {
+    // Initialize the logger (userData path is available after app ready)
+    logger.init();
+    logger.info('Application ready');
+
     // Initialize IPC handlers
     this.ipcHandler = new IPCHandler();
     this.ipcHandler.registerHandlers();
+    logger.info('IPC handlers registered');
 
     // Load saved window state from settings
     const savedSettings = this.ipcHandler.loadSettings();
     const windowState = savedSettings?.success ? savedSettings.settings?.windowState : null;
+    logger.info('Settings loaded, creating main window');
 
     // Create and show the main window
     this.windowManager = new WindowManager(this.ipcHandler);
     this.windowManager.createMainWindow(windowState);
+    logger.info('Main window created');
   }
 
   onAllWindowsClosed() {

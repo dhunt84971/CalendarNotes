@@ -42,7 +42,7 @@ export class SettingsPanel {
         this.versionInfo.textContent = `Version ${version}`;
       } catch (error) {
         console.error('Failed to get version:', error);
-        this.versionInfo.textContent = 'Version 2.0.0';
+        this.versionInfo.textContent = 'Version 2.2.0';
       }
     }
   }

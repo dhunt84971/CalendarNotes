@@ -52,5 +52,13 @@ contextBridge.exposeInMainWorld('api', {
   app: {
     getPath: (name) => ipcRenderer.invoke('app:getPath', name),
     getVersion: () => ipcRenderer.invoke('app:getVersion')
+  },
+
+  // Logging (writes to main process log file)
+  log: {
+    error: (message) => ipcRenderer.send('log:error', message),
+    info: (message) => ipcRenderer.send('log:info', message),
+    warn: (message) => ipcRenderer.send('log:warn', message),
+    getPath: () => ipcRenderer.invoke('log:getPath')
   }
 });

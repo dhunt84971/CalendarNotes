@@ -181,6 +181,19 @@ Use the document and page context menus to modify the selected item.
 ### Drag and Drop
 Documents and pages can be moved by dragging and dropping.  Dragging a document will move all sub-documents under that document.  Pages can be dragged from one document to another. 
 
+## Troubleshooting / Log File
+When the application starts it writes a log file that captures errors from both the main and renderer processes. The log file is overwritten each time the application is opened.
+
+**Log file location:**
+- **Windows:** `%APPDATA%\Calendar Notes\calendar-notes.log`
+- **macOS:** `~/Library/Application Support/Calendar Notes/calendar-notes.log`
+- **Linux:** `~/.config/Calendar Notes/calendar-notes.log`
+
+On Windows you can open the log file by pressing `Win+R`, pasting the following path, and pressing Enter:
+```
+%APPDATA%\Calendar Notes\calendar-notes.log
+```
+
 ## Development
 
 ### Prerequisites

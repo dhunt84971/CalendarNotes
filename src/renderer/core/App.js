@@ -32,26 +32,31 @@ export class App {
    */
   async init() {
     try {
-      console.log('Initializing Calendar Notes...');
+      window.api.log.info('Renderer init started');
 
       // Initialize settings first
       await settingsService.init();
       const settings = settingsService.get();
+      window.api.log.info('Settings initialized');
 
       // Initialize and apply theme
       await themeManager.init();
       themeManager.setThemeByName(settings.themeName || 'Default');
+      window.api.log.info('Theme applied: ' + (settings.themeName || 'Default'));
 
       // Connect to database
       const dbPath = settingsService.getDbPath();
+      window.api.log.info('Opening database: ' + dbPath);
       const connected = await database.open(dbPath);
 
       if (!connected) {
         throw new Error('Failed to connect to database');
       }
+      window.api.log.info('Database connected');
 
       // Initialize UI components
       this.initComponents();
+      window.api.log.info('UI components initialized');
 
       // Apply spell checking setting
       this.setSpellChecking(settings.spellChecking);
@@ -69,9 +74,10 @@ export class App {
       state.set('isInitialized', true);
       eventBus.emit(Events.APP_READY);
 
-      console.log('Calendar Notes initialized successfully');
+      window.api.log.info('Application initialized successfully');
     } catch (error) {
-      console.error('Failed to initialize application:', error);
+      const msg = error instanceof Error ? `${error.message}\n${error.stack}` : String(error);
+      window.api?.log?.error('Failed to initialize application: ' + msg);
       eventBus.emit(Events.APP_ERROR, { error });
       await this.showError('Failed to initialize application: ' + error.message);
     }

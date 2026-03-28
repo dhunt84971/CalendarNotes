@@ -139,6 +139,12 @@ export const Events = {
   APP_BEFORE_CLOSE: 'app:beforeClose',
   APP_ERROR: 'app:error',
 
+  // Export events
+  EXPORT_REQUESTED: 'export:requested',
+  EXPORT_STARTED: 'export:started',
+  EXPORT_COMPLETED: 'export:completed',
+  EXPORT_FAILED: 'export:failed',
+
   // Database events
   DB_CONNECTED: 'db:connected',
   DB_ERROR: 'db:error'

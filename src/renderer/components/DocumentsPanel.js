@@ -584,6 +584,11 @@ export class DocumentsPanel {
       {
         label: 'MOVE DOWN',
         action: () => this.moveDocDown(path)
+      },
+      { separator: true },
+      {
+        label: 'EXPORT...',
+        action: () => this.requestExport('document', path, item)
       }
     ]);
   }
@@ -619,8 +624,30 @@ export class DocumentsPanel {
       {
         label: 'MOVE DOWN',
         action: () => this.movePageDown(page.name)
+      },
+      { separator: true },
+      {
+        label: 'EXPORT...',
+        action: () => this.requestExport('page', this.currentDoc, null, page.name)
       }
     ]);
+  }
+
+  /**
+   * Request export for a document or page
+   * @param {string} type - 'document' or 'page'
+   * @param {string} docPath - Document path
+   * @param {Object} item - Tree item (for documents)
+   * @param {string} pageName - Page name (for pages)
+   */
+  requestExport(type, docPath, item = null, pageName = null) {
+    const hasSubDocs = item?.children?.length > 0;
+    eventBus.emit(Events.EXPORT_REQUESTED, {
+      type,
+      docPath,
+      pageName,
+      hasSubDocs
+    });
   }
 
   /**

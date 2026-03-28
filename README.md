@@ -2,7 +2,7 @@
 An Electron application for daily notes (or journal) entries saved to a SQLite or MySQL DB and searchable by words.
 
 Current release:
-<br/>https://github.com/dhunt84971/CalendarNotes/releases/tag/v2.2.0
+<br/>https://github.com/dhunt84971/CalendarNotes/releases/tag/v2.3.0
 
 
 This is a port of an application originally written in Gambas.  Much of the code for the calendar component came from a 
@@ -181,6 +181,20 @@ Use the document and page context menus to modify the selected item.
 ### Drag and Drop
 Documents and pages can be moved by dragging and dropping.  Dragging a document will move all sub-documents under that document.  Pages can be dragged from one document to another. 
 
+## Export
+Documents and pages can be exported to DOCX (Microsoft Word) or PDF format. To export, right-click on a document or page in the Documents panel and select the export option from the context menu.
+
+### Export Options
+  + **File Type** - Choose between DOCX and PDF output formats.
+
+  + **Orientation** - Select portrait or landscape page orientation.
+
+  + **Table of Contents** - Optionally include a Table of Contents at the beginning of the exported file. The TOC is generated from the markdown headings (H1, H2, H3) in the document content. In DOCX files, TOC entries are clickable links with dot leaders and page numbers. In PDF files, the TOC includes clickable links, dot leaders, and calculated page numbers.
+
+  + **Export Mode** - When exporting a document, choose between exporting all pages as a single combined file or exporting each page as an individual file.
+
+  + **Include Sub-Documents** - Optionally include all sub-documents under the selected document in the export.
+
 ## Troubleshooting / Log File
 When the application starts it writes a log file that captures errors from both the main and renderer processes. The log file is overwritten each time the application is opened.
 
@@ -226,6 +240,11 @@ To launch the application in development mode with hot-reload for the renderer p
 npm start
 ```
 This runs `electron-vite dev`, which builds the main and preload scripts, starts a Vite dev server for the renderer, and launches the Electron app. Changes to renderer files will hot-reload automatically. Changes to main process or preload files require restarting the command.
+
+On some Linux systems, the Electron sandbox may fail with a SUID error related to `chrome-sandbox`. To work around this during development, disable the sandbox by setting the environment variable:
+```
+ELECTRON_DISABLE_SANDBOX=1 npm run dev
+```
 
 ### Building Install Packages
 Install packages are built using `electron-builder` via `electron-vite build`. The output is written to the `release/` folder.

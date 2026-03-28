@@ -32,6 +32,15 @@ export class Settings {
     // View preferences
     this.lastViewMode = data.lastViewMode || 'edit';
     this.lastActivePanel = data.lastActivePanel || 'tasks';
+
+    // Export settings
+    this.exportSettings = {
+      lastLocation: '',
+      fileType: 'pdf',
+      includeTableOfContents: false,
+      pageOrientation: 'portrait',
+      ...(data.exportSettings || {})
+    };
   }
 
   /**
@@ -59,7 +68,8 @@ export class Settings {
       leftSideBarWidth: this.leftSideBarWidth,
       docsSideBarWidth: this.docsSideBarWidth,
       lastViewMode: this.lastViewMode,
-      lastActivePanel: this.lastActivePanel
+      lastActivePanel: this.lastActivePanel,
+      exportSettings: this.exportSettings
     };
   }
 
@@ -78,7 +88,13 @@ export class Settings {
       leftSideBarWidth: 300,
       docsSideBarWidth: 250,
       lastViewMode: 'edit',
-      lastActivePanel: 'tasks'
+      lastActivePanel: 'tasks',
+      exportSettings: {
+        lastLocation: '',
+        fileType: 'pdf',
+        includeTableOfContents: false,
+        pageOrientation: 'portrait'
+      }
     });
   }
 

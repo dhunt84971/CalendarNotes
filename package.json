@@ -1,7 +1,7 @@
 {
   "name": "calendar-notes",
   "productName": "Calendar Notes",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Calendar Notes - A daily notes application with markdown support",
   "type": "module",
   "main": "dist/main/main.js",
@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "better-sqlite3": "^9.2.2",
+    "docx": "^9.6.1",
     "marked": "^11.1.1"
   },
   "build": {
@@ -47,7 +48,9 @@
       "build/calendarNotes.ico"
     ],
     "linux": {
-      "target": ["deb"],
+      "target": [
+        "deb"
+      ],
       "executableName": "calendar-notes",
       "category": "Office",
       "maintainer": "Dave Hunt <dhuntlinux@gmail.com>",
@@ -59,12 +62,24 @@
       }
     },
     "deb": {
-      "depends": ["libgtk-3-0 | libgtk-3-0t64", "libnotify4", "libnss3", "libxss1", "libxtst6", "xdg-utils", "libatspi2.0-0 | libatspi2.0-0t64", "libuuid1", "libsecret-1-0"]
+      "depends": [
+        "libgtk-3-0 | libgtk-3-0t64",
+        "libnotify4",
+        "libnss3",
+        "libxss1",
+        "libxtst6",
+        "xdg-utils",
+        "libatspi2.0-0 | libatspi2.0-0t64",
+        "libuuid1",
+        "libsecret-1-0"
+      ]
     },
     "win": {
       "target": {
         "target": "nsis",
-        "arch": ["x64"]
+        "arch": [
+          "x64"
+        ]
       },
       "icon": "build/calendarNotes.ico"
     },

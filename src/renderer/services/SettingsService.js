@@ -248,6 +248,32 @@ export class SettingsService {
   getDefaultDbPath() {
     return this.defaultDbPath;
   }
+
+  /**
+   * Get export settings
+   * @returns {Object}
+   */
+  getExportSettings() {
+    return this.settings?.exportSettings || {
+      lastLocation: '',
+      fileType: 'pdf',
+      includeTableOfContents: false,
+      pageOrientation: 'portrait'
+    };
+  }
+
+  /**
+   * Update export settings
+   * @param {Object} exportUpdates - Export settings to update
+   * @returns {Promise<boolean>}
+   */
+  async updateExportSettings(exportUpdates) {
+    const current = this.getExportSettings();
+    await this.update({
+      exportSettings: { ...current, ...exportUpdates }
+    });
+    return true;
+  }
 }
 
 // Export singleton instance

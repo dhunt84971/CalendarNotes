@@ -48,6 +48,15 @@ contextBridge.exposeInMainWorld('api', {
     export: (theme) => ipcRenderer.invoke('themes:export', theme),
   },
 
+  // Export operations
+  export: {
+    selectDirectory: (options) => ipcRenderer.invoke('dialog:selectDirectory', options),
+    directoryExists: (dirPath) => ipcRenderer.invoke('fs:directoryExists', dirPath),
+    toPDF: (options) => ipcRenderer.invoke('export:toPDF', options),
+    writeFile: (filePath, data) => ipcRenderer.invoke('export:writeFile', filePath, data),
+    updateDocxFields: (filePath) => ipcRenderer.invoke('export:updateDocxFields', filePath)
+  },
+
   // App information
   app: {
     getPath: (name) => ipcRenderer.invoke('app:getPath', name),

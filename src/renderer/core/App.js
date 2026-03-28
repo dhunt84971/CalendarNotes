@@ -7,6 +7,7 @@ import { eventBus, Events } from './EventBus.js';
 import { state } from './State.js';
 import { database } from '../database/Database.js';
 import { settingsService } from '../services/SettingsService.js';
+import { showMessageDialog } from '../ui/DOMHelper.js';
 import { Calendar } from '../components/Calendar.js';
 import { NotesEditor } from '../components/NotesEditor.js';
 import { TasksPanel } from '../components/TasksPanel.js';
@@ -15,6 +16,8 @@ import { DocumentsPanel } from '../components/DocumentsPanel.js';
 import { SettingsPanel } from '../components/SettingsPanel.js';
 import { themeManager } from '../ui/ThemeManager.js';
 import { $ } from '../ui/DOMHelper.js';
+import { exportDialog } from '../components/ExportDialog.js';
+import { exportService } from '../services/ExportService.js';
 
 export class App {
   constructor() {
@@ -122,6 +125,24 @@ export class App {
     if (settingsOverlay) {
       this.settingsPanel = new SettingsPanel(settingsOverlay);
     }
+
+    // Wire export dialog to export service
+    exportDialog.onExport = async (options) => {
+      try {
+        const result = await exportService.export(options);
+        if (result?.success === false) {
+          await this.showError(`Export failed: ${result.error}`);
+        } else {
+          await showMessageDialog({
+            type: 'info',
+            title: 'Export Complete',
+            message: 'Export completed successfully.'
+          });
+        }
+      } catch (error) {
+        await this.showError(`Export failed: ${error.message}`);
+      }
+    };
 
     // Set up settings button (in notes header)
     this.initSettingsButton();
@@ -333,7 +354,7 @@ export class App {
    * @param {string} message - Error message
    */
   async showError(message) {
-    await window.api.dialog.showMessage({
+    await showMessageDialog({
       type: 'error',
       title: 'Error',
       message
@@ -360,6 +381,7 @@ export class App {
     this.searchPanel?.destroy();
     this.documentsPanel?.destroy();
     this.settingsPanel?.destroy();
+    exportDialog?.destroy();
 
     if (this._closeHandlerCleanup) {
       this._closeHandlerCleanup();

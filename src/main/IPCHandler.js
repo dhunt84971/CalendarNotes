@@ -1,6 +1,7 @@
 import { ipcMain, dialog, app } from 'electron';
-import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, accessSync, unlinkSync, renameSync, constants as fsConstants } from 'fs';
 import { join, dirname, basename } from 'path';
+import { execFile } from 'child_process';
 import Database from 'better-sqlite3';
 import { logger } from './Logger.js';
 
@@ -52,6 +53,13 @@ export class IPCHandler {
     ipcMain.handle('themes:list', () => this.listThemes());
     ipcMain.handle('themes:import', () => this.importTheme());
     ipcMain.handle('themes:export', (event, theme) => this.exportTheme(theme));
+
+    // Export operations
+    ipcMain.handle('dialog:selectDirectory', (event, options) => this.selectDirectoryDialog(options));
+    ipcMain.handle('fs:directoryExists', (event, dirPath) => this.checkDirectoryExists(dirPath));
+    ipcMain.handle('export:toPDF', (event, options) => this.exportToPDF(options));
+    ipcMain.handle('export:writeFile', (event, filePath, data) => this.writeExportFile(filePath, data));
+    ipcMain.handle('export:updateDocxFields', (event, filePath) => this.updateDocxFields(filePath));
 
     // App info
     ipcMain.handle('app:getPath', (event, name) => app.getPath(name));
@@ -202,6 +210,112 @@ export class IPCHandler {
       return { success: true };
     } catch (error) {
       logger.error('Failed to save settings:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Export methods
+  async selectDirectoryDialog(options) {
+    const result = await dialog.showOpenDialog(this.mainWindow, {
+      properties: ['openDirectory'],
+      title: options?.title || 'Select Directory',
+      defaultPath: options?.defaultPath
+    });
+    return result;
+  }
+
+  checkDirectoryExists(dirPath) {
+    try {
+      accessSync(dirPath, fsConstants.R_OK | fsConstants.W_OK);
+      return { exists: true, writable: true };
+    } catch {
+      return { exists: existsSync(dirPath), writable: false };
+    }
+  }
+
+  writeExportFile(filePath, data) {
+    try {
+      const buffer = Buffer.from(data);
+      writeFileSync(filePath, buffer);
+      return { success: true };
+    } catch (error) {
+      logger.error('Failed to write export file:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  updateDocxFields(filePath) {
+    return new Promise((resolve) => {
+      // Find LibreOffice binary
+      const loPaths = ['libreoffice', 'soffice', '/usr/bin/libreoffice', '/usr/bin/soffice',
+        'C:\\Program Files\\LibreOffice\\program\\soffice.exe',
+        '/Applications/LibreOffice.app/Contents/MacOS/soffice'];
+
+      const tryNext = (index) => {
+        if (index >= loPaths.length) {
+          logger.warn('LibreOffice not found - TOC will need manual update');
+          resolve({ success: false, error: 'LibreOffice not found' });
+          return;
+        }
+
+        const loPath = loPaths[index];
+        const outDir = dirname(filePath);
+
+        execFile(loPath, [
+          '--headless',
+          '--invisible',
+          '--norestore',
+          '--convert-to', 'docx',
+          '--outdir', outDir,
+          filePath
+        ], { timeout: 30000 }, (error) => {
+          if (error) {
+            tryNext(index + 1);
+          } else {
+            logger.info('DOCX fields updated via LibreOffice');
+            resolve({ success: true });
+          }
+        });
+      };
+
+      tryNext(0);
+    });
+  }
+
+  async exportToPDF(options) {
+    const { BrowserWindow } = await import('electron');
+    try {
+      const win = new BrowserWindow({
+        width: 800,
+        height: 600,
+        show: false,
+        webPreferences: { offscreen: true }
+      });
+
+      await win.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(options.html)}`);
+
+      // Wait for content to render
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      const pdfData = await win.webContents.printToPDF({
+        landscape: options.landscape || false,
+        printBackground: true,
+        displayHeaderFooter: true,
+        headerTemplate: '<span></span>',
+        footerTemplate: '<div style="font-size:10px;text-align:center;width:100%;"><span class="pageNumber"></span> / <span class="totalPages"></span></div>',
+        margins: {
+          top: 0.6,
+          bottom: 0.6,
+          left: 0.6,
+          right: 0.6
+        }
+      });
+
+      writeFileSync(options.filePath, pdfData);
+      win.destroy();
+      return { success: true };
+    } catch (error) {
+      logger.error('Failed to export PDF:', error);
       return { success: false, error: error.message };
     }
   }

@@ -605,3 +605,117 @@ export function showConfirmDialog(message) {
     okBtn.focus();
   });
 }
+
+/**
+ * Show a custom message dialog (replacement for Electron's dialog.showMessageBox)
+ * @param {Object} options - { type, title, message, detail, buttons }
+ * @returns {Promise<number>} Index of the clicked button
+ */
+export function showMessageDialog(options = {}) {
+  const { title, message, detail, buttons = ['OK'] } = options;
+
+  return new Promise((resolve) => {
+    const overlay = createElement('div', {
+      styles: {
+        position: 'fixed',
+        top: '0',
+        left: '0',
+        right: '0',
+        bottom: '0',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: '20000'
+      }
+    });
+
+    const dialog = createElement('div', {
+      styles: {
+        backgroundColor: 'var(--appBack)',
+        padding: '20px',
+        borderRadius: '8px',
+        minWidth: '300px',
+        maxWidth: '450px',
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
+      }
+    });
+
+    if (title) {
+      dialog.appendChild(createElement('div', {
+        text: title,
+        styles: {
+          fontWeight: 'bold',
+          fontSize: '14px',
+          marginBottom: '12px',
+          color: 'var(--notesText)'
+        }
+      }));
+    }
+
+    dialog.appendChild(createElement('div', {
+      text: message || '',
+      styles: {
+        marginBottom: detail ? '8px' : '20px',
+        color: 'var(--notesText)'
+      }
+    }));
+
+    if (detail) {
+      dialog.appendChild(createElement('div', {
+        text: detail,
+        styles: {
+          marginBottom: '20px',
+          fontSize: '12px',
+          color: 'var(--notesText)',
+          opacity: '0.8'
+        }
+      }));
+    }
+
+    const btnContainer = createElement('div', {
+      styles: {
+        display: 'flex',
+        justifyContent: 'flex-end',
+        gap: '10px'
+      }
+    });
+
+    buttons.forEach((label, index) => {
+      const isPrimary = index === 0;
+      const btn = createElement('button', {
+        text: label,
+        styles: {
+          padding: '8px 16px',
+          backgroundColor: isPrimary ? 'var(--buttonsBack)' : 'var(--appBack)',
+          color: isPrimary ? 'var(--buttonsText)' : 'var(--notesText)',
+          border: isPrimary ? 'none' : '1px solid var(--buttonsBorder)',
+          borderRadius: '4px',
+          cursor: 'pointer'
+        }
+      });
+      btn.addEventListener('click', () => {
+        document.body.removeChild(overlay);
+        resolve(index);
+      });
+      btnContainer.appendChild(btn);
+      if (isPrimary) setTimeout(() => btn.focus(), 0);
+    });
+
+    document.addEventListener('keydown', function handler(e) {
+      if (e.key === 'Escape') {
+        document.body.removeChild(overlay);
+        document.removeEventListener('keydown', handler);
+        resolve(buttons.length - 1);
+      } else if (e.key === 'Enter') {
+        document.body.removeChild(overlay);
+        document.removeEventListener('keydown', handler);
+        resolve(0);
+      }
+    });
+
+    dialog.appendChild(btnContainer);
+    overlay.appendChild(dialog);
+    document.body.appendChild(overlay);
+  });
+}

@@ -2,7 +2,7 @@
  * SettingsPanel - Settings dialog component
  */
 
-import { $, addEvent, hide, show } from '../ui/DOMHelper.js';
+import { $, addEvent, hide, show, showMessageDialog } from '../ui/DOMHelper.js';
 import { eventBus, Events } from '../core/EventBus.js';
 import { state } from '../core/State.js';
 import { settingsService } from '../services/SettingsService.js';
@@ -173,7 +173,7 @@ export class SettingsPanel {
               this.themeSelect.value = result.theme.name;
               themeManager.setThemeByName(result.theme.name);
             } else if (!result.canceled && result.error) {
-              await window.api.dialog.showMessage({
+              await showMessageDialog({
                 type: 'error',
                 title: 'Import Failed',
                 message: result.error
@@ -275,14 +275,14 @@ export class SettingsPanel {
       this.close();
 
       // Show success message
-      await window.api.dialog.showMessage({
+      await showMessageDialog({
         type: 'info',
         title: 'Settings',
         message: 'Settings saved successfully'
       });
     } catch (error) {
       console.error('Failed to save settings:', error);
-      await window.api.dialog.showMessage({
+      await showMessageDialog({
         type: 'error',
         title: 'Error',
         message: 'Failed to save settings: ' + error.message

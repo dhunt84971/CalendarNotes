@@ -895,6 +895,78 @@ html, body {
   opacity: 0.7;
 }
 
+/* ============ Export Dialog ============ */
+.export-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.export-overlay.hidden {
+  display: none;
+}
+
+.export-dialog {
+  width: 480px;
+  max-height: 85vh;
+  background: var(--settingsBack);
+  border: 1px solid rgb(126, 126, 126);
+  box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.25);
+  overflow: auto;
+  padding: 10px;
+}
+
+.export-radio-group {
+  display: flex;
+  gap: 20px;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  color: var(--settingsText);
+  font-weight: normal !important;
+}
+
+.radio-label input[type="radio"] {
+  cursor: pointer;
+}
+
+.export-input {
+  width: 100%;
+  padding: 5px;
+  border: 1px solid var(--settingsText);
+  border-radius: 3px;
+  background: var(--settingsBack);
+  color: var(--settingsText);
+  box-sizing: border-box;
+}
+
+.export-input:disabled {
+  opacity: 0.5;
+}
+
+.export-validation {
+  color: #e74c3c;
+  font-size: 12px;
+  margin-top: 3px;
+}
+
+.export-footer-left {
+  display: flex;
+  gap: 5px;
+}
+
+.export-browse-btn {
+  white-space: nowrap;
+}
+
 /* ============ Scrollbars ============ */
 ::-webkit-scrollbar {
   width: 14px;

@@ -187,12 +187,16 @@ export class SearchPanel {
     if (!text) return '';
 
     // Wrap each line in a div, similar to original highlightWords function
+    // Use <br> in empty divs so blank lines are rendered with height
     let html = '<div>' + escapeHtml(text).replace(/(\r\n|\n|\r)/g, '</div><div>');
 
     // Remove trailing empty div if present
     if (html.endsWith('<div>')) {
       html = html.slice(0, -5);
     }
+
+    // Replace empty divs with divs containing a <br> so they render as blank lines
+    html = html.replace(/<div><\/div>/g, '<div><br></div>');
 
     return html;
   }

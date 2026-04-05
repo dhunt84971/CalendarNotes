@@ -17,6 +17,7 @@ export class SearchPanel {
     this.container = container;
     this.cleanups = [];
     this.lastQuery = '';
+    this.activeSearchTerms = [];
     this.previewEl = null;
     this.notesTextareaEl = null;
     this.notesPreviewEl = null;
@@ -75,6 +76,35 @@ export class SearchPanel {
         }
       })
     );
+
+    // Re-apply highlighting when a new note or document page is loaded while search is active
+    this.cleanups.push(
+      eventBus.on(Events.NOTE_LOADED, () => {
+        if (this.activeSearchTerms.length > 0) {
+          this.savedTextareaValue = this.notesTextareaEl?.value || '';
+          this.highlightCurrentContent();
+        }
+      })
+    );
+
+    this.cleanups.push(
+      eventBus.on(Events.DOC_LOADED, () => {
+        if (this.activeSearchTerms.length > 0) {
+          this.savedTextareaValue = this.notesTextareaEl?.value || '';
+          this.highlightCurrentContent();
+        }
+      })
+    );
+
+    // Clear highlighting when switching away from search panel
+    this.cleanups.push(
+      eventBus.on(Events.PANEL_SWITCHED, ({ panel }) => {
+        if (panel !== 'search' && this.activeSearchTerms.length > 0) {
+          this.activeSearchTerms = [];
+          this.restoreOriginalContent();
+        }
+      })
+    );
   }
 
   /**
@@ -89,10 +119,14 @@ export class SearchPanel {
     }
 
     this.lastQuery = query;
+    this.activeSearchTerms = searchService.parseQuery(query);
 
     try {
       const results = await searchService.search(query);
       this.displayResults(results);
+
+      // Highlight search terms in the currently displayed content
+      this.highlightCurrentContent();
     } catch (error) {
       console.error('Search failed:', error);
       this.showError('Search failed');
@@ -144,7 +178,7 @@ export class SearchPanel {
    */
   showPreview(result) {
     // Store current state if not already stored
-    if (!this.savedTextareaValue) {
+    if (this.savedTextareaValue === undefined) {
       this.savedTextareaValue = this.notesTextareaEl?.value || '';
       this.savedEditDisplay = this.notesEditAreaEl?.style.display || '';
       this.savedPreviewDisplay = this.notesPreviewAreaEl?.style.display || '';
@@ -238,10 +272,57 @@ export class SearchPanel {
   }
 
   /**
-   * Hide preview and restore notes area
+   * Hide preview and restore notes area (or show highlighted current content if search is active)
    */
   hidePreview() {
-    // Restore previous state
+    // If search highlighting is active, show highlighted current content instead of fully restoring
+    if (this.activeSearchTerms.length > 0) {
+      this.highlightCurrentContent();
+      return;
+    }
+
+    this.restoreOriginalContent();
+  }
+
+  /**
+   * Highlight search terms in the currently displayed note/document content
+   */
+  highlightCurrentContent() {
+    if (!this.activeSearchTerms.length) return;
+
+    // Save original state if not already saved
+    if (this.savedTextareaValue === undefined) {
+      this.savedTextareaValue = this.notesTextareaEl?.value || '';
+      this.savedEditDisplay = this.notesEditAreaEl?.style.display || '';
+      this.savedPreviewDisplay = this.notesPreviewAreaEl?.style.display || '';
+    }
+
+    const text = this.notesTextareaEl?.value || '';
+    const viewMode = state.get('viewMode');
+    const isMarkdownMode = viewMode === 'preview' || viewMode === 'split';
+    let html;
+
+    if (isMarkdownMode) {
+      html = markdownRenderer.render(text);
+    } else {
+      html = this.formatPlainText(text);
+    }
+
+    html = this.highlightSearchTerms(html, this.activeSearchTerms, isMarkdownMode);
+
+    if (this.notesPreviewEl) {
+      this.notesPreviewEl.innerHTML = html;
+    }
+
+    // Hide edit area, show preview to display highlighted content
+    if (this.notesEditAreaEl) this.notesEditAreaEl.style.display = 'none';
+    if (this.notesPreviewAreaEl) this.notesPreviewAreaEl.style.display = 'flex';
+  }
+
+  /**
+   * Restore the original notes area state (no highlighting)
+   */
+  restoreOriginalContent() {
     if (this.savedTextareaValue !== undefined) {
       if (this.notesEditAreaEl) {
         this.notesEditAreaEl.style.display = this.savedEditDisplay;
@@ -292,6 +373,8 @@ export class SearchPanel {
    */
   clearResults() {
     clearChildren(this.resultsEl);
+    this.activeSearchTerms = [];
+    this.restoreOriginalContent();
   }
 
   /**

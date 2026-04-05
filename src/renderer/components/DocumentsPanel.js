@@ -362,11 +362,15 @@ export class DocumentsPanel {
 
     // Handle panel switching
     this.cleanups.push(
-      eventBus.on(Events.PANEL_SWITCHED, ({ panel }) => {
+      eventBus.on(Events.PANEL_SWITCHED, async ({ panel }) => {
         if (panel !== 'docs') {
           this.hidePagesSidebar();
           // Remember selection but switch to notes view
           if (this.isDocumentMode) {
+            // Save unsaved document page changes before switching away
+            if (this.hasUnsavedChanges()) {
+              await this.savePage();
+            }
             // Store the current selection before clearing
             this.lastDoc = this.currentDoc;
             this.lastPage = this.currentPage;
@@ -499,6 +503,7 @@ export class DocumentsPanel {
         this.currentDoc = docPath;
         this.currentPage = pageName;
         this.isDocumentMode = true;
+        state.set('documentMode', true);
         this.lastSavedText = page.text || '';
 
         // Display in main notes area
@@ -1126,6 +1131,7 @@ export class DocumentsPanel {
    */
   clearDocumentMode() {
     this.isDocumentMode = false;
+    state.set('documentMode', false);
     this.currentDoc = null;
     this.currentPage = null;
   }

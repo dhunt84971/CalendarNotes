@@ -6,6 +6,7 @@ import { createElement, $, addEvent, show, hide, debounce } from '../ui/DOMHelpe
 import { eventBus, Events } from '../core/EventBus.js';
 import { state } from '../core/State.js';
 import { notesService } from '../services/NotesService.js';
+
 import { markdownRenderer } from './MarkdownRenderer.js';
 import { contextMenu } from './ContextMenu.js';
 
@@ -107,7 +108,11 @@ export class NotesEditor {
     // Text changes
     this.cleanups.push(
       addEvent(this.textareaEl, 'input', () => {
-        this.markDirty();
+        // Only mark notes as dirty when not in document mode
+        // (the textarea is shared with DocumentsPanel for document editing)
+        if (!state.get('documentMode')) {
+          this.markDirty();
+        }
         if (this.mode === 'split') {
           this.updatePreview();
         }

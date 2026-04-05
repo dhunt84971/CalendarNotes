@@ -1,5 +1,9 @@
 # Build History
 
+## v2.3.3 - 2026-04-05
+- Search terms are now highlighted in the current note/document content after a search is performed, even when not hovering over a specific search result.
+- Highlighting persists when navigating to a result and clears when switching away from the search panel or clearing the search.
+
 ## v2.3.2 - 2026-04-05
 - Fixed bug where editing a document page and switching to Tasks would overwrite daily notes with document content.
 - Document page changes are now saved when switching away from the Documents panel.

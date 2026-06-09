@@ -62,7 +62,11 @@ export class State {
       noteDirty: Events.NOTE_DIRTY,
       currentTasks: Events.TASKS_CHANGED,
       viewMode: Events.VIEW_MODE_CHANGED,
-      activePanel: Events.PANEL_SWITCHED,
+      // NOTE: activePanel intentionally does NOT auto-emit PANEL_SWITCHED here.
+      // The generic emit payload ({key, value, oldValue}) has no `panel` field,
+      // so listeners would see panel === undefined and mis-handle it. Every panel
+      // switch already emits a correctly-shaped PANEL_SWITCHED explicitly, and
+      // DocumentsPanel.selectPage deliberately sets activePanel without emitting.
       selectedDocument: Events.DOC_SELECTED,
       selectedPage: Events.PAGE_SELECTED,
       settings: Events.SETTINGS_SAVED

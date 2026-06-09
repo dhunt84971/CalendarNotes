@@ -291,6 +291,33 @@ export class TreeView {
   }
 
   /**
+   * Expand all ancestors of a path so the item at that path becomes visible.
+   * Paths use "/" as the hierarchy delimiter (e.g. "Parent/Child/Grandchild").
+   * Re-renders the tree so the newly revealed items are in the DOM.
+   * @param {string} path - Item path to reveal
+   */
+  expandToPath(path) {
+    if (!path) return;
+
+    const parts = path.split('/');
+    let ancestorPath = '';
+    let changed = false;
+
+    // Expand every ancestor (all segments except the item itself)
+    for (let i = 0; i < parts.length - 1; i++) {
+      ancestorPath = ancestorPath ? `${ancestorPath}/${parts[i]}` : parts[i];
+      if (!this.expandedPaths.has(ancestorPath)) {
+        this.expandedPaths.add(ancestorPath);
+        changed = true;
+      }
+    }
+
+    if (changed) {
+      this.render();
+    }
+  }
+
+  /**
    * Toggle expand/collapse
    * @param {string} path - Item path
    */

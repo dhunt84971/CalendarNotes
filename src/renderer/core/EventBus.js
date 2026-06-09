@@ -118,6 +118,7 @@ export const Events = {
   PAGE_LOADED: 'page:loaded',
   PAGE_CHANGED: 'page:changed',
   PAGE_SAVED: 'page:saved',
+  PAGE_SAVE_REQUESTED: 'page:saveRequested',
 
   // Search events
   SEARCH_STARTED: 'search:started',

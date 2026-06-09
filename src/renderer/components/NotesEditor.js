@@ -236,6 +236,14 @@ export class NotesEditor {
    * Save the current note
    */
   async save() {
+    // While in document mode the shared textarea holds a document page, not
+    // the day's note. Saving it here would overwrite the current date's note
+    // with the page content, so route the save to the documents panel instead.
+    if (state.get('documentMode')) {
+      eventBus.emit(Events.PAGE_SAVE_REQUESTED);
+      return;
+    }
+
     if (!this.currentDate) return;
 
     const dateStr = this.formatDate(this.currentDate);

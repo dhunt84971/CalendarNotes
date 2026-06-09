@@ -350,10 +350,10 @@ export class DocumentsPanel {
       })
     );
 
-    // Listen for save events to save current document page
+    // Listen for page save requests (SAVE button / Ctrl+S while in document mode)
     this.cleanups.push(
-      eventBus.on(Events.NOTE_SAVED, () => {
-        // If we're viewing a document, save it
+      eventBus.on(Events.PAGE_SAVE_REQUESTED, () => {
+        // If we're viewing a document, save the page
         if (this.currentDoc && this.currentPage && this.isDocumentMode) {
           this.savePage();
         }
@@ -386,7 +386,9 @@ export class DocumentsPanel {
             this.showPagesSidebar();
             this.currentDoc = this.lastDoc;
             this.isDocumentMode = true;
-            // Use selectVisual to avoid triggering handleSelect callback
+            // Expand ancestors (in case it's a subdocument), then use
+            // selectVisual to avoid triggering handleSelect callback
+            this.treeView.expandToPath(this.lastDoc);
             this.treeView.selectVisual(this.lastDoc);
             this.populatePagesList(this.lastDoc, this.lastPage);
           }
@@ -558,7 +560,9 @@ export class DocumentsPanel {
     this.showPagesSidebar();
     await this.populatePagesList(docPath, pageName);
 
-    // Select the document in the tree visually only (don't trigger onSelect callback)
+    // Expand ancestors so a subdocument is revealed, then select it visually
+    // only (don't trigger onSelect callback)
+    this.treeView.expandToPath(docPath);
     this.treeView.selectVisual(docPath);
   }
 

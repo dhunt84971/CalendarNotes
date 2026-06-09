@@ -1,5 +1,10 @@
 # Build History
 
+## v2.3.4 - 2026-06-09
+- Fixed bug where saving a document page overwrote the current day's note in the database with the page content.
+- Fixed loss of the selected document/page when leaving the Documents panel with unsaved edits and returning.
+- Fixed the document tree not expanding to reveal a subdocument when navigating to it from a search result.
+
 ## v2.3.3 - 2026-04-05
 - Search terms are now highlighted in the current note/document content after a search is performed, even when not hovering over a specific search result.
 - Highlighting persists when navigating to a result and clears when switching away from the search panel or clearing the search.

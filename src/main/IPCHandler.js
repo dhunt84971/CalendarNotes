@@ -82,7 +82,16 @@ export class IPCHandler {
       }
 
       this.db = new Database(dbPath);
-      this.db.pragma('journal_mode = WAL');
+      // Use rollback-journal (DELETE) mode rather than WAL so that every commit
+      // is written directly to the .db file and no persistent -wal/-shm sidecar
+      // files are left behind. This keeps the single .db file authoritative and
+      // self-contained, which is required for reliable file-based syncing across
+      // machines (the WAL/-shm files are machine-local and must not be synced).
+      // Setting this on an existing WAL database checkpoints it and converts it
+      // back to rollback mode, cleaning up any stray -wal/-shm files.
+      this.db.pragma('journal_mode = DELETE');
+      // FULL synchronous ensures each commit is durably flushed to the .db file.
+      this.db.pragma('synchronous = FULL');
       return { success: true };
     } catch (error) {
       logger.error('Failed to open database:', error);

@@ -108,11 +108,9 @@ export class NotesEditor {
     // Text changes
     this.cleanups.push(
       addEvent(this.textareaEl, 'input', () => {
-        // Only mark notes as dirty when not in document mode
-        // (the textarea is shared with DocumentsPanel for document editing)
-        if (!state.get('documentMode')) {
-          this.markDirty();
-        }
+        // markDirty() routes to the note or the document dirty flag depending on
+        // mode (the textarea is shared with DocumentsPanel for document editing).
+        this.markDirty();
         if (this.mode === 'split') {
           this.updatePreview();
         }
@@ -156,10 +154,15 @@ export class NotesEditor {
       })
     );
 
-    // Listen for panel switching - save unsaved notes before textarea may be overwritten
+    // Listen for panel switching - save unsaved notes before the shared textarea
+    // may be overwritten. A document can be loaded into the textarea from the
+    // Docs panel OR from a Search result, so the day's note must be flushed on
+    // ANY panel switch, not just when switching to Docs. Otherwise the stale
+    // isDirty flag causes a later save() to write the loaded document's content
+    // back over the day's note.
     this.cleanups.push(
-      eventBus.on(Events.PANEL_SWITCHED, async ({ panel }) => {
-        if (panel === 'docs' && this.isDirty && this.currentDate) {
+      eventBus.on(Events.PANEL_SWITCHED, async () => {
+        if (this.isDirty && this.currentDate) {
           await this.save();
         }
       })
@@ -353,6 +356,17 @@ export class NotesEditor {
    * Mark the editor as having unsaved changes
    */
   markDirty() {
+    // The textarea is shared with the Documents panel. While a document page is
+    // loaded (document mode) its content isn't the day's note, so flag the
+    // document dirty instead. Flagging the note here is what left the SAVE
+    // button stuck on "*SAVE*": clicking SAVE routes to the page save and never
+    // clears the note's dirty flag, which also produced a phantom unsaved-
+    // changes prompt on close. This guard covers every edit path (typing, Tab,
+    // paste, insert-table, setText) since they all funnel through here.
+    if (state.get('documentMode')) {
+      state.set('documentDirty', true);
+      return;
+    }
     if (!this.isDirty) {
       this.isDirty = true;
       this.saveBtn.textContent = '*SAVE*';

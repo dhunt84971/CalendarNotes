@@ -1,5 +1,10 @@
 # Build History
 
+## v2.3.5 - 2026-07-07
+- Fixed the SAVE button getting stuck showing "*SAVE*" when editing a document page (e.g. pressing Tab or pasting), which also caused a phantom unsaved-changes prompt on close.
+- Document page edits are now saved when closing the app while in document mode.
+- Fixed the day's note being overwritten with document content when editing notes, opening a document from a search result, then returning to the Tasks tab; the note is now saved on any panel switch.
+
 ## v2.3.4 - 2026-06-09
 - Fixed bug where saving a document page overwrote the current day's note in the database with the page content.
 - Fixed loss of the selected document/page when leaving the Documents panel with unsaved edits and returning.

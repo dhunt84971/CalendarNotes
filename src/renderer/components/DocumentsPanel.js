@@ -411,6 +411,17 @@ export class DocumentsPanel {
         this.loadDocuments();
       })
     );
+
+    // Save an in-progress document page when the app is closing. Document edits
+    // are otherwise only persisted on navigation, so without this a page edited
+    // while in document mode would be lost on exit.
+    this.cleanups.push(
+      eventBus.on(Events.APP_BEFORE_CLOSE, async () => {
+        if (this.isDocumentMode && this.hasUnsavedChanges()) {
+          await this.savePage();
+        }
+      })
+    );
   }
 
   /**
@@ -1136,6 +1147,11 @@ export class DocumentsPanel {
   clearDocumentMode() {
     this.isDocumentMode = false;
     state.set('documentMode', false);
+    // Clear the document dirty flag so it can't linger and trigger a phantom
+    // unsaved-changes prompt after switching back to notes. Callers that leave
+    // document mode with pending edits save the page first (see the
+    // PANEL_SWITCHED handler and the app-close handler).
+    state.set('documentDirty', false);
     this.currentDoc = null;
     this.currentPage = null;
   }

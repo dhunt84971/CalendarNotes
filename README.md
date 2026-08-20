@@ -13,6 +13,15 @@ javascript tutorial taken from here:
 
 <img src="./screenshots/markdown.png">
 
+## Related Projects
+
+Calendar Notes has companion projects available in the same GitHub account:
+
+| Project | Description |
+| --- | --- |
+| [Calendar Notes Themes](https://github.com/dhunt84971/CalendarNotes-Themes) | A visual theme editor for Calendar Notes. Create, edit and preview theme files with a live preview of the interface, click-to-select styling of individual UI components, and a color picker covering all 80+ theme properties. Runs on Linux and Windows. |
+| [Calendar Notes Mobile](https://github.com/dhunt84971/CalendarNotes-MobileApp) | An Android companion app that reads and writes the **same SQLite database format** as the desktop application, so notes, documents and tasks are available on the go. Includes the calendar grid, markdown editing and preview, and the hierarchical document tree. |
+
 ## Installation
 To install the latest release, download the install package appropriate for the platform (exe for Windows, appimage/deb for Linux).
 <br/>
@@ -66,6 +75,8 @@ After clicking OK the application is ready to use with the default settings.  Th
 
 ### Themes
 Several pre-configured themes are available from the application settings.  Examples of each are displayed below:
+
+Custom themes can be built with the [Calendar Notes Themes](https://github.com/dhunt84971/CalendarNotes-Themes) editor.
 
 **Default**
 

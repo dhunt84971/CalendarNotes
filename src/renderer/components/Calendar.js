@@ -55,7 +55,7 @@ export class Calendar {
         createElement('button', {
           classes: ['cal-nav', 'prev', 'cal-prev'],
           html: '&lang;',
-          attrs: { title: 'Previous Month' }
+          attrs: { title: 'Previous Month (Ctrl+Click for Previous Year)' }
         }),
         createElement('span', {
           classes: ['cal-label'],
@@ -64,7 +64,7 @@ export class Calendar {
         createElement('button', {
           classes: ['cal-nav', 'next', 'cal-next'],
           html: '&rang;',
-          attrs: { title: 'Next Month' }
+          attrs: { title: 'Next Month (Ctrl+Click for Next Year)' }
         }),
         createElement('button', {
           classes: ['cal-nav', 'today', 'cal-today'],
@@ -178,8 +178,20 @@ export class Calendar {
   bindEvents() {
     // Navigation buttons
     this.cleanups.push(
-      addEvent($('.cal-prev', this.container), 'click', () => this.prevMonth()),
-      addEvent($('.cal-next', this.container), 'click', () => this.nextMonth()),
+      addEvent($('.cal-prev', this.container), 'click', (e) => {
+        if (e.ctrlKey) {
+          this.prevYear();
+        } else {
+          this.prevMonth();
+        }
+      }),
+      addEvent($('.cal-next', this.container), 'click', (e) => {
+        if (e.ctrlKey) {
+          this.nextYear();
+        } else {
+          this.nextMonth();
+        }
+      }),
       addEvent($('.cal-today', this.container), 'click', () => this.goToToday())
     );
 

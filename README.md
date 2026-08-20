@@ -1,8 +1,8 @@
 # CalendarNotes
-An Electron application for daily notes (or journal) entries saved to a SQLite or MySQL DB and searchable by words.
+An Electron application for daily notes (or journal) entries saved to a SQLite DB and searchable by words.
 
 Current release:
-<br/>https://github.com/dhunt84971/CalendarNotes/releases/tag/v2.3.5
+<br/>https://github.com/dhunt84971/CalendarNotes/releases/tag/v2.4.0
 
 [Build History](BUILD_HISTORY.md)
 
@@ -63,13 +63,6 @@ When the application is first run it will display a warning that no settings fil
 <img src="./screenshots/no_settings_warning.png">
 
 After clicking OK the application is ready to use with the default settings.  This includes using the default theme and a local SQLite database file.
-
-### MySQL Configuration (WARNING, THIS OPTION WILL BE REMOVED IN A FUTURE VERSION)
-The Calendar Notes application can be configured to store all notes and tasks in a MySQL database.  Click on the gear icon in the upper right corner to display the settings and tick the MySQL DB Server radio button.  This will display additional settings for making a connection to a MySQL database.  
-
-<img src="./screenshots/mysql_settings.png">
-
-Enter the required information and click on **TEST CONNECTION**.  If the connection is successful then provided the user has the correct privileges simply click on the **CREATE TABLES** button.  This will create the necessary tables for storing the notes and tasks.  If a connection is being made to an existing Calendar Notes database that already has the tables, then skip this step.  The main advantage of using a MySQL database is that the notes become accessible from multiple locations.  Just install the Calendar Notes application on any number of computers and configure the MySQL connection.  Now notes can be accessed from anywhere.
 
 ### Themes
 Several pre-configured themes are available from the application settings.  Examples of each are displayed below:

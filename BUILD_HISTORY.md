@@ -1,5 +1,8 @@
 # Build History
 
+## v2.4.0 - 2026-08-20
+- Ctrl+Click on the calendar's Previous/Next Month buttons now moves a whole year back or forward instead of a month.
+
 ## v2.3.5 - 2026-07-07
 - Fixed the SAVE button getting stuck showing "*SAVE*" when editing a document page (e.g. pressing Tab or pasting), which also caused a phantom unsaved-changes prompt on close.
 - Document page edits are now saved when closing the app while in document mode.

@@ -316,11 +316,10 @@ export class App {
         });
 
         if (result.confirmed) {
-          // Save all changes
-          eventBus.emit(Events.APP_BEFORE_CLOSE);
-
-          // Wait a moment for saves to complete
-          await new Promise(resolve => setTimeout(resolve, 100));
+          // Save all changes. emitAsync waits for every listener's save to
+          // finish - the previous emit() + 100ms sleep raced the writes and
+          // could close the window mid-save on a slow (e.g. synced) database.
+          await eventBus.emitAsync(Events.APP_BEFORE_CLOSE);
         }
       }
 

@@ -239,6 +239,11 @@ export class NotesEditor {
    * Save the current note
    */
   async save() {
+    // The SAVE button and Ctrl+S saved the day's note AND the task list before
+    // the refactor. The task list has no save control of its own, so flush it
+    // here; the request is a no-op when the task list has no pending edits.
+    await eventBus.emitAsync(Events.TASKS_SAVE_REQUESTED);
+
     // While in document mode the shared textarea holds a document page, not
     // the day's note. Saving it here would overwrite the current date's note
     // with the page content, so route the save to the documents panel instead.

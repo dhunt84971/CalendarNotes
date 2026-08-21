@@ -65,13 +65,34 @@ export class TasksPanel {
       })
     );
 
+    // Flush pending edits when focus leaves the task list. Without this the
+    // task list is the only editor whose changes sit in memory indefinitely -
+    // it has no SAVE button of its own, so a running app never wrote them out.
+    this.cleanups.push(
+      addEvent(this.textareaEl, 'blur', () => this.saveIfDirty())
+    );
+
+    // Listen for panel switching - the task list stays loaded while another
+    // panel is shown, so flush it the same way notes and document pages are.
+    this.cleanups.push(
+      eventBus.on(Events.PANEL_SWITCHED, () => this.saveIfDirty())
+    );
+
+    // Listen for date selection - selecting a date saved notes and tasks
+    // together before the refactor; keep tasks in step with that.
+    this.cleanups.push(
+      eventBus.on(Events.DATE_SELECTED, () => this.saveIfDirty())
+    );
+
+    // Listen for an explicit save request (SAVE button / Ctrl+S in the notes
+    // editor), which saved the task list too before the refactor.
+    this.cleanups.push(
+      eventBus.on(Events.TASKS_SAVE_REQUESTED, () => this.saveIfDirty())
+    );
+
     // Listen for app close - auto-save tasks
     this.cleanups.push(
-      eventBus.on(Events.APP_BEFORE_CLOSE, async () => {
-        if (this.isDirty) {
-          await this.save();
-        }
-      })
+      eventBus.on(Events.APP_BEFORE_CLOSE, () => this.saveIfDirty())
     );
 
     // Reload tasks when settings change (e.g. database switched)
@@ -115,6 +136,16 @@ export class TasksPanel {
     } catch (error) {
       console.error('Failed to save tasks:', error);
       eventBus.emit(Events.APP_ERROR, { message: 'Failed to save tasks' });
+    }
+  }
+
+  /**
+   * Save the task list only if it has unsaved changes
+   * @returns {Promise<void>}
+   */
+  async saveIfDirty() {
+    if (this.isDirty) {
+      await this.save();
     }
   }
 

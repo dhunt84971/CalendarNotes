@@ -65,6 +65,38 @@ export class EventBus {
   }
 
   /**
+   * Emit an event and wait for every listener to settle.
+   * emit() calls listeners synchronously and discards the promises returned by
+   * async ones, so a listener that saves to the database is fire-and-forget.
+   * Use this wherever the emitter must not continue (or let the window close)
+   * until those saves have actually finished.
+   * @param {string} event - Event name
+   * @param {*} data - Data to pass to listeners
+   * @returns {Promise<void>}
+   */
+  async emitAsync(event, data) {
+    if (!this.listeners.has(event)) return;
+
+    const results = [];
+    // Copy the set first so a listener that unsubscribes during the emit
+    // does not mutate the collection we are iterating.
+    for (const callback of [...this.listeners.get(event)]) {
+      try {
+        results.push(callback(data));
+      } catch (error) {
+        console.error(`Error in event listener for "${event}":`, error);
+      }
+    }
+
+    const settled = await Promise.allSettled(results);
+    for (const result of settled) {
+      if (result.status === 'rejected') {
+        console.error(`Error in async event listener for "${event}":`, result.reason);
+      }
+    }
+  }
+
+  /**
    * Remove all listeners for an event
    * @param {string} event - Event name (optional, clears all if not provided)
    */
@@ -103,6 +135,7 @@ export const Events = {
   TASKS_LOADED: 'tasks:loaded',
   TASKS_CHANGED: 'tasks:changed',
   TASKS_SAVED: 'tasks:saved',
+  TASKS_SAVE_REQUESTED: 'tasks:saveRequested',
 
   // Documents events
   DOC_SELECTED: 'doc:selected',

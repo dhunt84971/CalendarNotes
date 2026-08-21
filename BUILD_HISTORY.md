@@ -1,5 +1,9 @@
 # Build History
 
+## v2.4.1 - 2026-08-21
+- Fixed task list edits never reaching the database while the app stayed open; the task list is now saved on focus loss, panel switch, date change, and from the SAVE button / Ctrl+S, as it was before the 2.0 refactor.
+- Fixed the window closing before pending saves finished; save-on-close now waits for every save to complete instead of a fixed 100 ms delay.
+
 ## v2.4.0 - 2026-08-20
 - Ctrl+Click on the calendar's Previous/Next Month buttons now moves a whole year back or forward instead of a month.
 

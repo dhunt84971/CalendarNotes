@@ -14,9 +14,13 @@ export class NotesService {
    * @returns {Promise<Note|null>}
    */
   async getByDate(date) {
+    // Databases created before 2.0 have no UNIQUE constraint on NoteDate, so a
+    // date can already hold more than one row. Always load the newest.
     const { sql, params } = QueryBuilder.select('Notes')
       .select(['*'])
       .where('NoteDate', '=', date)
+      .orderBy('LastModified', 'DESC')
+      .limit(1)
       .build();
 
     const row = await database.get(sql, params);
@@ -30,22 +34,24 @@ export class NotesService {
    * @returns {Promise<Note>}
    */
   async save(date, text) {
-    const existingNote = await this.getByDate(date);
     const now = new Date().toISOString();
 
-    if (existingNote) {
-      // Update existing note
-      const { sql, params } = QueryBuilder.update('Notes')
-        .set({
-          NoteText: text,
-          LastModified: now
-        })
-        .where('NoteDate', '=', date)
-        .build();
+    // Try the UPDATE first and insert only when it matched nothing. Checking
+    // for an existing row first left a window between the read and the write
+    // in which a second save could also decide to insert, which produced two
+    // rows for the same date (the date then appeared twice in search results).
+    const { sql: updateSql, params: updateParams } = QueryBuilder.update('Notes')
+      .set({
+        NoteText: text,
+        LastModified: now
+      })
+      .where('NoteDate', '=', date)
+      .build();
 
-      await database.run(sql, params);
-      existingNote.text = text;
-      existingNote.lastModified = now;
+    const updateResult = await database.run(updateSql, updateParams);
+
+    if (updateResult.changes > 0) {
+      const existingNote = await this.getByDate(date);
       eventBus.emit(Events.NOTE_SAVED, existingNote);
       return existingNote;
     } else {
@@ -124,9 +130,13 @@ export class NotesService {
     const conditions = searchTerms.map(() => 'NoteText LIKE ?').join(' AND ');
     const params = searchTerms.map(term => `%${term}%`);
 
+    // GROUP BY NoteDate keeps a date from being listed once per row when an
+    // older database already holds duplicate rows for it; MAX(LastModified)
+    // selects the newest of them.
     const sql = `
-      SELECT NoteDate, NoteText FROM Notes
+      SELECT NoteDate, NoteText, MAX(LastModified) AS LastModified FROM Notes
       WHERE ${conditions}
+      GROUP BY NoteDate
       ORDER BY NoteDate DESC
     `;
 

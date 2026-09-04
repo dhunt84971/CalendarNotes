@@ -55,7 +55,13 @@ export class State {
 
     // Track which properties trigger which events
     this._eventMap = {
-      selectedDate: Events.DATE_SELECTED,
+      // NOTE: selectedDate intentionally does NOT auto-emit DATE_SELECTED here,
+      // for the same reason as activePanel below: the generic emit payload
+      // ({key, value, oldValue}) has no `date` field, so listeners would see
+      // date === undefined. Worse, it made every day click fire DATE_SELECTED
+      // twice (once here, once from the caller), which started two concurrent
+      // note saves and inserted the day's note into the database twice. Both
+      // callers of setSelectedDate() emit a correctly-shaped DATE_SELECTED.
       displayedMonth: Events.MONTH_CHANGED,
       displayedYear: Events.MONTH_CHANGED,
       currentNote: Events.NOTE_CHANGED,

@@ -22,6 +22,11 @@ export class NotesEditor {
     this.isDirty = false;
     this.lastSavedText = '';
     this.cleanups = [];
+    // Saves are chained through this promise so that two events firing close
+    // together (date change, panel switch, Ctrl+S) can never run save() twice
+    // at once. Concurrent saves would both find no existing row and insert the
+    // same date twice.
+    this.savePromise = Promise.resolve();
 
     this.init();
   }
@@ -194,6 +199,8 @@ export class NotesEditor {
    * @param {Date} date - New selected date
    */
   async handleDateChange(date) {
+    if (!date) return;
+
     // Save current note if dirty
     if (this.isDirty && this.currentDate) {
       await this.save();
@@ -239,6 +246,18 @@ export class NotesEditor {
    * Save the current note
    */
   async save() {
+    // Run behind any save that is still in flight; see this.savePromise.
+    this.savePromise = this.savePromise.then(
+      () => this.performSave(),
+      () => this.performSave()
+    );
+    return this.savePromise;
+  }
+
+  /**
+   * Perform the actual save (always called through save(), never directly)
+   */
+  async performSave() {
     // The SAVE button and Ctrl+S saved the day's note AND the task list before
     // the refactor. The task list has no save control of its own, so flush it
     // here; the request is a no-op when the task list has no pending edits.
